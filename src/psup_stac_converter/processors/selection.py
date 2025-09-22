@@ -40,7 +40,9 @@ def open_problematic_df(filename: Path) -> gpd.GeoDataFrame:
         record["geometry"] = shape(_feature["geometry"])
         records.append(record)
 
-    return gpd.GeoDataFrame.from_records(records)
+    gdf = gpd.GeoDataFrame.from_records(records)
+    gdf.set_geometry("geometry", inplace=True)
+    return gdf
 
 
 def select_processor(

@@ -33,7 +33,6 @@ def callback():
 
 @app.command()
 def create_stac_catalog(
-    name: Annotated[CatalogName, typer.Argument(help="The JSON name of the catalog")],
     metadata_file: Annotated[
         Path,
         typer.Option(
@@ -82,7 +81,6 @@ def create_stac_catalog(
 ):
     """Converts raw input into a STAC catalog"""
     F.create_catalog(
-        name=name.value,
         metadata_file=metadata_file,
         catalog_folder=catalog_folder,
         output_folder=output_folder,
@@ -247,7 +245,6 @@ def preview_data(
             readable=True,
         ),
     ],
-
 ):
     F.preview_data(metadata_file, catalog_folder)
 

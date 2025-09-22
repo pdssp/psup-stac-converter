@@ -59,3 +59,14 @@ class ScallopedDepression(BaseProcessorModule):
             catalog.add_item(item)
 
         return catalog
+
+    def create_collection(self):
+        collection = super().create_collection()
+
+        transformed_data = self.transform_data()
+
+        for row in transformed_data.itertuples():
+            item = self.gpd_line_to_item(row)
+            collection.add_item(item)
+
+        return collection

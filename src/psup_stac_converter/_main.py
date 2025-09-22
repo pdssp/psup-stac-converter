@@ -90,7 +90,6 @@ def show_possible_formats():
 
 
 def create_catalog(
-    name: str,
     metadata_file: Path,
     catalog_folder: Path,
     output_folder: Path,
@@ -101,6 +100,6 @@ def create_catalog(
         catalog_folder=catalog_folder,
         output_folder=output_folder,
     )
-    return catalog_creator.create_catalog(
-        name=name, clean_previous_output=clean_prev_output
+    return catalog_creator.condense_all_in_catalog(
+        clean_previous_output=clean_prev_output
     )

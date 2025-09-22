@@ -23,6 +23,15 @@ class LcpVmwalls(BaseProcessorModule):
 
         return catalog
 
+    def create_collection(self) -> pystac.Collection:
+        collection = super().create_collection()
+
+        for row in self.data.itertuples():
+            item = self.gpd_line_to_item(row)
+            collection.add_item(item)
+
+        return collection
+
     @staticmethod
     def gpd_line_to_item(row: NamedTuple) -> pystac.Item:
         id_col = "Index"

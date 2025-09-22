@@ -57,7 +57,7 @@ class CostardCraters(BaseProcessorModule):
         )
         return item
 
-    def create_catalog(self):
+    def create_catalog(self) -> pystac.Catalog:
         catalog = super().create_catalog()
 
         transformed_data = self.transform_data()
@@ -67,6 +67,16 @@ class CostardCraters(BaseProcessorModule):
             catalog.add_item(item)
 
         return catalog
+
+    def create_collection(self) -> pystac.Collection:
+        collection = super().create_collection()
+        transformed_data = self.transform_data()
+
+        for row in transformed_data.itertuples():
+            item = self.gpd_line_to_item(row)
+            collection.add_item(item)
+
+        return collection
 
     @staticmethod
     def extract_infos_from_description(description: str):
