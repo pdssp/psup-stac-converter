@@ -7,6 +7,7 @@ import pystac
 from altair import Geometry
 from shapely import bounds, to_geojson
 
+from psup_stac_converter.extensions import apply_ssys
 from psup_stac_converter.processors.base import BaseProcessorModule
 
 
@@ -20,9 +21,14 @@ class CrocusLs(BaseProcessorModule):
     COLUMN_NAMES = ["Crocus typ", "LS", "title"]
 
     def __init__(
-        self, name: str, data: gpd.GeoDataFrame, footprint: Geometry, description: str
+        self,
+        name: str,
+        data: gpd.GeoDataFrame,
+        footprint: Geometry,
+        description: str,
+        keywords: list[str],
     ):
-        super().__init__(name, data, footprint, description)
+        super().__init__(name, data, footprint, description, keywords)
 
     def transform_data(self):
         transform_data = super().transform_data()
@@ -78,4 +84,5 @@ class CrocusLs(BaseProcessorModule):
             datetime=timestamp,
             properties=properties,
         )
+        item = apply_ssys(item)
         return item

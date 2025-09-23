@@ -5,6 +5,7 @@ from typing import NamedTuple
 import pystac
 from shapely import bounds, to_geojson
 
+from psup_stac_converter.extensions import apply_ssys
 from psup_stac_converter.processors.base import BaseProcessorModule
 
 
@@ -22,8 +23,8 @@ class ScallopedDepression(BaseProcessorModule):
         "geometry",
     ]
 
-    def __init__(self, name, data, footprint, description):
-        super().__init__(name, data, footprint, description)
+    def __init__(self, name, data, footprint, description, keywords: list[str]):
+        super().__init__(name, data, footprint, description, keywords)
 
     @staticmethod
     def gpd_line_to_item(row: NamedTuple) -> pystac.Item:
@@ -47,6 +48,7 @@ class ScallopedDepression(BaseProcessorModule):
             datetime=timestamp,
             properties=properties,
         )
+        item = apply_ssys(item)
         return item
 
     def create_catalog(self):

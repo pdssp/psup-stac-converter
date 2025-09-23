@@ -9,6 +9,7 @@ import pystac
 from bs4 import BeautifulSoup
 from shapely import Geometry, bounds, to_geojson
 
+from psup_stac_converter.extensions import apply_ssys
 from psup_stac_converter.processors.base import BaseProcessorModule
 
 
@@ -29,9 +30,14 @@ class CostardCraters(BaseProcessorModule):
     EXTRA_FIELDS = ["fid", "lat", "lon", "diam", "type", "lon_earth"]
 
     def __init__(
-        self, name: str, data: gpd.GeoDataFrame, footprint: Geometry, description: str
+        self,
+        name: str,
+        data: gpd.GeoDataFrame,
+        footprint: Geometry,
+        description: str,
+        keywords: list[str],
     ):
-        super().__init__(name, data, footprint, description)
+        super().__init__(name, data, footprint, description, keywords)
 
     @staticmethod
     def gpd_line_to_item(row: NamedTuple) -> pystac.Item:
@@ -55,6 +61,7 @@ class CostardCraters(BaseProcessorModule):
             datetime=timestamp,
             properties=properties,
         )
+        item = apply_ssys(item)
         return item
 
     def create_catalog(self) -> pystac.Catalog:

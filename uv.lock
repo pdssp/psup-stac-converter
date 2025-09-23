@@ -1383,6 +1383,7 @@ dependencies = [
     { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "pystac" },
+    { name = "pyyaml" },
     { name = "tqdm" },
     { name = "typer" },
 ]
@@ -1406,6 +1407,7 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.11.9" },
     { name = "pydantic-settings", specifier = ">=2.10.1" },
     { name = "pystac", specifier = ">=1.14.0" },
+    { name = "pyyaml", specifier = ">=6.0.2" },
     { name = "tqdm", specifier = ">=4.67.1" },
     { name = "typer", specifier = ">=0.17.4" },
 ]

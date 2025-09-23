@@ -13,7 +13,7 @@ from rich.panel import Panel
 from rich.table import Table
 from shapely import Polygon
 
-from psup_stac_converter.extensions import apply_ssys
+from psup_stac_converter.extensions import apply_sci, apply_ssys
 from psup_stac_converter.processors.selection import ProcessorName, select_processor
 from psup_stac_converter.settings import Settings, create_logger
 from psup_stac_converter.utils.io import IoHandler
@@ -31,6 +31,12 @@ class BaseProcessor:
             lambda x: Polygon(ast.literal_eval(x))
         )
         gdf = gdf.set_geometry("footprint")
+        gdf["keywords"] = (
+            gdf["keywords"]
+            .astype(str)
+            .apply(lambda s: "[" + s.strip("{}") + "]" if s != "nan" else "[]")
+            .apply(ast.literal_eval)
+        )
         return gdf
 
     def __init__(
@@ -301,6 +307,7 @@ class CatalogCreator(BaseProcessor):
             ],
         )
 
+        # Apply extensions here
         master_collection = apply_ssys(master_collection)
 
         for feature_name in self.possible_names:
@@ -311,6 +318,8 @@ class CatalogCreator(BaseProcessor):
                 catalog_folder=self.io_handler.input_folder,
             )
             subcollection = processor.create_collection()
+            # Apply extensions here
+            subcollection = apply_sci(subcollection, name=feature_name)
             master_collection.add_child(subcollection)
 
         catalog.add_child(master_collection)

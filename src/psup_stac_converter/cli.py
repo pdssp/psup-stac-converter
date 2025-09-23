@@ -5,6 +5,7 @@ from typing import Annotated, Optional
 import typer
 
 from psup_stac_converter import _main as F
+from psup_stac_converter.settings import init_settings_from_file
 
 app = typer.Typer(name="psup-stac")
 
@@ -27,12 +28,32 @@ class CatalogName(str, Enum):
 
 
 @app.callback()
-def callback():
-    """Utility package to convert PSUP data towards the new format"""
+def callback(
+    ctx: typer.Context,
+    from_config: Annotated[
+        Optional[Path],
+        typer.Option(
+            "--from-config",
+            "-c",
+            help="Path to a config file (YAML) to load defaults from",
+            exists=True,
+            file_okay=True,
+            dir_okay=False,
+            readable=True,
+            resolve_path=True,
+        ),
+    ] = None,
+):
+    """Utility package to convert PSUP data to STAC format"""
+    ctx.obj = {}
+    if from_config is not None:
+        typer.echo(f"Using config from {from_config}")
+        ctx.obj["settings"] = init_settings_from_file(from_config)
 
 
 @app.command()
 def create_stac_catalog(
+    ctx: typer.Context,
     metadata_file: Annotated[
         Path,
         typer.Option(
@@ -45,7 +66,7 @@ def create_stac_catalog(
             writable=False,
             readable=True,
         ),
-    ],
+    ] = None,
     catalog_folder: Annotated[
         Path,
         typer.Option(
@@ -59,7 +80,7 @@ def create_stac_catalog(
             readable=True,
             resolve_path=True,
         ),
-    ],
+    ] = None,
     output_folder: Annotated[
         Path,
         typer.Option(
@@ -73,17 +94,21 @@ def create_stac_catalog(
             readable=True,
             resolve_path=True,
         ),
-    ],
+    ] = None,
     clean_previous_output: Annotated[
         bool,
         typer.Option("--clean/--no-clean", "-c/-nc", help="Cleans the output folder"),
     ] = False,
 ):
     """Converts raw input into a STAC catalog"""
+    settings = ctx.obj.get("settings")
+    if metadata_file is None and settings.metadata_file_path is None:
+        raise typer.BadParameter("Must provide a metadata file of CSV type!")
+
     F.create_catalog(
-        metadata_file=metadata_file,
-        catalog_folder=catalog_folder,
-        output_folder=output_folder,
+        metadata_file=metadata_file or settings.metadata_file_path,
+        catalog_folder=catalog_folder or settings.catalog_folder_path,
+        output_folder=output_folder or settings.output_data_path,
         clean_prev_output=clean_previous_output,
     )
 
@@ -96,6 +121,7 @@ def describe_folders():
 
 @app.command()
 def download_wkt_files(
+    ctx: typer.Context,
     file_name: Annotated[
         Path,
         typer.Argument(
@@ -106,7 +132,7 @@ def download_wkt_files(
             readable=True,
             help="The target file. Must be a CSV.",
         ),
-    ],
+    ] = None,
     output_folder: Annotated[
         Optional[Path],
         typer.Option(
@@ -127,6 +153,13 @@ def download_wkt_files(
     You can pass an OUTPUT_FOLDER option for simplicity. Do not use
     OUTPUT_FOLDER if the resolved path is in FILE_NAME.
     """
+    settings = ctx.obj.get("settings")
+    if file_name is None and settings.wkt_file_name is None:
+        raise typer.BadParameter("Must provide a mfile name of CSV type!")
+
+    file_name = file_name or settings.wkt_file_name
+    output_folder = output_folder or settings.extra_data_path
+
     if not file_name.suffix.endswith("csv"):
         raise ValueError("Output file must be a CSV.")
 
@@ -138,6 +171,7 @@ def download_wkt_files(
 
 @app.command()
 def show_wkt_projections(
+    ctx: typer.Context,
     file_name: Annotated[
         Path,
         typer.Argument(
@@ -148,10 +182,16 @@ def show_wkt_projections(
             readable=True,
             help="The target file. Must be a CSV.",
         ),
-    ],
+    ] = None,
     solar_body: Annotated[str, typer.Option("--solar-body", "-sb")] = None,
     proj_keywords: Annotated[list[str], typer.Option("--keywords", "-k")] = None,
 ):
+    settings = ctx.obj.get("settings")
+    if file_name is None and settings is None:
+        raise typer.BadParameter("Must provide a valid WKT file of CSV type!")
+
+    file_name = file_name or (settings.extra_data_path / settings.wkt_file_name)
+
     F.show_wkt_projections(
         file_name, solar_body=solar_body, proj_keywords=proj_keywords
     )
@@ -159,6 +199,7 @@ def show_wkt_projections(
 
 @app.command()
 def format_data_for_analysis(
+    ctx: typer.Context,
     file_name: Annotated[
         Path,
         typer.Argument(
@@ -169,11 +210,11 @@ def format_data_for_analysis(
             writable=True,
             readable=True,
         ),
-    ],
+    ] = None,
     fmt: Annotated[
         FileFormat,
         typer.Option("--format", "-f", help="The format of the intermediate file"),
-    ],
+    ] = None,
     metadata_file: Annotated[
         Path,
         typer.Option(
@@ -186,7 +227,7 @@ def format_data_for_analysis(
             writable=False,
             readable=True,
         ),
-    ],
+    ] = None,
     catalog_folder: Annotated[
         Path,
         typer.Option(
@@ -198,7 +239,7 @@ def format_data_for_analysis(
             writable=True,
             readable=True,
         ),
-    ],
+    ] = None,
     output_folder: Annotated[
         Path,
         typer.Option(
@@ -211,7 +252,7 @@ def format_data_for_analysis(
             writable=True,
             readable=True,
         ),
-    ],
+    ] = None,
 ):
     F.format_data_for_analysis(
         file_name, fmt, metadata_file, catalog_folder, output_folder
@@ -220,6 +261,7 @@ def format_data_for_analysis(
 
 @app.command()
 def preview_data(
+    ctx: typer.Context,
     metadata_file: Annotated[
         Path,
         typer.Option(
@@ -232,7 +274,7 @@ def preview_data(
             writable=False,
             readable=True,
         ),
-    ],
+    ] = None,
     catalog_folder: Annotated[
         Path,
         typer.Option(
@@ -244,9 +286,15 @@ def preview_data(
             writable=True,
             readable=True,
         ),
-    ],
+    ] = None,
 ):
-    F.preview_data(metadata_file, catalog_folder)
+    settings = ctx.obj.get("settings")
+    if metadata_file is None and settings.metadata_file_path is None:
+        raise typer.BadParameter("Must provide a metadata file of CSV type!")
+    F.preview_data(
+        metadata_file or settings.metadata_file_path,
+        catalog_folder or settings.catalog_folder_path,
+    )
 
 
 @app.command()

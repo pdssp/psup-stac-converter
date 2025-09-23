@@ -53,6 +53,7 @@ def select_processor(
     row_md = metadata[metadata["name"] == name]
     description = row_md["description"].item()
     footprint = row_md["footprint"].item()
+    keywords = row_md["keywords"].item()
 
     if name != "crocus_ls150-310.json":
         data = gpd.read_file(catalog_folder / name)
@@ -61,31 +62,59 @@ def select_processor(
 
     if name == "hyd_global_290615.json":
         processor = HydratedMineralProcessor(
-            name=name, data=data, description=description, footprint=footprint
+            name=name,
+            data=data,
+            description=description,
+            footprint=footprint,
+            keywords=keywords,
         )
     elif name == "costard_craters.json":
         processor = CostardCraters(
-            name=name, data=data, description=description, footprint=footprint
+            name=name,
+            data=data,
+            description=description,
+            footprint=footprint,
+            keywords=keywords,
         )
     elif name == "crocus_ls150-310.json":
         processor = CrocusLs(
-            name=name, data=data, description=description, footprint=footprint
+            name=name,
+            data=data,
+            description=description,
+            footprint=footprint,
+            keywords=keywords,
         )
     elif name == "detections_crateres_benjamin_bultel_icarus.json":
         processor = CraterDetection(
-            name=name, data=data, description=description, footprint=footprint
+            name=name,
+            data=data,
+            description=description,
+            footprint=footprint,
+            keywords=keywords,
         )
     elif name == "lcp_flahaut_et_al.json":
         processor = LcpFlahaut(
-            name=name, data=data, description=description, footprint=footprint
+            name=name,
+            data=data,
+            description=description,
+            footprint=footprint,
+            keywords=keywords,
         )
     elif name == "lcp_vmwalls.json":
         processor = LcpVmwalls(
-            name=name, data=data, description=description, footprint=footprint
+            name=name,
+            data=data,
+            description=description,
+            footprint=footprint,
+            keywords=keywords,
         )
     elif name == "scalloped_depression.json":
         processor = ScallopedDepression(
-            name=name, data=data, description=description, footprint=footprint
+            name=name,
+            data=data,
+            description=description,
+            footprint=footprint,
+            keywords=keywords,
         )
     else:
         raise ValueError(f"No processor is affiliated with the name {name}!")

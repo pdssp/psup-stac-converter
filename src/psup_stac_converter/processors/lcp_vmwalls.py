@@ -5,14 +5,15 @@ from typing import NamedTuple
 import pystac
 from shapely import bounds, to_geojson
 
+from psup_stac_converter.extensions import apply_ssys
 from psup_stac_converter.processors.base import BaseProcessorModule
 
 
 class LcpVmwalls(BaseProcessorModule):
     COLUMN_NAMES = ["N1", "N2", "N3", "type", "geometry"]
 
-    def __init__(self, name, data, footprint, description):
-        super().__init__(name, data, footprint, description)
+    def __init__(self, name, data, footprint, description, keywords: list[str]):
+        super().__init__(name, data, footprint, description, keywords)
 
     def create_catalog(self) -> pystac.Catalog:
         catalog = super().create_catalog()
@@ -58,4 +59,5 @@ class LcpVmwalls(BaseProcessorModule):
             datetime=timestamp,
             properties=properties,
         )
+        item = apply_ssys(item)
         return item

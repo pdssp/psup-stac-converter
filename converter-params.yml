@@ -1,0 +1,14 @@
+settings:
+  # The level of logging
+  log_level: "INFO"
+  # Logging formatter
+  log_format: "%(message)s"
+  # Where the user keeps their data
+  data_path: "./data"
+  raw_data_path: "./data/raw"
+  catalog_folder_path: "./data/raw/catalogs"
+  output_data_path: "./data/processed"
+  intermediate_data_path: "./data/intermediate"
+  extra_data_path: "./data/extra"
+  metadata_file_path: "./data/raw/vector.csv"
+  wkt_file_name: "wkt_solar_system.csv"

@@ -6,6 +6,7 @@ import geopandas as gpd
 import pystac
 from shapely import bounds, to_geojson
 
+from psup_stac_converter.extensions import apply_ssys
 from psup_stac_converter.processors.base import BaseProcessorModule
 
 
@@ -19,8 +20,10 @@ class HydratedMineralProcessor(BaseProcessorModule):
         "geometry",
     ]
 
-    def __init__(self, name, data: gpd.GeoDataFrame, footprint, description):
-        super().__init__(name, data, footprint, description)
+    def __init__(
+        self, name, data: gpd.GeoDataFrame, footprint, description, keywords: list[str]
+    ):
+        super().__init__(name, data, footprint, description, keywords)
 
     @staticmethod
     def gpd_line_to_item(df_line: NamedTuple) -> pystac.Item:
@@ -40,6 +43,7 @@ class HydratedMineralProcessor(BaseProcessorModule):
             datetime=dt.datetime(2013, 4, 24, 0, 0),
             properties=properties,
         )
+        item = apply_ssys(item)
 
         return item
 

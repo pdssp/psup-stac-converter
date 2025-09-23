@@ -13,11 +13,13 @@ class BaseProcessorModule:
         data: gpd.GeoDataFrame,
         footprint: Geometry,
         description: str,
+        keywords: list[str],
     ):
         self.name = name
         self.data = data
         self.footprint = footprint
         self.description = description
+        self.keywords = keywords
 
     def create_catalog(self) -> pystac.Catalog:
         """Creates catalog using parameters"""
@@ -41,6 +43,7 @@ class BaseProcessorModule:
             description=self.description,
             extent=collection_extent,
             license="CC-BY-4.0",
+            keywords=self.keywords,
         )
 
     def transform_data(self) -> gpd.GeoDataFrame:
