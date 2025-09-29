@@ -4,9 +4,10 @@ from typing import NamedTuple
 
 import geopandas as gpd
 import pystac
+from pystac.extensions.eo import Band
 from shapely import bounds, to_geojson
 
-from psup_stac_converter.extensions import apply_ssys
+from psup_stac_converter.extensions import apply_eo, apply_ssys
 from psup_stac_converter.processors.base import BaseProcessorModule
 
 
@@ -21,9 +22,16 @@ class HydratedMineralProcessor(BaseProcessorModule):
     ]
 
     def __init__(
-        self, name, data: gpd.GeoDataFrame, footprint, description, keywords: list[str]
+        self,
+        name,
+        data: gpd.GeoDataFrame,
+        footprint,
+        description,
+        keywords: list[str],
+        bands: list[Band] = None,
     ):
         super().__init__(name, data, footprint, description, keywords)
+        self.bands = bands
 
     @staticmethod
     def gpd_line_to_item(df_line: NamedTuple) -> pystac.Item:
@@ -45,6 +53,13 @@ class HydratedMineralProcessor(BaseProcessorModule):
         )
         item = apply_ssys(item)
 
+        # Apply common metadata here
+        # Can't summarize instruments
+        item.common_metadata.instruments = ["crism", "omega"]
+        item.common_metadata.platform = "mro/mex"
+        # for HiRISE, in m/px, for 300km high
+        item.common_metadata.gsd = 0.3
+
         return item
 
     def create_catalog(self) -> pystac.Catalog:
@@ -58,6 +73,9 @@ class HydratedMineralProcessor(BaseProcessorModule):
 
     def create_collection(self) -> pystac.Collection:
         collection = super().create_collection()
+
+        # apply extensions here
+        collection = apply_eo(collection, bands=self.bands)
 
         for row in self.data.itertuples():
             item = self.gpd_line_to_item(row)

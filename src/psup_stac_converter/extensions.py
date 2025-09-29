@@ -1,4 +1,5 @@
 import pystac
+from pystac.extensions.eo import Band, EOExtension
 from pystac.extensions.scientific import ScientificExtension
 
 from psup_stac_converter.informations import publications
@@ -47,4 +48,21 @@ def apply_sci(stac_instance: StacInstance, name: str) -> StacInstance:
 
     elif isinstance(stac_instance, pystac.Catalog):
         pass
+    return stac_instance
+
+
+# TODO: proj
+def apply_proj(stac_instance: StacInstance) -> StacInstance:
+    pass
+
+
+def apply_eo(stac_instance: StacInstance, bands=list[Band]) -> StacInstance:
+    if isinstance(stac_instance, pystac.Item) or isinstance(
+        stac_instance, pystac.Asset
+    ):
+        eo = EOExtension.ext(stac_instance, add_if_missing=True)
+        eo.apply(bands=bands)
+    elif isinstance(stac_instance, pystac.Collection):
+        eo = EOExtension.summaries(stac_instance, add_if_missing=True)
+        eo.bands = bands
     return stac_instance

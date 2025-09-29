@@ -38,12 +38,23 @@ class BaseProcessorModule:
         collection_extent = pystac.Extent(
             spatial=spatial_extent, temporal=temporal_extent
         )
+
+        collection_title = self.name.split(".")[0]
         return pystac.Collection(
-            id=self.name.split(".")[0],
+            id="ias_" + collection_title,
+            title=collection_title,
             description=self.description,
             extent=collection_extent,
             license="CC-BY-4.0",
             keywords=self.keywords,
+            assets={
+                "feature-catalog": pystac.Asset(
+                    href=f"http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/geojson/{collection_title}",
+                    title="feature-catalog",
+                    roles=["data"],
+                    media_type="application/geo+json",
+                )
+            },
         )
 
     def transform_data(self) -> gpd.GeoDataFrame:

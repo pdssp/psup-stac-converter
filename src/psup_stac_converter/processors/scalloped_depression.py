@@ -49,6 +49,9 @@ class ScallopedDepression(BaseProcessorModule):
             properties=properties,
         )
         item = apply_ssys(item)
+
+        # Add common metadata here
+
         return item
 
     def create_catalog(self):

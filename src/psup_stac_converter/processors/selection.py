@@ -5,6 +5,7 @@ from typing import Literal
 import geopandas as gpd
 from shapely.geometry import shape
 
+from psup_stac_converter.informations import crism_bands, omega_bands
 from psup_stac_converter.processors.base import BaseProcessorModule
 from psup_stac_converter.processors.costard_craters import CostardCraters
 from psup_stac_converter.processors.crater_detection import CraterDetection
@@ -67,6 +68,7 @@ def select_processor(
             description=description,
             footprint=footprint,
             keywords=keywords,
+            bands=crism_bands + omega_bands,
         )
     elif name == "costard_craters.json":
         processor = CostardCraters(
