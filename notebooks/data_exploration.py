@@ -6,16 +6,17 @@ app = marimo.App(width="medium")
 
 @app.cell
 def _():
-    import marimo as mo
     import json
+    from io import StringIO
     from pathlib import Path
     from typing import Literal
-    from io import StringIO
+
+    import altair as alt
     import geopandas as gpd
+    import httpx
+    import marimo as mo
     import pandas as pd
     from shapely.geometry import shape
-    import altair as alt
-    import httpx
 
     return Literal, Path, StringIO, alt, gpd, httpx, json, mo, pd, shape
 
@@ -434,8 +435,8 @@ def _(Literal, Path, bidx, json, mola_folder, namespace):
     def infos_from_tif(
         tif_file: Path,
         verbose: bool = False,
-        aspect: "Literal['meta', 'tags']" = "meta",
-        meta_member: "Literal['subdatasets', 'stats', 'checksum']" | None = None,
+        aspect: Literal["meta", "tags"] = "meta",
+        meta_member: Literal["subdatasets", "stats", "checksum"] | None = None,
         indent: int = 2,
     ):
         print(tif_file)
