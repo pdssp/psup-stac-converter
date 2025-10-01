@@ -11,3 +11,4 @@ wheels/
 
 # Where the data is located
 data/
+logs/

@@ -43,13 +43,18 @@ class Downloader:
                 archive.extract(_file, output_folder)
 
     def _download_remote_file(self, output_directory: Path, filename: str):
-        """Bulk downloads the file if on remote"""
+        """Bulk downloads the file if on remote, with progress bar"""
         self.local_path = output_directory / filename
         with httpx.stream("GET", self.file_name) as response:
             response.raise_for_status()
-            with open(self.local_path, "wb") as f:
+            total = int(response.headers.get("Content-Length", 0))
+            with (
+                open(self.local_path, "wb") as f,
+                tqdm(total=total, unit="B", unit_scale=True, desc=filename) as pbar,
+            ):
                 for chunk in response.iter_bytes():
                     f.write(chunk)
+                    pbar.update(len(chunk))
 
     def local_download(self, output_folder: Path):
         if self.url_type != "local":
