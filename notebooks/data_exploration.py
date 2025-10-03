@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.15.5"
+__generated_with = "0.16.4"
 app = marimo.App(width="medium")
 
 
@@ -18,7 +18,7 @@ def _():
     import pandas as pd
     from shapely.geometry import shape
 
-    return Literal, Path, StringIO, alt, gpd, httpx, json, mo, pd, shape
+    return Literal, Path, alt, gpd, httpx, json, mo, pd, shape
 
 
 @app.cell
@@ -45,7 +45,13 @@ def _(Path, pd):
     psup_refs["root"] = psup_refs["rel_path"].apply(lambda p: p.split("/")[0])
     # psup_refs = psup_refs.drop_duplicates(subset=['rel_path'])
     psup_refs
-    return (psup_refs,)
+    return psup_refs, sizeof_fmt
+
+
+@app.cell
+def _(psup_refs, sizeof_fmt):
+    psup_refs.groupby("root")["total_size"].sum().apply(sizeof_fmt)
+    return
 
 
 @app.cell
@@ -180,7 +186,6 @@ def _(Path, dl_folder, httpx, mo, pd):
                 f"{output_file} already exists! To override, set `error_on_exist` to False."
             )
 
-        # ...existing code...
         with (
             httpx.stream("GET", url) as r,
             open(output_file, "wb") as of,
@@ -196,7 +201,6 @@ def _(Path, dl_folder, httpx, mo, pd):
             for data in r.iter_bytes(chunk_size=chunk_size):
                 of.write(data)
                 bar.update()
-        # ...existing code...
 
     def download_row_batch(df: pd.DataFrame):
         # Function on filtered dataframe
@@ -210,7 +214,6 @@ def _(Path, dl_folder, httpx, mo, pd):
 
     button = mo.ui.run_button(label="Download!")
     button
-
     return button, download_row_batch
 
 
@@ -223,7 +226,8 @@ def _(button, download_row_batch, filtered_psup_refs, mo):
 
 
 @app.cell
-def _():
+def _(filtered_psup_refs):
+    sorted(filtered_psup_refs["file_name"].unique())
     return
 
 
@@ -295,8 +299,9 @@ def _(Path, open_gdf_file):
 
 
 @app.cell
-def _(StringIO, costard_craters, gpd, pd):
+def _(costard_craters, gpd):
     from bs4 import BeautifulSoup
+    from pydantic.alias_generators import to_snake
 
     class CostardCratersUtils:
         @staticmethod
@@ -306,10 +311,19 @@ def _(StringIO, costard_craters, gpd, pd):
             fid, lat, lon, diam, type, lon_earth
             """
             soup = BeautifulSoup(description, "html.parser")
-            buffer = StringIO(str(soup.find_all("table")[-1]))
-            desc_df = pd.read_html(buffer)[0]
-            desc_df.columns = ["name", "value"]
-            return tuple(desc_df["value"].tolist())
+            nested_table = soup.find_all("table")[-1]
+            attributes = []
+
+            for tr in nested_table.find_all("tr"):
+                td_name, td_value = tr.find_all("td")
+                name = td_name.get_text().lower()
+                value = td_value.get_text()
+                if name in ["lat", "lon", "diam", "lon_earth"]:
+                    value = float(value.replace(",", "."))
+                else:
+                    value = int(value)
+                attributes.append(value)
+            return tuple(attributes)
 
         @staticmethod
         def transform(df: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
@@ -327,16 +341,51 @@ def _(StringIO, costard_craters, gpd, pd):
                 )
             )
             transformed_df = transformed_df.drop("description", axis=1)
+            transformed_df.columns = transformed_df.columns.map(to_snake)
             return transformed_df
 
     trans_costar_craters = CostardCratersUtils.transform(costard_craters)
     trans_costar_craters
+    return (trans_costar_craters,)
+
+
+@app.cell
+def _(trans_costar_craters):
+    trans_costar_craters["timestamp"].unique()
+    return
+
+
+@app.cell
+def _(pd, trans_costar_craters):
+    bins = pd.IntervalIndex.from_tuples(
+        [(_lat, _lat + 10) for _lat in range(-90, 90, 10)]
+    )
+
+    trans_costar_craters["interval_lat"] = pd.cut(
+        trans_costar_craters["lat"], bins=bins
+    )
+
+    trans_costar_craters[["interval_lat", "type"]].groupby(
+        ["interval_lat", "type"]
+    ).get_group
+    return
+
+
+@app.cell
+def _(trans_costar_craters):
+    trans_costar_craters.plot()
     return
 
 
 @app.cell
 def _(mo):
-    mo.md(r"""# Crocus et al""")
+    mo.md(
+        r"""
+    # Southern pole CO2 amount on the Crocus line
+
+    $L_s \in [150, 310]$
+    """
+    )
     return
 
 
@@ -347,7 +396,14 @@ def _(Path, open_gdf_file):
     )
 
     crocus_ls = open_gdf_file(crocus_ls_file)
+    crocus_ls.columns = ["crocus_type", "solar_longitude", "title", "geometry"]
     crocus_ls
+    return (crocus_ls,)
+
+
+@app.cell
+def _(crocus_ls):
+    crocus_ls["solar_longitude"] == crocus_ls["title"]
     return
 
 
@@ -410,6 +466,35 @@ def _(detection_crater, gpd):
 
     trans_detection_craters = DetectionCraterUtils.transform(detection_crater)
     trans_detection_craters
+    return
+
+
+@app.cell
+def _(Path, open_gdf_file):
+    lcp_flathaut_file = Path(
+        "/home/sboomi/PythonProjects/psup-stac-converter/data/raw/catalogs/lcp_flahaut_et_al.json"
+    )
+
+    lcp_flathaut = open_gdf_file(lcp_flathaut_file)
+    lcp_flathaut
+    return
+
+
+@app.cell
+def _(Path, open_gdf_file):
+    from shapely import Point
+
+    # the type is always 1
+    lcp_vmwalls_file = Path(
+        "/home/sboomi/PythonProjects/psup-stac-converter/data/raw/catalogs/lcp_vmwalls.json"
+    )
+
+    lcp_vmwalls = open_gdf_file(lcp_vmwalls_file)
+    lcp_vmwalls["geometry"] = lcp_vmwalls.apply(
+        lambda row: Point(row["N2"], row["N1"], row["N3"]), axis=1
+    )
+    lcp_vmwalls = lcp_vmwalls.drop(["N1", "N2", "N3", "type"], axis=1)
+    type(lcp_vmwalls)
     return
 
 

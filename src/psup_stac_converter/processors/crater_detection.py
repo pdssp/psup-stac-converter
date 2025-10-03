@@ -12,6 +12,8 @@ crater_type = {"Non visible": "non-visible", "1": "visible", "0": "unknown"}
 
 
 class CraterDetection(BaseProcessorModule):
+    """For "Central peaks hydrated phases between Isidis and Hellas" study"""
+
     COLUMN_NAMES = [
         "Longitude",
         "Latitude",
@@ -53,9 +55,7 @@ class CraterDetection(BaseProcessorModule):
 
     @staticmethod
     def gpd_line_to_item(row: NamedTuple) -> pystac.Item:
-        id_col = "name_crism"
-
-        item_id = str(getattr(row, id_col))
+        item_id = str(row.name + "_" + row.name_crism)
         footprint = json.loads(to_geojson(row.geometry))
         bbox = bounds(row.geometry).tolist()
         timestamp = dt.datetime(2014, 7, 31, 0, 0)
@@ -63,7 +63,7 @@ class CraterDetection(BaseProcessorModule):
         properties = {
             k: v
             for k, v in row._asdict().items()
-            if k not in [id_col, "geometry", "f6"]
+            if k not in ["name_crism", "geometry", "f6"]
         }
         properties["f6"] = sorted([chemical.strip() for chemical in row.f6.split(",")])
 
@@ -75,6 +75,18 @@ class CraterDetection(BaseProcessorModule):
             properties=properties,
         )
         item = apply_ssys(item)
+
+        # add an asset
+        asset = pystac.Asset(
+            href=f"https://viewer.mars.asu.edu/viewer/crism/{row.name_crism}",
+            media_type=pystac.MediaType.HTML,
+        )
+        item.add_asset("crism_url", asset)
+
+        # Item metadata
+        item.common_metadata.instruments = ["crism"]
+        item.common_metadata.mission = "mro"
+
         return item
 
     @staticmethod

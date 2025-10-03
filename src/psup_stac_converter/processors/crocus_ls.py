@@ -13,6 +13,13 @@ from psup_stac_converter.processors.base import BaseProcessorModule
 
 class CrocusLs(BaseProcessorModule):
     """
+    From the study: "Seasonal South polar cap limits"
+
+    Fields:
+        - Crocus line border size: Can be "inner" or "outer"
+        - ls: Solar longitude (°)
+        - title: The title of the feature
+
     Important note: this file can't be open with GeoPandas
 
     Reason: [GEOSException] IllegalArgumentException: Points of LinearRing do not form a closed linestring
@@ -32,7 +39,20 @@ class CrocusLs(BaseProcessorModule):
 
     def transform_data(self):
         transform_data = super().transform_data()
-        transform_data.columns = ["crocus_type", "ls", "title", "geometry"]
+        transform_data.columns = [
+            "crocus_line_side",
+            "solar_longitude",
+            "title",
+            "geometry",
+        ]
+        transform_data["crocus_line_side"] = transform_data["crocus_line_side"].apply(
+            lambda s: s + ("n" if s == "in" else "") + "er"
+        )
+        transform_data["title"] = (
+            transform_data["crocus_line_side"]
+            + "_"
+            + transform_data["title"].astype(str)
+        )
 
         return transform_data
 
@@ -60,7 +80,7 @@ class CrocusLs(BaseProcessorModule):
 
     @staticmethod
     def gpd_line_to_item(row: NamedTuple) -> pystac.Item:
-        id_col = "Index"
+        id_col = "title"
 
         item_id = str(getattr(row, id_col))
         footprint = json.loads(to_geojson(row.geometry))
@@ -70,11 +90,7 @@ class CrocusLs(BaseProcessorModule):
         properties = {
             k: v
             for k, v in row._asdict().items()
-            if k
-            not in [
-                id_col,
-                "geometry",
-            ]
+            if k not in [id_col, "geometry", "Index"]
         }
 
         item = pystac.Item(

@@ -3,9 +3,10 @@ import json
 from typing import NamedTuple
 
 import pystac
+from pystac.extensions.eo import Band
 from shapely import bounds, to_geojson
 
-from psup_stac_converter.extensions import apply_ssys
+from psup_stac_converter.extensions import apply_eo, apply_ssys
 from psup_stac_converter.processors.base import BaseProcessorModule
 
 
@@ -23,8 +24,11 @@ class ScallopedDepression(BaseProcessorModule):
         "geometry",
     ]
 
-    def __init__(self, name, data, footprint, description, keywords: list[str]):
+    def __init__(
+        self, name, data, footprint, description, keywords: list[str], bands: list[Band]
+    ):
         super().__init__(name, data, footprint, description, keywords)
+        self.bands = bands
 
     @staticmethod
     def gpd_line_to_item(row: NamedTuple) -> pystac.Item:
@@ -51,6 +55,8 @@ class ScallopedDepression(BaseProcessorModule):
         item = apply_ssys(item)
 
         # Add common metadata here
+        item.common_metadata.instruments = ["hirise"]
+        item.common_metadata.platform = "mro"
 
         return item
 
@@ -67,6 +73,9 @@ class ScallopedDepression(BaseProcessorModule):
 
     def create_collection(self):
         collection = super().create_collection()
+
+        # apply extensions here
+        collection = apply_eo(collection, bands=self.bands)
 
         transformed_data = self.transform_data()
 
