@@ -218,10 +218,10 @@ def _(Path, dl_folder, httpx, mo, pd):
 
 
 @app.cell
-def _(button, download_row_batch, filtered_psup_refs, mo):
-    mo.stop(not button.value, "Click 'Download!' to download your files!")
+def _():
+    # mo.stop(not button.value, "Click 'Download!' to download your files!")
 
-    download_row_batch(filtered_psup_refs)
+    # download_row_batch(filtered_psup_refs)
     return
 
 
@@ -512,7 +512,7 @@ def _(dl_folder):
 
 
 @app.cell
-def _(Literal, Path, bidx, json, mola_folder, namespace):
+def _(Literal, Path, bidx, json, mo, mola_folder, namespace, rc):
     import rasterio
     from attr import asdict
     from rasterio.transform import from_gcps
@@ -524,7 +524,7 @@ def _(Literal, Path, bidx, json, mola_folder, namespace):
         meta_member: Literal["subdatasets", "stats", "checksum"] | None = None,
         indent: int = 2,
     ):
-        print(tif_file)
+        md_text = f"""# {tif_file}"""
         with rasterio.open(tif_file) as src:
             info = dict(src.profile)
             info["shape"] = (info["height"], info["width"])
@@ -572,23 +572,27 @@ def _(Literal, Path, bidx, json, mola_folder, namespace):
 
             if aspect == "meta":
                 if meta_member == "subdatasets":
+                    md_text += "\n## Subdatasets:"
                     for name in src.subdatasets:
-                        print(name)
+                        md_text += f"\n - {name}"
                 elif meta_member == "stats":
                     st = src.statistics(bidx)
-                    print("{st.min} {st.max} {st.mean} {st.std}".format(st=st))
+                    md_text += "\n## Statistics:"
+                    md_text += "{st.min} {st.max} {st.mean} {st.std}".format(st=st)
                 elif meta_member == "checksum":
-                    print(str(src.checksum(bidx)))
+                    md_text += f"\n**Checksum:** {rc.checksum(bidx)}"
                 elif meta_member:
                     if isinstance(info[meta_member], (list, tuple)):
-                        print(" ".join(map(str, info[meta_member])))
+                        md_text += "\n" + " ".join(map(str, info[meta_member]))
                     else:
-                        print(info[meta_member])
+                        md_text += "\n" + str(info[meta_member])
                 else:
-                    print(json.dumps(info, sort_keys=True, indent=indent))
+                    mo.json(json.dumps(info, sort_keys=True, indent=indent))
 
             elif aspect == "tags":
-                print(json.dumps(src.tags(ns=namespace), indent=indent))
+                mo.json(json.dumps(src.tags(ns=namespace), indent=indent))
+
+            mo.md(md_text)
 
     for tif_file in mola_folder.glob("*tif"):
         infos_from_tif(tif_file, verbose=True)
@@ -596,7 +600,84 @@ def _(Literal, Path, bidx, json, mola_folder, namespace):
 
 
 @app.cell
+def _(mo):
+    mo.md(
+        r"""
+    # Fernando's photometry analysis
+
+    The data is an archive.
+    """
+    )
+    return
+
+
+@app.cell
 def _():
+    import spectral.io.envi as envi
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    img = envi.open(
+        "/home/sboomi/Téléchargements/psup_photometry/fusion_chain_omega_inv.hdr",
+        "/home/sboomi/Téléchargements/psup_photometry/fusion_chain_omega_inv",
+    )
+    cube = np.copy(img._memmap)
+
+    print(cube.shape)
+    cube[cube == 65535] = np.nan
+
+    plt.imshow(cube[400, :, :])
+    return
+
+
+@app.cell
+def _():
+    import spectral.io.envi as envi
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    img = envi.open(
+        "/home/sboomi/Téléchargements/psup_photometry/GEO_fusion.hdr",
+        "/home/sboomi/Téléchargements/psup_photometry/GEO_fusion",
+    )
+    cube = np.copy(img._memmap)
+
+    print(cube.shape, np.min(cube), np.max(cube))
+    cube[cube == 65535] = np.nan
+
+    print(cube)
+    plt.imshow(cube[1, :, :], aspect="auto")
+    plt.colorbar()
+    plt.show()
+    return
+
+
+@app.cell
+def _(psup_refs):
+    # OMEGA maps
+
+    files = [
+        "albedo_r1080_equ_map.fits",
+        "ferric_bd530_equ_map.fits",
+        "ferric_nnphs_equ_map.fits",
+        "olivine_osp1_equ_map.fits",
+        "olivine_osp2_equ_map.fits",
+        "olivine_osp3_equ_map.fits",
+        "pyroxene_bd2000_equ_map.fits",
+        "albedo_filled.fits",
+        "albedo_unfilled.fits",
+        "emissivite_5.03mic_OMEGA0.fits",
+    ]
+
+    psup_refs[psup_refs["file_name"].isin(files)]
+    return (files,)
+
+
+@app.cell
+def _(button, download_row_batch, files, mo, psup_refs):
+    mo.stop(not button.value, "Click 'Download!' to download your files!")
+
+    download_row_batch(psup_refs[psup_refs["file_name"].isin(files)])
     return
 
 

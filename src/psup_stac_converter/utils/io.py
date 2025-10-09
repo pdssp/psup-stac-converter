@@ -5,7 +5,7 @@ from rich.console import Console
 from rich.tree import Tree
 
 from psup_stac_converter.settings import Settings, create_logger
-from psup_stac_converter.utils.downloader import Downloader
+from psup_stac_converter.utils.downloader import Downloader, PsupArchive
 from psup_stac_converter.utils.formatting import walk_directory
 
 settings = Settings()
@@ -80,3 +80,62 @@ class IoHandler:
                 (root / name).unlink()
             for name in dirs:
                 (root / name).rmdir()
+
+    def __str__(self):
+        return f"""Entry: {self.input_folder}
+        Target: {self.output_folder}
+        """
+
+
+class PsupIoHandler(IoHandler):
+    def __init__(self, archive_file: Path, input_folder=None, output_folder=None):
+        super().__init__(input_folder, output_folder)
+        self.psup_archive = PsupArchive(archive_file)
+
+    def save_all(self, auto_valid: bool = False, raise_on_exists: bool = False):
+        self.psup_archive.save_all_on_disk(
+            self.output_folder, auto_valid=auto_valid, raise_on_exists=raise_on_exists
+        )
+
+    def save_files(
+        self,
+        file_names: list[str],
+        auto_valid: bool = False,
+        raise_on_exists: bool = False,
+    ):
+        self.psup_archive.save_slice_on_disk(
+            self.output_folder,
+            filters=[("file_name", file_names)],
+            auto_valid=auto_valid,
+            raise_on_exists=raise_on_exists,
+        )
+
+    def save_file(
+        self,
+        file_name: str,
+    ):
+        self.psup_archive.save_resource_on_disk(
+            file_name=file_name, dest_folder=self.output_folder
+        )
+
+    def find_by_file(self, file_name: str) -> tuple[Path, bool]:
+        """Finds a file by its name.
+
+        Returns:
+            tuple[Path, bool]: The path of the file and whether it exists or not
+        """
+        archive_slice = self.psup_archive.slice_by_one(
+            by="file_name", criteria=file_name
+        )
+        if archive_slice is None:
+            raise ValueError(f"The archive has no file named {file_name} in it.")
+
+        rel_path = archive_slice.iloc[0]["rel_path"]
+        full_path = self.output_folder / Path(rel_path)
+        return full_path, full_path.exists()
+
+    def find_or_download(self, file_name: str) -> Path:
+        fp_on_disk, exists = self.find_by_file(file_name=file_name)
+        if not exists:
+            self.save_file(file_name)
+        return fp_on_disk

@@ -5,7 +5,12 @@ from typing import Literal
 import geopandas as gpd
 from shapely.geometry import shape
 
-from psup_stac_converter.informations import crism_bands, hirise_bands, omega_bands
+from psup_stac_converter.informations import (
+    crism_bands,
+    geojson_features,
+    hirise_bands,
+    omega_bands,
+)
 from psup_stac_converter.processors.base import BaseProcessorModule
 from psup_stac_converter.processors.costard_craters import CostardCraters
 from psup_stac_converter.processors.crater_detection import CraterDetection
@@ -48,13 +53,30 @@ def open_problematic_df(filename: Path) -> gpd.GeoDataFrame:
 
 def select_processor(
     name: ProcessorName,
-    metadata: gpd.GeoDataFrame,
     catalog_folder: Path,
 ) -> BaseProcessorModule:
-    row_md = metadata[metadata["name"] == name]
-    description = row_md["description"].item()
-    footprint = row_md["footprint"].item()
-    keywords = row_md["keywords"].item()
+    """Depending of the type of GeoJson file, selects the appropriate processor
+    to convert the data into a STAC collection.
+
+    Args:
+        name (ProcessorName): _description_
+        catalog_folder (Path): _description_
+
+    Raises:
+        ValueError: _description_
+
+    Returns:
+        BaseProcessorModule: _description_
+    """
+    if not (catalog_folder / name).exists():
+        raise FileNotFoundError(
+            f"Couldn't find {name} in {catalog_folder}. Cannot proceed further..."
+        )
+
+    metadata = geojson_features[name]
+    description = metadata.description
+    footprint = metadata.footprint
+    keywords = metadata.keywords
 
     if name != "crocus_ls150-310.json":
         data = gpd.read_file(catalog_folder / name)

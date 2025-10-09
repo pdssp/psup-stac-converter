@@ -10,5 +10,5 @@ settings:
   output_data_path: "./data/processed"
   intermediate_data_path: "./data/intermediate"
   extra_data_path: "./data/extra"
-  metadata_file_path: "./data/raw/vector.csv"
   wkt_file_name: "wkt_solar_system.csv"
+  psup_inventory_file: "./data/raw/psup_refs.csv"

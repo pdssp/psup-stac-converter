@@ -6,6 +6,7 @@ import typer
 
 from psup_stac_converter import _main as F
 from psup_stac_converter.settings import init_settings_from_file
+from psup_stac_converter.utils.file_utils import infos_from_tif
 
 app = typer.Typer(name="psup-stac")
 
@@ -54,23 +55,10 @@ def callback(
 @app.command()
 def create_stac_catalog(
     ctx: typer.Context,
-    metadata_file: Annotated[
+    raw_data_folder: Annotated[
         Path,
         typer.Option(
-            "--md-file",
-            "-md",
-            help="The metdata file explaining the catalogs",
-            exists=False,
-            file_okay=True,
-            dir_okay=False,
-            writable=False,
-            readable=True,
-        ),
-    ] = None,
-    catalog_folder: Annotated[
-        Path,
-        typer.Option(
-            "--catalog",
+            "--input",
             "-I",
             help="Where the raw data lies",
             exists=True,
@@ -95,6 +83,20 @@ def create_stac_catalog(
             resolve_path=True,
         ),
     ] = None,
+    psup_inventory_file: Annotated[
+        Path,
+        typer.Option(
+            "--inventory",
+            "-l",
+            help="File containing information on the hosted PSUP data",
+            exists=True,
+            file_okay=True,
+            dir_okay=False,
+            writable=False,
+            readable=True,
+            resolve_path=True,
+        ),
+    ] = None,
     clean_previous_output: Annotated[
         bool,
         typer.Option("--clean/--no-clean", "-c/-nc", help="Cleans the output folder"),
@@ -102,13 +104,12 @@ def create_stac_catalog(
 ):
     """Converts raw input into a STAC catalog"""
     settings = ctx.obj.get("settings")
-    if metadata_file is None and settings.metadata_file_path is None:
-        raise typer.BadParameter("Must provide a metadata file of CSV type!")
 
     F.create_catalog(
-        metadata_file=metadata_file or settings.metadata_file_path,
-        catalog_folder=catalog_folder or settings.catalog_folder_path,
+        raw_data_folder=raw_data_folder or settings.catalog_folder_path,
         output_folder=output_folder or settings.output_data_path,
+        psup_data_inventory_file=psup_inventory_file
+        or settings.psup_data_inventory_file,
         clean_prev_output=clean_previous_output,
     )
 
@@ -215,19 +216,6 @@ def format_data_for_analysis(
         FileFormat,
         typer.Option("--format", "-f", help="The format of the intermediate file"),
     ] = None,
-    metadata_file: Annotated[
-        Path,
-        typer.Option(
-            "--md-file",
-            "-md",
-            help="""The file with the metadata. Must have a "description" and "name" column""",
-            exists=True,
-            file_okay=True,
-            dir_okay=False,
-            writable=False,
-            readable=True,
-        ),
-    ] = None,
     catalog_folder: Annotated[
         Path,
         typer.Option(
@@ -254,27 +242,12 @@ def format_data_for_analysis(
         ),
     ] = None,
 ):
-    F.format_data_for_analysis(
-        file_name, fmt, metadata_file, catalog_folder, output_folder
-    )
+    F.format_data_for_analysis(file_name, fmt, catalog_folder, output_folder)
 
 
 @app.command()
 def preview_data(
     ctx: typer.Context,
-    metadata_file: Annotated[
-        Path,
-        typer.Option(
-            "--md-file",
-            "-md",
-            help="""The file with the metadata. Must have a "description" and "name" column""",
-            exists=True,
-            file_okay=True,
-            dir_okay=False,
-            writable=False,
-            readable=True,
-        ),
-    ] = None,
     catalog_folder: Annotated[
         Path,
         typer.Option(
@@ -289,10 +262,8 @@ def preview_data(
     ] = None,
 ):
     settings = ctx.obj.get("settings")
-    if metadata_file is None and settings.metadata_file_path is None:
-        raise typer.BadParameter("Must provide a metadata file of CSV type!")
+
     F.preview_data(
-        metadata_file or settings.metadata_file_path,
         catalog_folder or settings.catalog_folder_path,
     )
 
@@ -301,6 +272,24 @@ def preview_data(
 def show_possible_formats():
     """Shows the available formats for saving"""
     F.show_possible_formats()
+
+
+@app.command()
+def describe_tif(
+    tif_file: Annotated[
+        Path,
+        typer.Argument(
+            help="""A rasterized image (.ptif, .tif, .geotif)""",
+            exists=True,
+            file_okay=True,
+            dir_okay=False,
+            writable=False,
+            readable=True,
+        ),
+    ],
+):
+    """Displays the metadata from a rasterized image"""
+    infos_from_tif(tif_file)
 
 
 if __name__ == "__main__":

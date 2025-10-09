@@ -8,7 +8,6 @@ from rich.console import Console
 from rich.panel import Panel
 
 from psup_stac_converter.processing import CatalogCreator, RawDataAnalysis
-from psup_stac_converter.utils.downloader import WktDownloader
 from psup_stac_converter.utils.io import IoHandler
 
 console = Console()
@@ -22,11 +21,6 @@ def describe_target_folders():
 
     console.print("Output folder:")
     io_handler.show_output_folder()
-
-
-def download_wkt_files(output_file: Path):
-    wkt_dl = WktDownloader()
-    wkt_dl.local_download(output_file)
 
 
 def show_wkt_projections(
@@ -63,25 +57,23 @@ def show_wkt_projections(
 def format_data_for_analysis(
     file_name: Path,
     fmt: Literal["shp", "geosjon", "gpkg", "other"],
-    metadata_file: Path,
     catalog_folder: Path,
     output_folder: Path,
 ):
     """
     ie. "lno_10_days.shp", "shp"
     """
-    rda = RawDataAnalysis(metadata_file, catalog_folder, output_folder)
+    rda = RawDataAnalysis(catalog_folder, output_folder)
     rda.save_to_format(file_name, fmt)
 
 
 def preview_data(
-    metadata_file: Path,
     catalog_folder: Path,
 ):
     """
     ie. "lno_10_days.shp", "shp"
     """
-    rda = RawDataAnalysis(metadata_file, catalog_folder)
+    rda = RawDataAnalysis(catalog_folder)
     rda.preview_geodf()
 
 
@@ -90,16 +82,14 @@ def show_possible_formats():
 
 
 def create_catalog(
-    metadata_file: Path,
-    catalog_folder: Path,
+    raw_data_folder: Path,
     output_folder: Path,
+    psup_data_inventory_file: Path = None,
     clean_prev_output: bool = False,
 ):
     catalog_creator = CatalogCreator(
-        metadata_file=metadata_file,
-        catalog_folder=catalog_folder,
+        raw_data_folder=raw_data_folder,
         output_folder=output_folder,
+        psup_data_inventory_file=psup_data_inventory_file,
     )
-    return catalog_creator.condense_all_in_catalog(
-        clean_previous_output=clean_prev_output
-    )
+    return catalog_creator.create_catalog(clean_previous_output=clean_prev_output)

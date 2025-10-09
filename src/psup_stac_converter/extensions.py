@@ -1,8 +1,7 @@
 import pystac
 from pystac.extensions.eo import Band, EOExtension
-from pystac.extensions.scientific import ScientificExtension
+from pystac.extensions.scientific import Publication, ScientificExtension
 
-from psup_stac_converter.informations import publications
 from psup_stac_converter.stac_extra.ssys_extension import (
     SCHEMA_URI,
     SolSysExtension,
@@ -37,14 +36,23 @@ def apply_ssys(
     return stac_instance
 
 
-def apply_sci(stac_instance: StacInstance, name: str) -> StacInstance:
+def apply_sci(
+    stac_instance: StacInstance, publications: Publication | list[Publication]
+) -> StacInstance:
     if isinstance(stac_instance, pystac.Item):
+        publications = (
+            [publications] if not isinstance(publications, list) else publications
+        )
+
         sci = ScientificExtension.ext(stac_instance, add_if_missing=True)
-        sci.apply(publications=[publications[name]])
+        sci.apply(publications=publications)
     elif isinstance(stac_instance, pystac.Collection):
         sci = ScientificExtension.summaries(stac_instance, add_if_missing=True)
-        sci.citation = publications[name].citation
-        sci.doi = publications[name].doi
+        if isinstance(publications, list):
+            stac_instance.extra_fields["sci:publications"] = publications
+        else:
+            sci.citation = publications.citation
+            sci.doi = publications.doi
 
     elif isinstance(stac_instance, pystac.Catalog):
         pass

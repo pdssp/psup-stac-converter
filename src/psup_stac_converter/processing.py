@@ -5,18 +5,26 @@ from pathlib import Path
 from typing import Literal
 
 import geopandas as gpd
+import numpy as np
 import pandas as pd
 import pyogrio
 import pystac
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
-from shapely import Polygon
+from shapely import Polygon, bounds
 
 from psup_stac_converter.extensions import apply_sci, apply_ssys
+from psup_stac_converter.informations import (
+    OmegaMineralMapDesc,
+    data_providers,
+    geojson_features,
+    omega_map_publications,
+    omega_mineral_maps,
+)
 from psup_stac_converter.processors.selection import ProcessorName, select_processor
 from psup_stac_converter.settings import Settings, create_logger
-from psup_stac_converter.utils.io import IoHandler
+from psup_stac_converter.utils.io import IoHandler, PsupIoHandler
 
 settings = Settings()
 log = create_logger(__name__)
@@ -41,33 +49,26 @@ class BaseProcessor:
 
     def __init__(
         self,
-        metadata_file: Path,
-        catalog_folder: Path,
+        raw_data_folder: Path,
         output_folder: Path | None = None,
     ):
-        if not metadata_file.exists():
-            raise FileNotFoundError(f"Couldn't find {metadata_file}")
+        # Metadata is now handled by respective variables
 
-        if not metadata_file.suffix.endswith("csv"):
-            raise ValueError("File must be a CSV!")
-
-        self.metadata = self._open_metadata_as_gpd(metadata_file)
-
-        if not catalog_folder.exists():
+        if not raw_data_folder.exists():
             raise FileNotFoundError(
-                f"Couldn't find {catalog_folder}. Make sure it exists."
+                f"Couldn't find {raw_data_folder}. Make sure it exists."
             )
         self.io_handler = IoHandler(
-            input_folder=catalog_folder, output_folder=output_folder
+            input_folder=raw_data_folder, output_folder=output_folder
         )
-        self.possible_names = self.metadata["name"].tolist()
+        self.possible_names = list(geojson_features.keys())
 
     def __str__(self) -> str:
         fmt_str = []
 
-        for obj in self.metadata.itertuples():
+        for v in geojson_features.values():
             fmt_str.append(
-                f"- {obj.description} ({self.io_handler.input_folder / obj.name})"
+                f"- {v.description} ({self.io_handler.input_folder / v.name})"
             )
 
         return "\n".join(fmt_str)
@@ -79,11 +80,11 @@ class BaseProcessor:
         files_with_errors = {}
 
         if names is not None:
-            md_iter = self.metadata[self.metadata["name"].isin(names)]
+            md_iter = {k: v for k, v in geojson_features.items() if k in names}
         else:
-            md_iter = self.metadata
+            md_iter = geojson_features
 
-        for obj in md_iter.itertuples():
+        for obj in md_iter.values():
             try:
                 df = gpd.read_file(self.io_handler.input_folder / obj.name)
                 dfs[obj.name] = df
@@ -120,11 +121,18 @@ class RawDataAnalysis(BaseProcessor):
 
     def __init__(
         self,
-        metadata_file: Path,
-        catalog_folder: Path,
+        raw_data_folder: Path,
+        psup_data_inventory_file: Path | None = None,
         output_folder: Path | None = None,
     ):
-        super().__init__(metadata_file, catalog_folder, output_folder)
+        super().__init__(raw_data_folder, output_folder)
+        if psup_data_inventory_file is not None and psup_data_inventory_file.exists():
+            self.psup_archive = PsupIoHandler(
+                psup_data_inventory_file, output_folder=self.io_handler.input_folder
+            )
+        else:
+            log.warning("No data archive found. Consider linking this one.")
+            self.psup_archive = None
 
     @staticmethod
     def show_writable_formats():
@@ -163,22 +171,35 @@ class RawDataAnalysis(BaseProcessor):
 
 
 class CatalogCreator(BaseProcessor):
-    def __init__(self, metadata_file: Path, catalog_folder: Path, output_folder: Path):
-        super().__init__(metadata_file, catalog_folder, output_folder)
+    """PSUP's STAC generator
+
+    Args:
+        BaseProcessor (_type_): _description_
+    """
+
+    def __init__(
+        self,
+        raw_data_folder: Path,
+        output_folder: Path,
+        psup_data_inventory_file: Path | None = None,
+    ):
+        super().__init__(raw_data_folder, output_folder)
+        if psup_data_inventory_file is not None and psup_data_inventory_file.exists():
+            self.psup_archive = PsupIoHandler(
+                psup_data_inventory_file, output_folder=self.io_handler.input_folder
+            )
+        else:
+            log.warning(
+                "No data archive found. Consider linking this one to your converter to extract relevant metadata."
+            )
+            log.warning("You can use `psup-scraper` to generate one if needed.")
+            self.psup_archive = None
 
     def create_catalog(
-        self,
-        name: str,
-        self_contained: bool = True,
-        clean_previous_output: bool = False,
+        self, self_contained: bool = True, clean_previous_output: bool = False
     ) -> pystac.Catalog:
-        """Creates one catalog per name"""
+        """Creates a catalog over the entire feature selection"""
         start_time = time.time()
-
-        if name not in self.possible_names:
-            raise ValueError(
-                f"""You entered "{name}". The only possible values are {", ".join(["'" + v + "'" for v in self.possible_names])}"""
-            )
 
         if self.io_handler.is_input_folder_empty():
             raise FileNotFoundError("Your folder is empty! Download the data first.")
@@ -190,10 +211,20 @@ class CatalogCreator(BaseProcessor):
         elif not self.io_handler.is_output_folder_empty() and clean_previous_output:
             self.io_handler.clean_output_folder()
 
-        processor = select_processor(
-            name, metadata=self.metadata, catalog_folder=self.io_handler.input_folder
+        # Create root catalog for Mars items
+        catalog = pystac.Catalog(
+            id="urn:pdssp:ias:body:mars",
+            description="""This test STAC catalog contains Mars data collections and sub-catalogs currently hosted and distributed by\n[PSUP](http://psup.ias.u-psud.fr/sitools/client-user/index.html?project=PLISonMars) (Planetary SUrface Portal).\n\n![Mars](https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Mars_%28white_background%29.jpg/120px-Mars_%28white_background%29.jpg)\n""",
         )
-        catalog = processor.create_catalog()
+
+        catalog = apply_ssys(catalog)
+
+        feature_collection = self.create_feature_collection()
+        catalog.add_child(feature_collection)
+
+        # TODO: insert OMEGA data
+        # omega_mmaps_collection = self.create_omega_mineral_maps_collection()
+        # catalog.add_child(omega_mmaps_collection)
 
         # Save catalog (ie. in the STAC folder)
         log.info(f"Normalizing hrefs to {self.io_handler.output_folder}")
@@ -212,34 +243,20 @@ class CatalogCreator(BaseProcessor):
             f"Catalog created in {exec_time // 60} minutes and {exec_time % 60} seconds!"
         )
 
-        return catalog
-
-    def condense_all_in_catalog(
-        self, self_contained: bool = True, clean_previous_output: bool = False
-    ) -> pystac.Catalog:
-        """Creates a catalog over the entire feature selection"""
-        start_time = time.time()
-
-        if self.io_handler.is_input_folder_empty():
-            raise FileNotFoundError("Your folder is empty! Download the data first.")
-
-        if not self.io_handler.is_output_folder_empty() and not clean_previous_output:
-            raise ValueError(
-                "The output folder is not empty. Please clean it first or set clean_previous_output` to True"
+    def create_feature_collection(self) -> pystac.Collection:
+        fp_bounds = np.array(
+            [bounds(desc.footprint) for desc in geojson_features.values()]
+        )
+        total_bounds = np.array(
+            (
+                np.nanmin(fp_bounds[:, 0]),  # minx
+                np.nanmin(fp_bounds[:, 1]),  # miny
+                np.nanmax(fp_bounds[:, 2]),  # maxx
+                np.nanmax(fp_bounds[:, 3]),  # maxy
             )
-        elif not self.io_handler.is_output_folder_empty() and clean_previous_output:
-            self.io_handler.clean_output_folder()
+        ).tolist()
 
-        catalog = pystac.Catalog(
-            id="urn:pdssp:ias:body:mars",
-            description="""This test STAC catalog contains Mars data collections and sub-catalogs currently hosted and distributed by\n[PSUP](http://psup.ias.u-psud.fr/sitools/client-user/index.html?project=PLISonMars) (Planetary SUrface Portal).\n\n![Mars](https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Mars_%28white_background%29.jpg/120px-Mars_%28white_background%29.jpg)\n""",
-        )
-
-        catalog = apply_ssys(catalog)
-
-        spatial_extent = pystac.SpatialExtent(
-            bboxes=[self.metadata.geometry.total_bounds.tolist()]
-        )
+        spatial_extent = pystac.SpatialExtent(bboxes=[total_bounds])
         temporal_extent = pystac.TemporalExtent(
             intervals=[
                 [
@@ -255,7 +272,7 @@ class CatalogCreator(BaseProcessor):
         master_collection = pystac.Collection(
             id="urn:pdssp:ias:collection:features_datasets",
             extent=collection_extent,
-            description="This collections holds locations data for hydrated mineral terrains, Central peaks hydrated phases between Isidis\nand Hellas, Central peaks mineralogy south Valles Marineris, Valles Marineris low Calcium-Pyroxene, Seasonal South\npolar cap limits, Scalloped depressions and Lobate impact craters. This dataset contains vector catalogs\nand their associated metadatas. All catalogs are provided in GeoJSON file format.\n",
+            description="This collection holds locations data for hydrated mineral terrains, Central peaks hydrated phases between Isidis\nand Hellas, Central peaks mineralogy south Valles Marineris, Valles Marineris low Calcium-Pyroxene, Seasonal South\npolar cap limits, Scalloped depressions and Lobate impact craters. This dataset contains vector catalogs\nand their associated metadatas. All catalogs are provided in GeoJSON file format.\n",
             keywords=[
                 "polar cap",
                 "seasonal",
@@ -276,67 +293,73 @@ class CatalogCreator(BaseProcessor):
                 "mineralogy",
             ],
             license="CC-BY-4.0",
-            providers=[
-                pystac.Provider(
-                    name="Institut d'Astrophysique Spatiale (IAS) - IDOC",
-                    description="The Integrated Data and Operation Center (IDOC) is responsible for processing, archiving\nand distributing data from space science missions in which the IAS institute is involved.\n",
-                    roles=[
-                        pystac.ProviderRole.PROCESSOR,
-                        pystac.ProviderRole.PRODUCER,
-                        pystac.ProviderRole.HOST,
-                    ],
-                    url="https://idoc.ias.universite-paris-saclay.fr",
-                ),
-                pystac.Provider(
-                    name="Géosciences Paris-Saclay (GEOPS)",
-                    description='GEOPS is a joint laboratory of the \u201cUniversit\u00e9 de Paris-Sud\u201d (UPSUD) and the "Centre National\nde la Recherche Scientifique" (CNRS).\n',
-                    roles=[
-                        pystac.ProviderRole.PROCESSOR,
-                        pystac.ProviderRole.PRODUCER,
-                    ],
-                    url="http://geops.geol.u-psud.fr",
-                ),
-                pystac.Provider(
-                    name="Planetary SUrface Portal (PSUP)",
-                    description="PSUP is a french research service, by Observatoire Paris-Sud and Observatoire de Lyon, to help\nthe distribution of high added-value datasets of planetary surfaces.\n",
-                    roles=[
-                        pystac.ProviderRole.LICENSOR,
-                    ],
-                    url="https://psup.cnrs.fr",
-                ),
-            ],
+            providers=data_providers,
         )
 
         # Apply extensions here
         master_collection = apply_ssys(master_collection)
 
         for feature_name in self.possible_names:
+            if self.psup_archive is not None:
+                file_location = self.psup_archive.find_or_download(feature_name)
+            else:
+                file_location = self.io_handler.input_folder / feature_name
+            log.info(f"Found {feature_name} at {file_location}")
+
             log.info(f"Processing {feature_name}.")
             processor = select_processor(
                 feature_name,
-                metadata=self.metadata,
-                catalog_folder=self.io_handler.input_folder,
+                catalog_folder=file_location.parent,
             )
             subcollection = processor.create_collection()
             # Apply extensions here
-            subcollection = apply_sci(subcollection, name=feature_name)
+            subcollection = apply_sci(
+                subcollection, publications=geojson_features[feature_name].publications
+            )
             master_collection.add_child(subcollection)
 
-        catalog.add_child(master_collection)
+        return master_collection
 
-        # Save catalog (ie. in the STAC folder)
-        log.info(f"Normalizing hrefs to {self.io_handler.output_folder}")
-        catalog.normalize_hrefs(self.io_handler.output_folder.as_posix())
-
-        log.info(
-            f"""Saving catalog as {"self-contained" if self_contained else "absolute published"}"""
+    def create_omega_mineral_maps_collection(self) -> pystac.Collection:
+        spatial_extent = pystac.SpatialExtent(bboxes=[[-180.0, -90.0, 180.0, 90.0]])
+        temporal_extent = pystac.TemporalExtent(
+            intervals=[
+                [
+                    pd.Timestamp.min.to_pydatetime(),
+                    pd.Timestamp.max.to_pydatetime(),
+                ]
+            ]
         )
-        if self_contained:
-            catalog.save(catalog_type=pystac.CatalogType.SELF_CONTAINED)
-        else:
-            catalog.save(catalog_type=pystac.CatalogType.ABSOLUTE_PUBLISHED)
-
-        exec_time = time.time() - start_time
-        log.info(
-            f"Catalog created in {exec_time // 60} minutes and {exec_time % 60} seconds!"
+        collection_extent = pystac.Extent(
+            spatial=spatial_extent, temporal=temporal_extent
         )
+
+        master_collection = pystac.Collection(
+            id="urn:pdssp:ias:collection:omega_mineral_maps",
+            extent=collection_extent,
+            license="CC-BY-4.0",
+            description="""PSUP OMEGA mineral maps are OMEGA-based NIR albedo, Ferric BD530, Ferric Nanophase, Olivine SP1, SP2, SP3, Pyroxene and Emissivity at 5.03µm. OMEGA is the VISNIR imaging spectrometer onboard ESA/Mars-Express spacecraft operating around Mars from January 2004. All maps are provided in FITS file format via the "download" column.
+
+This Dataset is also available as a VO TAP service (ivo://idoc/psup/omega_maps/q/epn_core).""",
+            providers=data_providers,
+        )
+
+        # Apply extensions here
+        master_collection = apply_ssys(master_collection)
+        master_collection = apply_sci(
+            master_collection, publications=omega_map_publications
+        )
+
+        for omega_map_item in omega_mineral_maps.values():
+            omega_item = self.create_omega_map_item(omega_map_item)
+            master_collection.add_item(omega_item)
+
+        return master_collection
+
+    def create_omega_map_item(self, item: OmegaMineralMapDesc) -> pystac.Item:
+        item = pystac.Item()
+
+        asset = pystac.Asset(href=item.thumbnail, media_type=pystac.MediaType.PNG)
+        item.add_asset("thumbnail", asset)
+
+        return item

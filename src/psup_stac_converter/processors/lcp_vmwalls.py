@@ -21,7 +21,7 @@ class LcpVmwalls(BaseProcessorModule):
     type is unique = 1
 
 
-
+    Data and elevation has been estimated using MOLA elevation map
     """
 
     COLUMN_NAMES = ["N1", "N2", "N3", "type", "geometry"]

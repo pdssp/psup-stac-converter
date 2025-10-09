@@ -13,3 +13,13 @@ class PsupScraperItem(scrapy.Item):
     rel_path = scrapy.Field()
     href = scrapy.Field()
     total_size = scrapy.Field()
+
+
+class WktLineItem(scrapy.Item):
+    id = scrapy.Field()
+    created_at = scrapy.Field()
+    solar_body = scrapy.Field()
+    datum_name = scrapy.Field()
+    ellipsoid_name = scrapy.Field()
+    projection_name = scrapy.Field()
+    wkt = scrapy.Field()
