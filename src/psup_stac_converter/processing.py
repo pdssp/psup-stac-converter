@@ -1,4 +1,6 @@
 import ast
+import datetime as dt
+import json
 import time
 from io import StringIO
 from pathlib import Path
@@ -12,13 +14,14 @@ import pystac
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
-from shapely import Polygon, bounds
+from shapely import Polygon, bounds, to_geojson
 
-from psup_stac_converter.extensions import apply_sci, apply_ssys
+from psup_stac_converter.extensions import apply_eo, apply_sci, apply_ssys
 from psup_stac_converter.informations import (
     OmegaMineralMapDesc,
     data_providers,
     geojson_features,
+    omega_bands,
     omega_map_publications,
     omega_mineral_maps,
 )
@@ -223,8 +226,8 @@ class CatalogCreator(BaseProcessor):
         catalog.add_child(feature_collection)
 
         # TODO: insert OMEGA data
-        # omega_mmaps_collection = self.create_omega_mineral_maps_collection()
-        # catalog.add_child(omega_mmaps_collection)
+        omega_mmaps_collection = self.create_omega_mineral_maps_collection()
+        catalog.add_child(omega_mmaps_collection)
 
         # Save catalog (ie. in the STAC folder)
         log.info(f"Normalizing hrefs to {self.io_handler.output_folder}")
@@ -342,6 +345,15 @@ class CatalogCreator(BaseProcessor):
 
 This Dataset is also available as a VO TAP service (ivo://idoc/psup/omega_maps/q/epn_core).""",
             providers=data_providers,
+            keywords=list(
+                set(
+                    [
+                        kw
+                        for omega_map_item in omega_mineral_maps.values()
+                        for kw in omega_map_item.raster_keywords
+                    ]
+                )
+            ),
         )
 
         # Apply extensions here
@@ -357,9 +369,47 @@ This Dataset is also available as a VO TAP service (ivo://idoc/psup/omega_maps/q
         return master_collection
 
     def create_omega_map_item(self, item: OmegaMineralMapDesc) -> pystac.Item:
-        item = pystac.Item()
+        map_geometry = Polygon(((-180, -90), (180, 90), (180, 90), (180, -90)))
 
-        asset = pystac.Asset(href=item.thumbnail, media_type=pystac.MediaType.PNG)
-        item.add_asset("thumbnail", asset)
+        footprint = json.loads(to_geojson(map_geometry))
+        bbox = bounds(map_geometry).tolist()
+        # TODO: change that placeholder date by the map's date of creation
+        timestamp = dt.datetime(2014, 7, 31, 0, 0)
 
-        return item
+        stac_item_properties = {
+            "description": item.raster_description,
+            "long_description": item.raster_lng_description,
+            "keywords": item.raster_keywords,
+        }
+        pystac_item = pystac.Item(
+            id=Path(item.raster_name).stem.replace("_", "-"),
+            properties=stac_item_properties,
+            geometry=footprint,
+            bbox=bbox,
+            datetime=timestamp,
+        )
+
+        # assets
+        thumbn_asset = pystac.Asset(
+            href=str(item.thumbnail), media_type=pystac.MediaType.PNG
+        )
+        pystac_item.add_asset("thumbnail", thumbn_asset)
+
+        if self.psup_archive:
+            remote_fits = self.psup_archive.find_file_remote_path(item.raster_name)
+        else:
+            remote_fits = item.raster_name
+        # Source: https://www.iana.org/assignments/media-types/media-types.xhtml
+        fits_asset = pystac.Asset(href=str(remote_fits), media_type="application/fits")
+        pystac_item.add_asset("fits", fits_asset)
+
+        # extensions
+        pystac_item = apply_sci(pystac_item, publications=item.publication)
+        pystac_item = apply_ssys(pystac_item)
+        pystac_item = apply_eo(pystac_item, bands=omega_bands)
+
+        # common metadata
+        pystac_item.common_metadata.platform = "mex"
+        pystac_item.common_metadata.instruments = ["omega"]
+
+        return pystac_item

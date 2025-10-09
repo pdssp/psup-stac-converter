@@ -1,6 +1,8 @@
+import re
 from pathlib import Path
 from typing import Iterator
 
+from pydantic import HttpUrl
 from rich.console import Console
 from rich.tree import Tree
 
@@ -125,7 +127,7 @@ class PsupIoHandler(IoHandler):
             tuple[Path, bool]: The path of the file and whether it exists or not
         """
         archive_slice = self.psup_archive.slice_by_one(
-            by="file_name", criteria=file_name
+            by="file_name", criteria="^" + re.escape(file_name) + "$", set_regex=True
         )
         if archive_slice is None:
             raise ValueError(f"The archive has no file named {file_name} in it.")
@@ -139,3 +141,9 @@ class PsupIoHandler(IoHandler):
         if not exists:
             self.save_file(file_name)
         return fp_on_disk
+
+    def find_file_remote_path(self, file_name: str) -> HttpUrl:
+        slice = self.psup_archive.slice_by_one("file_name", file_name)
+        slice = slice.drop_duplicates(subset=["file_name"]).squeeze()
+        server_ref = slice["href"]
+        return HttpUrl(url=server_ref)

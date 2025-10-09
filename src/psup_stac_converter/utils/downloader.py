@@ -95,21 +95,25 @@ class PsupArchive:
         """
 
     def slice_by_one(
-        self, by: str, criteria: Any, slice_copy: pd.DataFrame | None = None
+        self, by: str, criteria: Any, slice_copy: pd.DataFrame | None = None, **kwargs
     ) -> pd.DataFrame | None:
-        """_summary_
+        """Filters the archive using a single criteria and sends the result
+        if available.
 
         Args:
-            by (str): _description_
-            criteria (Any): _description_
-            slice_copy (pd.DataFrame | None, optional): _description_. Defaults to None.
+            by (str): Name of the field to look on
+            criteria (Any): The criteria. Can be a string, a list of strings, an integer
+            a tuple of two integers
+            slice_copy (pd.DataFrame | None, optional): An available archive slice. Defaults to None.
 
         Raises:
-            ValueError: _description_
+            ValueError: Raised if `by`is not a valid field.
 
         Returns:
-            pd.DataFrame | None: _description_
+            pd.DataFrame | None: The sliced dataframe
         """
+        set_regex = bool(kwargs.get("set_regex", False))
+
         if slice_copy is None:
             slice_copy = self.psup_archive
 
@@ -117,7 +121,9 @@ class PsupArchive:
             raise ValueError(f""""{by}" not found among {self.fields}""")
 
         if by != "total_size" and type(criteria) is str:
-            filtered_df = slice_copy[slice_copy[by].str.contains(criteria)]
+            filtered_df = slice_copy[
+                slice_copy[by].str.contains(criteria, regex=set_regex)
+            ]
         elif by != "total_size" and isinstance(criteria, list):
             filtered_df = slice_copy[slice_copy[by].isin(criteria)]
         elif by == "total_size" and isinstance(criteria, Iterable):

@@ -218,10 +218,10 @@ def _(Path, dl_folder, httpx, mo, pd):
 
 
 @app.cell
-def _():
-    # mo.stop(not button.value, "Click 'Download!' to download your files!")
+def _(button, download_row_batch, filtered_psup_refs, mo):
+    mo.stop(not button.value, "Click 'Download!' to download your files!")
 
-    # download_row_batch(filtered_psup_refs)
+    download_row_batch(filtered_psup_refs)
     return
 
 
@@ -674,10 +674,28 @@ def _(psup_refs):
 
 
 @app.cell
-def _(button, download_row_batch, files, mo, psup_refs):
-    mo.stop(not button.value, "Click 'Download!' to download your files!")
+def _(files):
+    from astropy.io import fits
 
-    download_row_batch(psup_refs[psup_refs["file_name"].isin(files)])
+    for omegamap_file in files:
+        _f = f"data/raw/downloads/omega/fits/{omegamap_file}"
+        _hdul = fits.open(_f)
+        print(_f)
+        for k, v in _hdul[0].header.items():
+            print(f"[{k}] {v}")
+        print("Image data shape:", _hdul[0].data.shape)
+
+        print("\n=================\n")
+    return
+
+
+@app.cell
+def _():
+    return
+
+
+@app.cell
+def _():
     return
 
 

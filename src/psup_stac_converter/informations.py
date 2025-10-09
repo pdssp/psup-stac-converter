@@ -43,7 +43,7 @@ geojson_features = {
             "footprint": Polygon(((-180, -90), (180, 90), (180, 90), (180, -90))),
             "keywords": [],
             "publications": Publication(
-                citation="Carter, J., F. Poulet, J.‐P. Bibring, N. Mangold, and S. Murchie (2013), Hydrous minerals on Mars as seen by the CRISM and OMEGA imaging spectrometers: Updated global view, J. Geophys. Res. Planets, 118, 831–858",
+                citation="Carter, J., F. Poulet, J.-P. Bibring, N. Mangold, and S. Murchie (2013), Hydrous minerals on Mars as seen by the CRISM and OMEGA imaging spectrometers: Updated global view, J. Geophys. Res. Planets, 118, 831–858",
                 doi="doi: 10.1029/2012JE004145",
             ),
         },
@@ -140,7 +140,7 @@ geojson_features = {
 # OMEGA - publications
 omega_map_publications = [
     Publication(
-        citation="A. Ody, F. Poulet, Y. Langevin, J.‐P. Bibring, G. Bellucci, F. Altieri, B. Gondet, M. Vincendon, J.Carter and N. Manaud (2012), Global maps of anhydrous minerals at the surface of Mars from OMEGA/MEx, J. Geophys. Res., 117, E00J14",
+        citation="A. Ody, F. Poulet, Y. Langevin, J.-P. Bibring, G. Bellucci, F. Altieri, B. Gondet, M. Vincendon, J.Carter and N. Manaud (2012), Global maps of anhydrous minerals at the surface of Mars from OMEGA/MEx, J. Geophys. Res., 117, E00J14",
         doi="doi:10.1029/2012JE004117",
     ),
     Publication(

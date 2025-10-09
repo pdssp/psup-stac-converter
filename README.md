@@ -70,18 +70,20 @@ psup-stac --from-config converter-params.yml create-stac-catalog --clean
 
 ## Commands and examples
 
+![img](./img/psup-stac-cli.png)
+
 - create-stac-catalog
   - Options: --md-file / -md, --catalog / -I, --output / -O, --clean / --no-clean
   - Example:
     ```bash
-    psup-stac create-stac-catalog -md ./data/raw/vector.csv -I ./data/raw/catalogs -O ./data/processed --clean
+    uv run psup-stac create-stac-catalog  --input ./data/raw --output ./data/processed --inventory data/raw/psup_refs.csv --clean
     ```
 
 - preview-data
   - Options: --md-file / -md, --catalog
   - Example:
     ```bash
-    psup-stac preview-data -md ./data/raw/vector.csv -I ./data/raw/catalogs
+    psup-stac preview-data -I ./data/raw/catalogs
     ```
 
 - download_wkt_files
@@ -177,7 +179,7 @@ Ensure the CSV file path provided exists where required by the command.
 
 ## References
 
-- **Hydrated mineral terrains:** Carter, J., F. Poulet, J.‐P. Bibring, N. Mangold, and S. Murchie (2013), Hydrous minerals on Mars as seen by the CRISM and OMEGA imaging spectrometers: Updated global view, J. Geophys. Res. Planets, 118, 831–858, [doi: 10.1029/2012JE004145](https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2012JE004145).
+- **Hydrated mineral terrains:** Carter, J., F. Poulet, J.-P. Bibring, N. Mangold, and S. Murchie (2013), Hydrous minerals on Mars as seen by the CRISM and OMEGA imaging spectrometers: Updated global view, J. Geophys. Res. Planets, 118, 831–858, [doi: 10.1029/2012JE004145](https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2012JE004145).
 
 - **Central peaks hydrated phases between Isidis and Hellas:** B. Bultel, C. Quantin-Nataf, M. Andréani, H. Clénet, L. Lozac’h (2015), Deep alteration between Hellas and Isidis Basins, In Icarus Volume 260, 2015, Pages 141-160, [doi:10.1016/j.icarus.2015.06.037](https://www.sciencedirect.com/science/article/abs/pii/S0019103515002894)
 

@@ -49,7 +49,10 @@ def apply_sci(
     elif isinstance(stac_instance, pystac.Collection):
         sci = ScientificExtension.summaries(stac_instance, add_if_missing=True)
         if isinstance(publications, list):
-            stac_instance.extra_fields["sci:publications"] = publications
+            stac_instance.extra_fields["sci:publications"] = [
+                {"doi": publication.doi, "citation": publication.citation}
+                for publication in publications
+            ]
         else:
             sci.citation = publications.citation
             sci.doi = publications.doi
