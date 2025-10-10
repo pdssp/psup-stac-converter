@@ -12,6 +12,7 @@ from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 
 from psup_scraper.spiders.psup_files import PsupFilesSpider
+from psup_stac_converter.utils.downloader import sizeof_fmt
 
 app = typer.Typer(name="psup-scraper")
 scrapy_settings = get_project_settings()
@@ -24,14 +25,6 @@ logging.basicConfig(
     handlers=[RichHandler()],
 )
 log = logging.getLogger(__name__)
-
-
-def sizeof_fmt(num: int, suffix: str = "B") -> str:
-    for unit in ["", "Ki", "Mi", "Gi"]:
-        if abs(num) < 1024.0:
-            return f"{num:3.1f} {unit}{suffix}"
-        num /= 1024.0
-    return f"{num:.1f} Ei{suffix}"
 
 
 class FeedFormatEnum(StrEnum):
@@ -126,7 +119,8 @@ def check_data(
     psup_refs["extension"] = psup_refs["rel_path"].apply(
         lambda p: Path(p).suffix.lstrip(".")
     )
-    psup_refs["root"] = psup_refs["rel_path"].apply(lambda p: p.split("/")[0])
+    psup_refs["category"] = psup_refs["rel_path"].apply(lambda p: p.split("/")[0])
+    psup_refs["root"] = psup_refs["rel_path"].apply(lambda p: p.split("/")[1])
 
     table = Table("PSUP data feed")
 

@@ -170,6 +170,14 @@ description,name,footprint,keywords
 
 Ensure the CSV file path provided exists where required by the command.
 
+
+## Using the scraper
+
+```shell
+$ uv run psup-scraper get-data-ref -O data/raw/psup_refs.csv -f csv --clean
+```
+
+
 ## Troubleshooting / tips
 
 - If you get "Must provide a metadata file" error, either pass `--md-file` or use `--from-config` with `metadata_file_path`.

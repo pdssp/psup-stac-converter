@@ -1,7 +1,8 @@
 import re
 from pathlib import Path
-from typing import Iterator
+from typing import Iterator, Literal
 
+import pandas as pd
 from pydantic import HttpUrl
 from rich.console import Console
 from rich.tree import Tree
@@ -147,3 +148,8 @@ class PsupIoHandler(IoHandler):
         slice = slice.drop_duplicates(subset=["file_name"]).squeeze()
         server_ref = slice["href"]
         return HttpUrl(url=server_ref)
+
+    def get_omega_data(
+        self, data_type: Literal["data_cubes_slice", "c_channel_slice"]
+    ) -> pd.DataFrame:
+        return self.psup_archive.get_omega_data(data_type=data_type)

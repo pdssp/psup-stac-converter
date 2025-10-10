@@ -1,6 +1,6 @@
 import ast
-import datetime as dt
 import json
+import tempfile
 import time
 from io import StringIO
 from pathlib import Path
@@ -22,6 +22,8 @@ from psup_stac_converter.informations import (
     data_providers,
     geojson_features,
     omega_bands,
+    omega_c_channel,
+    omega_data_cubes,
     omega_map_publications,
     omega_mineral_maps,
 )
@@ -225,9 +227,14 @@ class CatalogCreator(BaseProcessor):
         feature_collection = self.create_feature_collection()
         catalog.add_child(feature_collection)
 
-        # TODO: insert OMEGA data
         omega_mmaps_collection = self.create_omega_mineral_maps_collection()
         catalog.add_child(omega_mmaps_collection)
+
+        omega_c_channel_collection = self.create_omega_c_channel_collection()
+        catalog.add_child(omega_c_channel_collection)
+
+        omega_data_cubes_collection = self.create_omega_data_cubes_collection()
+        catalog.add_child(omega_data_cubes_collection)
 
         # Save catalog (ie. in the STAC folder)
         log.info(f"Normalizing hrefs to {self.io_handler.output_folder}")
@@ -243,7 +250,7 @@ class CatalogCreator(BaseProcessor):
 
         exec_time = time.time() - start_time
         log.info(
-            f"Catalog created in {exec_time // 60} minutes and {exec_time % 60} seconds!"
+            f"Catalog created in {exec_time // 60} minutes and {round(exec_time % 60, 2)} seconds!"
         )
 
     def create_feature_collection(self) -> pystac.Collection:
@@ -325,11 +332,12 @@ class CatalogCreator(BaseProcessor):
 
     def create_omega_mineral_maps_collection(self) -> pystac.Collection:
         spatial_extent = pystac.SpatialExtent(bboxes=[[-180.0, -90.0, 180.0, 90.0]])
+
         temporal_extent = pystac.TemporalExtent(
             intervals=[
                 [
-                    pd.Timestamp.min.to_pydatetime(),
-                    pd.Timestamp.max.to_pydatetime(),
+                    min([v.created_at for v in omega_mineral_maps.values()]),
+                    max([v.created_at for v in omega_mineral_maps.values()]),
                 ]
             ]
         )
@@ -373,8 +381,8 @@ This Dataset is also available as a VO TAP service (ivo://idoc/psup/omega_maps/q
 
         footprint = json.loads(to_geojson(map_geometry))
         bbox = bounds(map_geometry).tolist()
-        # TODO: change that placeholder date by the map's date of creation
-        timestamp = dt.datetime(2014, 7, 31, 0, 0)
+
+        timestamp = item.created_at
 
         stac_item_properties = {
             "description": item.raster_description,
@@ -391,7 +399,10 @@ This Dataset is also available as a VO TAP service (ivo://idoc/psup/omega_maps/q
 
         # assets
         thumbn_asset = pystac.Asset(
-            href=str(item.thumbnail), media_type=pystac.MediaType.PNG
+            href=str(item.thumbnail),
+            media_type=pystac.MediaType.PNG,
+            roles=["thumbnail"],
+            description="PNG thumbnail preview for visualizations",
         )
         pystac_item.add_asset("thumbnail", thumbn_asset)
 
@@ -400,7 +411,12 @@ This Dataset is also available as a VO TAP service (ivo://idoc/psup/omega_maps/q
         else:
             remote_fits = item.raster_name
         # Source: https://www.iana.org/assignments/media-types/media-types.xhtml
-        fits_asset = pystac.Asset(href=str(remote_fits), media_type="application/fits")
+        fits_asset = pystac.Asset(
+            href=str(remote_fits),
+            media_type="application/fits",
+            roles=["visual", "data"],
+            description="FITS data",
+        )
         pystac_item.add_asset("fits", fits_asset)
 
         # extensions
@@ -411,5 +427,148 @@ This Dataset is also available as a VO TAP service (ivo://idoc/psup/omega_maps/q
         # common metadata
         pystac_item.common_metadata.platform = "mex"
         pystac_item.common_metadata.instruments = ["omega"]
+        pystac_item.common_metadata.gsd = 5000
 
         return pystac_item
+
+    def create_omega_c_channel_collection(self) -> pystac.Collection:
+        spatial_extent = pystac.SpatialExtent(bboxes=[[-180.0, -90.0, 180.0, 90.0]])
+        temporal_extent = pystac.TemporalExtent(
+            intervals=[
+                [
+                    pd.Timestamp.min.to_pydatetime(),
+                    pd.Timestamp.max.to_pydatetime(),
+                ]
+            ]
+        )
+        collection_extent = pystac.Extent(
+            spatial=spatial_extent, temporal=temporal_extent
+        )
+
+        master_collection = pystac.Collection(
+            id="urn:pdssp:ias:collection:omega_c_channel_proj",
+            extent=collection_extent,
+            license="CC-BY-4.0",
+            description="""These data cubes have been specifically selected and filtered for studies of the surface mineralogy between 1 and 2.5 µm.
+
+They contain all the OMEGA observations acquired with the C channel after filtering. Filtering processes have been implemented to remove some instrumental artefacts and observational conditions. Each OMEGA record is available as a `netCDF4.nc` file and an `idl.sav`.
+
+Both files contain the cubes of reflectance of the surface at a given longitude, latitude and wavelength λ. The reflectance is defined by the “reflectance factor” $\frac{I(\lambda)}{F \cos(i)}$ where i is the solar incidence angle with $\lambda$ from 0.97 to 2.55 µm (second dimension of the cube with 120 wavelengths). The spectra are corrected for atmospheric and aerosol contributions according to the method described in Vincendon et al. (Icarus, 251, 2015). It therefore corresponds to albedo for a lambertian surface. The first dimension of the cube refers to the length of scan. It can be 32, 64, or 128 pixels. It gives the first spatial dimension. The third dimension refers to the rank of the scan. It is the second spatial dimension.""",
+            providers=data_providers,
+        )
+
+        # Apply extensions here
+        master_collection = apply_ssys(master_collection)
+        master_collection = apply_sci(master_collection, publications=omega_c_channel)
+
+        # TODO: add items here
+        if self.psup_archive is not None:
+            pass
+        else:
+            log.warning(
+                "psup_data_inventory_file` needed to register items in this collection! Skipping..."
+            )
+
+        return master_collection
+
+    def create_omega_data_cubes_collection(self) -> pystac.Collection:
+        spatial_extent = pystac.SpatialExtent(bboxes=[[-180.0, -90.0, 180.0, 90.0]])
+        temporal_extent = pystac.TemporalExtent(
+            intervals=[
+                [
+                    pd.Timestamp.min.to_pydatetime(),
+                    pd.Timestamp.max.to_pydatetime(),
+                ]
+            ]
+        )
+        collection_extent = pystac.Extent(
+            spatial=spatial_extent, temporal=temporal_extent
+        )
+
+        master_collection = pystac.Collection(
+            id="urn:pdssp:ias:collection:omega_data_cubes",
+            extent=collection_extent,
+            license="CC-BY-4.0",
+            description="""
+This dataset contains all the OMEGA observations acquired with the C, L and VIS channels until April 2016, 11, after filtering. Filtering processes have been implemented to remove some instrumental artefacts and observational conditions. Each OMEGA record is available as a `netCDF4.nc` file and an `idl.sav`
+
+Both files contain the cubes of reflectance of the surface at a given longitude, latitude and wavelength $\lambda$. The surface reflectance is defined as $\frac{I(\lambda)}{F \cos(i)}$  where:
+
+- channel $C=[0.93-2.73 \mu m]$; $L=[2.55-5.10 \mu m]$; $\text{Visible}=[0.38-1.05 \mu m]$;
+- atmospheric attenuation is corrected (1-5 µm);
+- airborne dust scattering is corrected (0.4-2.5 µm and for 5 µm emissivity estimations);
+- thermal contribution is removed (> 3 µm); L channel data and VIS channel are co-registered with C channel when available.
+
+Please note that longitudes range from -180 to 180 degrees east.
+""",
+            providers=data_providers,
+        )
+
+        # Apply extensions here
+        master_collection = apply_ssys(master_collection)
+        master_collection = apply_sci(master_collection, publications=omega_data_cubes)
+
+        # TODO: add items here
+        if self.psup_archive is not None:
+            omega_data = self.psup_archive.get_omega_data("data_cubes_slice")
+            for cube_idx in omega_data.index.unique():
+                cube_item = self.create_omega_data_cube_item(
+                    cube_idx, omega_data.loc[cube_idx, :]
+                )
+                master_collection.add_item(cube_item)
+        else:
+            log.warning(
+                "psup_data_inventory_file` needed to register items in this collection! Skipping..."
+            )
+
+        return master_collection
+
+    def create_omega_data_cube_item(
+        self, cube_idx: str, cube_info: pd.DataFrame
+    ) -> pystac.Item:
+        # urls
+        nc_href = cube_info.loc[
+            cube_info["extension"].str.contains("nc"), "href"
+        ].item()
+        sav_href = cube_info.loc[
+            cube_info["extension"].str.contains("sav"), "href"
+        ].item()
+
+        # TODO: open files here
+        with tempfile.NamedTemporaryFile(delete_on_close=False) as fp:
+            fp.write()
+            fp.close()
+            with open(fp.name, mode="rb") as f:
+                f.read()
+
+        orbit_number, cube_number = cube_idx.split("_")
+        item_properties = {"orbit_number": orbit_number, "cube_number": cube_number}
+
+        omega_data_cube = pystac.Item(id=cube_idx, properties=item_properties)
+
+        # assets
+        nc_asset = pystac.Asset(
+            href=nc_href,
+            media_type=pystac.MediaType.NETCDF,
+            roles=["data"],
+            description="NetCDF data",
+        )
+        omega_data_cube.add_asset("nc", nc_asset)
+
+        sav_asset = pystac.Asset(
+            href=sav_href,
+            media_type=pystac.MediaType.TEXT,
+            roles=["data"],
+            description=".sav data",
+        )
+        omega_data_cube.add_asset("sav", sav_asset)
+
+        # extensions
+        omega_data_cube = apply_ssys(omega_data_cube)
+        # EO only if data allows it
+
+        # common metadata
+        omega_data_cube.common_metadata.mission = "mex"
+        omega_data_cube.common_metadata.instruments = ["omega"]
+
+        return omega_data_cube

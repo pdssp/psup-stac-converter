@@ -15,7 +15,7 @@ log = create_logger(__name__)
 
 
 def sizeof_fmt(num: int, suffix: str = "B") -> str:
-    for unit in ["", "Ki", "Mi", "Gi"]:
+    for unit in ["", "Ki", "Mi", "Gi", "Ti"]:
         if abs(num) < 1024.0:
             return f"{num:3.1f} {unit}{suffix}"
         num /= 1024.0
@@ -82,7 +82,8 @@ class PsupArchive:
         df = df.sort_values(by=["total_size", "rel_path"], ascending=False)
         df["h_total_size"] = df["total_size"].apply(sizeof_fmt)
         df["extension"] = df["rel_path"].apply(lambda p: Path(p).suffix.lstrip("."))
-        df["root"] = df["rel_path"].apply(lambda p: p.split("/")[0])
+        df["category"] = df["rel_path"].apply(lambda p: p.split("/")[0])
+        df["root"] = df["rel_path"].apply(lambda p: p.split("/")[1])
         return df
 
     def __init__(self, psup_archive_file: Path):
@@ -203,6 +204,13 @@ class PsupArchive:
         dst: Path,
         dl_desc: str | None = None,
     ):
+        """Simple command downloading files on the disk
+
+        Args:
+            remote_url (str): _description_
+            dst (Path): _description_
+            dl_desc (str | None, optional): _description_. Defaults to None.
+        """
         with httpx.stream("GET", remote_url) as response:
             response.raise_for_status()
             total = int(response.headers.get("Content-Length", 0))
@@ -256,7 +264,7 @@ class PsupArchive:
                     log.warning(f"{local_path} already exists. Skipping.")
             else:
                 local_path.parent.mkdir(exist_ok=True, parents=True)
-                self.save_on_disk(server_ref, local_path)
+                self._save_on_disk(server_ref, local_path)
 
     def save_all_on_disk(
         self, dest_folder: Path, auto_valid: bool = False, raise_on_exists: bool = False
@@ -267,3 +275,21 @@ class PsupArchive:
             auto_valid=auto_valid,
             raise_on_exists=raise_on_exists,
         )
+
+    def get_omega_data(self, data_type: Literal["data_cubes_slice", "c_channel_slice"]):
+        if data_type == "data_cubes_slice":
+            data_root = "cubes_L2"
+        elif data_type == "c_channel_slice":
+            data_root = "cubes_L3"
+
+        omega_data = self.psup_archive[
+            self.psup_archive["root"].str.contains(data_root)
+            & self.psup_archive["category"].str.contains("omega")
+        ].drop(["category", "root"], axis=1)
+        omega_data["name"] = omega_data["file_name"].apply(lambda x: Path(x).stem)
+        omega_data = omega_data.set_index("name")
+        # bad ID
+        if "sedkO1SmI" in omega_data.index:
+            omega_data = omega_data.drop("sedkO1SmI")
+
+        return omega_data

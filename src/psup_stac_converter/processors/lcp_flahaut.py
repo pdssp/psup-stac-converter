@@ -60,6 +60,8 @@ class LcpFlahaut(BaseProcessorModule):
         crism_asset = pystac.Asset(
             href=f"https://viewer.mars.asu.edu/viewer/crism/{row.crism_id}",
             media_type=pystac.MediaType.HTML,
+            roles=["visual", "data"],
+            description="The CRISM image used for observations",
         )
         item.add_asset("crism_url", crism_asset)
 
@@ -67,6 +69,8 @@ class LcpFlahaut(BaseProcessorModule):
             hirise_asset = pystac.Asset(
                 href=f"https://www.uahirise.org/{row.associated}",
                 media_type=pystac.MediaType.HTML,
+                roles=["visual", "data"],
+                description="The associated HiRISE image for complementary observations",
             )
             item.add_asset("hirise_url", hirise_asset)
 

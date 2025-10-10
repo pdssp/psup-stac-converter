@@ -1,12 +1,13 @@
 import marimo
 
-__generated_with = "0.16.4"
+__generated_with = "0.16.5"
 app = marimo.App(width="medium")
 
 
 @app.cell
 def _():
     import json
+    import numpy as np
     from io import StringIO
     from pathlib import Path
     from typing import Literal
@@ -18,7 +19,7 @@ def _():
     import pandas as pd
     from shapely.geometry import shape
 
-    return Literal, Path, alt, gpd, httpx, json, mo, pd, shape
+    return Literal, Path, alt, gpd, httpx, json, mo, np, pd, shape
 
 
 @app.cell
@@ -30,7 +31,7 @@ def _(mo):
 @app.cell
 def _(Path, pd):
     def sizeof_fmt(num: int, suffix: str = "B") -> str:
-        for unit in ["", "Ki", "Mi", "Gi"]:
+        for unit in ["", "Ki", "Mi", "Gi", "Ti"]:
             if abs(num) < 1024.0:
                 return f"{num:3.1f} {unit}{suffix}"
             num /= 1024.0
@@ -42,7 +43,8 @@ def _(Path, pd):
     psup_refs["extension"] = psup_refs["rel_path"].apply(
         lambda p: Path(p).suffix.lstrip(".")
     )
-    psup_refs["root"] = psup_refs["rel_path"].apply(lambda p: p.split("/")[0])
+    psup_refs["category"] = psup_refs["rel_path"].apply(lambda p: p.split("/")[0])
+    psup_refs["root"] = psup_refs["rel_path"].apply(lambda p: p.split("/")[1])
     # psup_refs = psup_refs.drop_duplicates(subset=['rel_path'])
     psup_refs
     return psup_refs, sizeof_fmt
@@ -612,10 +614,9 @@ def _(mo):
 
 
 @app.cell
-def _():
+def _(np):
     import spectral.io.envi as envi
     import matplotlib.pyplot as plt
-    import numpy as np
 
     img = envi.open(
         "/home/sboomi/Téléchargements/psup_photometry/fusion_chain_omega_inv.hdr",
@@ -631,10 +632,9 @@ def _():
 
 
 @app.cell
-def _():
+def _(np):
     import spectral.io.envi as envi
     import matplotlib.pyplot as plt
-    import numpy as np
 
     img = envi.open(
         "/home/sboomi/Téléchargements/psup_photometry/GEO_fusion.hdr",
@@ -674,7 +674,7 @@ def _(psup_refs):
 
 
 @app.cell
-def _(files):
+def _(files, np):
     from astropy.io import fits
 
     for omegamap_file in files:
@@ -684,6 +684,7 @@ def _(files):
         for k, v in _hdul[0].header.items():
             print(f"[{k}] {v}")
         print("Image data shape:", _hdul[0].data.shape)
+        print("Image minmax", np.nanmin(_hdul[0].data), np.nanmax(_hdul[0].data))
 
         print("\n=================\n")
     return

@@ -80,6 +80,8 @@ class CraterDetection(BaseProcessorModule):
         asset = pystac.Asset(
             href=f"https://viewer.mars.asu.edu/viewer/crism/{row.name_crism}",
             media_type=pystac.MediaType.HTML,
+            roles=["visual", "data"],
+            description="The CRISM image used for observations",
         )
         item.add_asset("crism_url", asset)
 

@@ -10,14 +10,16 @@ from psup_scraper.items import PsupScraperItem
 class PsupFilesSpider(scrapy.Spider):
     name = "psup_files"
     allowed_domains = ["psup.ias.u-psud.fr"]
+    base_url = "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/"
     start_urls = [
-        "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/"
+        "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/",
+        "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/omegacubes/",
     ]
 
     def _find_href(self, url: str) -> str:
         return (
             Path(urlparse(url).path)
-            .relative_to(urlparse(self.start_urls[0]).path)
+            .relative_to(urlparse(self.base_url).path)
             .as_posix()
         )
 

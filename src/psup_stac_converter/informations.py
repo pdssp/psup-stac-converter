@@ -1,3 +1,5 @@
+import datetime as dt
+
 import pystac
 from pydantic import BaseModel, ConfigDict, HttpUrl
 from pystac.extensions.eo import Band
@@ -25,14 +27,15 @@ class OmegaMineralMapDesc(BaseModel):
     raster_lng_description: str
     publication: Publication
     raster_keywords: list[str]
+    created_at: dt.datetime
 
 
-def _center_wavelength(min_wl: float, max_wl: float) -> float:
-    return (min_wl + max_wl) / 2
+def _center_wavelength(min_wl: float, max_wl: float, round_digit: int = 3) -> float:
+    return round((min_wl + max_wl) / 2, round_digit)
 
 
-def _fwhm(min_wl, max_wl) -> float:
-    return max_wl - min_wl
+def _fwhm(min_wl, max_wl, round_digit: int = 3) -> float:
+    return round(max_wl - min_wl, round_digit)
 
 
 geojson_features = {
@@ -172,6 +175,7 @@ omega_mineral_maps = {
         """,
             doi="doi:10.1029/2012JE004117",
         ),
+        created_at=dt.datetime(2012, 5, 2, 0, 0),
     ),
     "ferric_bd530_equ_map.fits": OmegaMineralMapDesc(
         raster_name="ferric_bd530_equ_map.fits",
@@ -185,6 +189,7 @@ omega_mineral_maps = {
         """,
             doi="doi:10.1029/2012JE004117",
         ),
+        created_at=dt.datetime(2012, 5, 2, 0, 0),
     ),
     "ferric_nnphs_equ_map.fits": OmegaMineralMapDesc(
         raster_name="ferric_nnphs_equ_map.fits",
@@ -198,6 +203,7 @@ omega_mineral_maps = {
         """,
             doi="doi:10.1029/2012JE004117",
         ),
+        created_at=dt.datetime(2012, 5, 2, 0, 0),
     ),
     "olivine_osp1_equ_map.fits": OmegaMineralMapDesc(
         raster_name="olivine_osp1_equ_map.fits",
@@ -211,6 +217,7 @@ omega_mineral_maps = {
         """,
             doi="doi:10.1029/2012JE004117",
         ),
+        created_at=dt.datetime(2012, 5, 2, 0, 0),
     ),
     "olivine_osp2_equ_map.fits": OmegaMineralMapDesc(
         raster_name="olivine_osp2_equ_map.fits",
@@ -224,6 +231,7 @@ omega_mineral_maps = {
         """,
             doi="doi:10.1029/2012JE004117",
         ),
+        created_at=dt.datetime(2012, 5, 2, 0, 0),
     ),
     "olivine_osp3_equ_map.fits": OmegaMineralMapDesc(
         raster_name="olivine_osp3_equ_map.fits",
@@ -237,6 +245,7 @@ omega_mineral_maps = {
         """,
             doi="doi:10.1029/2012JE004117",
         ),
+        created_at=dt.datetime(2012, 5, 2, 0, 0),
     ),
     "pyroxene_bd2000_equ_map.fits": OmegaMineralMapDesc(
         raster_name="pyroxene_bd2000_equ_map.fits",
@@ -250,6 +259,7 @@ omega_mineral_maps = {
         """,
             doi="doi:10.1029/2012JE004117",
         ),
+        created_at=dt.datetime(2012, 5, 2, 0, 0),
     ),
     "albedo_filled.fits": OmegaMineralMapDesc(
         raster_name="albedo_filled.fits",
@@ -263,6 +273,7 @@ omega_mineral_maps = {
         """,
             doi="https://doi.org/10.1016/j.icarus.2014.10.029",
         ),
+        created_at=dt.datetime(2014, 7, 10, 0, 0),
     ),
     "albedo_unfilled.fits": OmegaMineralMapDesc(
         raster_name="albedo_unfilled.fits",
@@ -276,6 +287,7 @@ omega_mineral_maps = {
         """,
             doi="https://doi.org/10.1016/j.icarus.2014.10.029",
         ),
+        created_at=dt.datetime(2014, 7, 10, 0, 0),
     ),
     "emissivite_5.03mic_OMEGA0.fits": OmegaMineralMapDesc(
         raster_name="emissivite_5.03mic_OMEGA0.fits",
@@ -289,8 +301,70 @@ omega_mineral_maps = {
         """,
             doi="https://doi.org/10.1016/j.icarus.2014.01.045",
         ),
+        created_at=dt.datetime(2013, 7, 1, 0, 0),
+        # Global map is 4ppd (15x15km at eq), cylindrical projection
+        # Represents mean TI from OMEGA, [30, 1050] Jm^-2s^-1/2K^-1
+        # Observations are restricted between lat -45,45
     ),
 }
+
+
+omega_c_channel = [
+    Publication(
+        citation="""
+Lucie Riu, John Carter, François Poulet, Alejandro Cardesín-Moinelo, Patrick Martin, Global surficial water content stored in hydrated silicates at Mars from OMEGA/MEx, Icarus, Volume 398, 2023, 115537, ISSN 0019-1035,
+""",
+        doi="https://doi.org/10.1016/j.icarus.2023.115537",
+    ),
+    Publication(
+        citation="""
+        M. Vincendon, J. Audouard, F. Altieri, A. Ody, Mars Express measurements of surface albedo changes over 2004–2010, Icarus, Volume 251, 2015, Pages 145-163, ISSN 0019-1035
+        """,
+        doi="https://doi.org/10.1016/j.icarus.2014.10.029",
+    ),
+    Publication(
+        citation="""
+Audouard, J., F. Poulet, M. Vincendon, R. E. Milliken, D. Jouglet, J.-P. Bibring, B. Gondet, and Y. Langevin (2014), Water in the Martian regolith from OMEGA/Mars Express, J. Geophys. Res. Planets, 119, 1969–1989
+""",
+        doi="doi:10.1002/2014JE004649",
+    ),
+    Publication(
+        citation="""
+Langevin, Y., J.-P. Bibring, F. Montmessin, F. Forget, M. Vincendon, S. Douté, F. Poulet, and B. Gondet (2007), Observations of the south seasonal cap of Mars during recession in 2004–2006 by the OMEGA visible/near-infrared imaging spectrometer on board Mars Express, J. Geophys. Res., 112, E08S12
+""",
+        doi="doi:10.1029/2006JE002841",
+    ),
+]
+
+omega_data_cubes = [
+    Publication(
+        citation="M. Vincendon, J. Audouard, F. Altieri, A. Ody (2015), Mars Express measurements of surface albedo changes over 2004–2010, In Icarus, Volume 251, 2015, Pages 145-163, ISSN 0019-1035",
+        doi="doi:10.1016/j.icarus.2014.10.029",
+    ),
+    Publication(
+        citation="""
+Audouard, J., F. Poulet, M. Vincendon, R. E. Milliken, D. Jouglet, J.-P. Bibring, B. Gondet, and Y. Langevin (2014), Water in the Martian regolith from OMEGA/Mars Express, J. Geophys. Res. Planets, 119, 1969–1989
+""",
+        doi="doi:10.1002/2014JE004649",
+    ),
+    Publication(
+        citation="""
+Langevin, Y., J.-P. Bibring, F. Montmessin, F. Forget, M. Vincendon, S. Douté, F. Poulet, and B. Gondet (2007), Observations of the south seasonal cap of Mars during recession in 2004–2006 by the OMEGA visible/near-infrared imaging spectrometer on board Mars Express, J. Geophys. Res., 112, E08S12
+""",
+        doi="doi:10.1029/2006JE002841",
+    ),
+    Publication(
+        citation="A. Ody, F. Poulet, Y. Langevin, J.-P. Bibring, G. Bellucci, F. Altieri, B. Gondet, M. Vincendon, J.Carter and N. Manaud (2012), Global maps of anhydrous minerals at the surface of Mars from OMEGA/MEx, J. Geophys. Res., 117, E00J14",
+        doi="doi:10.1029/2012JE004117",
+    ),
+    Publication(
+        citation="""
+Denis Jouglet, François Poulet, Yves Langevin, Jean-Pierre Bibring, Brigitte Gondet, Mathieu Vincendon, Michel Berthe, OMEGA long wavelength channel: Data reduction during non-nominal stages, Planetary and Space Science, Volume 57, Issues 8–9, 2009, Pages 1032-1042, ISSN 0032-0633
+""",
+        doi="https://doi.org/10.1016/j.pss.2008.07.025.",
+    ),
+]
+
 
 # Data providers
 data_providers = [

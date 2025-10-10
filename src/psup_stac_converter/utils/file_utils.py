@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Literal
 
 import rasterio
+from astropy.io import fits
 from attr import asdict
 from rasterio.transform import from_gcps
 from rich.console import Console
@@ -97,3 +98,23 @@ def infos_from_tif(
 
         elif aspect == "tags":
             console.print_json(json.dumps(src.tags(ns=namespace), indent=indent))
+
+
+def fits_header_to_dict(
+    fits_file: Path, channel_n: int = 0, lowercase: bool = False
+) -> dict[str, int | float | str]:
+    if not fits_file.exists():
+        raise FileNotFoundError(f"{fits_file} doesn't exist")
+    fits_obj = {}
+
+    with fits.open(fits_file) as hdul:
+        for header_key, header_val in hdul[channel_n].header.items():
+            if header_key == "":
+                continue
+
+            if lowercase:
+                header_key = header_key.lower()
+
+            fits_obj[header_key] = header_val
+
+    return fits_obj
