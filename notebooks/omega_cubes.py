@@ -72,7 +72,7 @@ def _(mo):
 
 @app.cell
 def _(c_channel_refs):
-    c_channel_refs
+    c_channel_refs.sort_values("name")
     return
 
 
@@ -155,8 +155,20 @@ def _(example_sav, make_axes_locatable, plt, wl_slider):
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="5%", pad=0.05)
 
-        img_display = ax.imshow(example_sav["carte"][:, wl_number, :], cmap="gray")
+        img_display = ax.imshow(
+            example_sav["carte"][:, wl_number, :],
+            cmap="gray",
+            vmin=0,
+            vmax=1,
+            extent=[
+                example_sav["longi"][0, :].min(),
+                example_sav["longi"][0, :].max(),
+                example_sav["lati"][:, 0].min(),
+                example_sav["lati"][:, 0].max(),
+            ],
+        )
         ax.set_title(f"Region at {wl_number}th wavelength")
+
         fig.colorbar(img_display, cax=cax, orientation="vertical")
 
     display_c_chan_map(wl_number=wl_slider.value)
@@ -170,23 +182,30 @@ def _(example_sav, np, plt):
     datainfo_values = [
         "altitude",
         "incidence_angle",
-        "incidence_wrt,angle",
+        "incidence_wrt_angle",
         "effective_dust_opacity",
         "water_ice_lin",
         "ice_cloud_idx",
     ]
 
-    fig, ax = plt.subplots(1, data_info_idxs, figsize=(12, 12))
+    fig, ax = plt.subplots(2, data_info_idxs, figsize=(12, 12))
 
     for data_info_idx in range(data_info_idxs):
         if data_info_idx >= len(datainfo_values):
             data_text = "unspecified"
         else:
             data_text = datainfo_values[data_info_idx]
-        ax[data_info_idx].imshow(
+        ax[0, data_info_idx].imshow(
             example_sav["carte_donnees"][:, data_info_idx, :], cmap="gray"
         )
-        ax[data_info_idx].set_title(data_text)
+        ax[0, data_info_idx].set_title(data_text)
+
+        _min_map = np.nanmin(example_sav["carte_donnees"][:, data_info_idx, :])
+        _max_map = np.nanmax(example_sav["carte_donnees"][:, data_info_idx, :])
+        normalized_map = (
+            example_sav["carte_donnees"][:, data_info_idx, :] - _min_map
+        ) / (_max_map - _min_map)
+        ax[1, data_info_idx].hist(normalized_map.ravel() * 255, bins=range(256))
 
         print(
             f"[{data_text}] {np.mean(example_sav['carte_donnees'][:, data_info_idx, :])}"
@@ -273,7 +292,10 @@ def _(mo):
 
 @app.cell
 def _(ex_nc_ds):
-    ex_nc_ds
+    for _k in ex_nc_ds.keys():
+        print(_k)
+
+    print(ex_nc_ds["solar_longitude"].encoding)
     return
 
 

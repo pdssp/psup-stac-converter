@@ -36,13 +36,13 @@ class FeedFormatEnum(StrEnum):
 
 @app.callback()
 def callback():
-    """Retrieves metadata available on PSUP"""
+    """Retrieves metadata available on PSUP (psup.ias.u-psud.fr/sitools/datastorage/user/storage)"""
     pass
 
 
 @app.command()
 def scraper_settings():
-    """Show the current scrapy settings (editable in settings.py)"""
+    """Show the current scrapy settings (editable in ./src/psup_scraper/settings.py)"""
     console.print(scrapy_settings.copy_to_dict())
 
 
@@ -73,7 +73,7 @@ def get_data_ref(
         ),
     ] = False,
 ):
-    """Crawls the data tree to obtain the references"""
+    """Crawls the data tree to obtain the references, from files, to links, to their actual size in B"""
     # Get initial parameters
     process = CrawlerProcess(scrapy_settings)
     # Change settings based on CLI options
@@ -103,6 +103,7 @@ def check_data(
     feed_csv: Annotated[
         Path,
         typer.Argument(
+            help="The field previously acquired with the scraper. Must be a CSV.",
             exists=True,
             file_okay=True,
             dir_okay=False,
@@ -111,8 +112,11 @@ def check_data(
             resolve_path=True,
         ),
     ],
-    n_lines: Annotated[int, typer.Option("--lines", "-n")] = 10,
+    n_lines: Annotated[
+        int, typer.Option("--lines", "-n", help="Number of lines to show")
+    ] = 10,
 ):
+    """Shows a representation of the scraped result in the std console."""
     psup_refs = pd.read_csv(feed_csv)
     psup_refs = psup_refs.sort_values(by=["total_size", "rel_path"], ascending=False)
     psup_refs["h_total_size"] = psup_refs["total_size"].apply(sizeof_fmt)

@@ -106,7 +106,9 @@ def create_stac_catalog(
         typer.Option("--clean/--no-clean", "-c/-nc", help="Cleans the output folder"),
     ] = False,
 ):
-    """Converts raw input into a STAC catalog"""
+    """Converts raw input into a STAC catalog. The user must have a scraped CSV file as
+    a feed to rely on, an input folder to store downloaded raw products, and an output
+    folder to put the catalog in."""
     settings = ctx.obj.get("settings")
 
     F.create_catalog(

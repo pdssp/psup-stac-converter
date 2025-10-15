@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     """Application settings."""
 
     log_level: str = "DEBUG"
-    log_format: str = "%(message)s"
+    log_format: str = "%(asctime)s [%(levelname)s] %(message)s"
     data_path: Path = BASE_DIR / "data"
     raw_data_path: Path = BASE_DIR / "data" / "raw"
     catalog_folder_path: Path = BASE_DIR / "data" / "raw" / "catalogs"
@@ -57,13 +57,22 @@ def create_logger(
     if log_format is None:
         log_format = Settings().log_format
 
-    logging.basicConfig(
-        level=log_level,
-        format=log_format,
-        datefmt="[%X]",
-        handlers=[RichHandler()],
-    )
-    return logging.getLogger(logger_name)
+    log = logging.getLogger(logger_name)
+    log.setLevel(log_level)
+
+    rich_handler = RichHandler()
+    file_handler = logging.FileHandler(BASE_DIR / "logs" / "psup-stac-generator.log")
+
+    rich_formatter = logging.Formatter("%(message)s", datefmt="[%X]")
+    file_formatter = logging.Formatter(log_format, datefmt="[%X]")
+
+    rich_handler.setFormatter(rich_formatter)
+    file_handler.setFormatter(file_formatter)
+
+    log.addHandler(rich_handler)
+    log.addHandler(file_handler)
+
+    return log
 
 
 def create_logger_from_settings(

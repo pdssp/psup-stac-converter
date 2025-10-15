@@ -12,7 +12,7 @@ from pydantic import BaseModel, ConfigDict, computed_field
 from pydantic.alias_generators import to_snake
 from pystac.extensions.scientific import Publication
 from shapely import Polygon, bounds, box, to_geojson
-from tqdm import tqdm
+from tqdm.rich import tqdm
 
 from psup_stac_converter.extensions import apply_sci, apply_ssys
 from psup_stac_converter.informations.data_providers import providers as data_providers
@@ -94,7 +94,7 @@ class OmegaDataReader:
 
     @property
     def omega_data_ids(self) -> pd.Index:
-        return self.omega_data.index.unique()
+        return self.omega_data.sort_values("name").index.unique()
 
     @property
     def n_elements(self) -> int:
@@ -111,13 +111,24 @@ class OmegaDataReader:
             )
 
         if file_extension is not None:
-            return self.omega_data.loc[
+            omega_info = self.omega_data.loc[
                 self.omega_data.index.str.contains(orbit_cube_idx)
                 & self.omega_data["extension"].str.contains(file_extension),
                 :,
             ]
+            if omega_info.empty:
+                raise ProcessLookupError(
+                    f"{orbit_cube_idx} exists but the info requested with extension .{file_extension} couldn't be found"
+                )
+            return omega_info
 
-        return self.omega_data.loc[orbit_cube_idx, :]
+        omega_info = self.omega_data.loc[orbit_cube_idx, :]
+        if omega_info.empty:
+            raise ProcessLookupError(
+                f"{orbit_cube_idx} exists but the info required couldn't be found"
+            )
+
+        return omega_info
 
     def open_file(
         self,
