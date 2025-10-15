@@ -86,10 +86,12 @@ def create_catalog(
     output_folder: Path,
     psup_data_inventory_file: Path = None,
     clean_prev_output: bool = False,
+    **kwargs,
 ):
     catalog_creator = CatalogCreator(
         raw_data_folder=raw_data_folder,
         output_folder=output_folder,
         psup_data_inventory_file=psup_data_inventory_file,
+        log=kwargs.get("logger"),
     )
     return catalog_creator.create_catalog(clean_previous_output=clean_prev_output)

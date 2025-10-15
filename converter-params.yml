@@ -1,6 +1,6 @@
 settings:
   # The level of logging
-  log_level: "INFO"
+  log_level: "DEBUG"
   # Logging formatter
   log_format: "%(message)s"
   # Where the user keeps their data

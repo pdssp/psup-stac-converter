@@ -5,9 +5,9 @@ from typing import Literal
 import geopandas as gpd
 from shapely.geometry import shape
 
-from psup_stac_converter.informations import (
+from psup_stac_converter.informations.geojson_features import geojson_features
+from psup_stac_converter.informations.instruments import (
     crism_bands,
-    geojson_features,
     hirise_bands,
     omega_bands,
 )

@@ -1,3 +1,4 @@
+import inspect
 import logging
 from pathlib import Path
 
@@ -11,7 +12,7 @@ BASE_DIR = Path(__file__).parents[2]
 class Settings(BaseSettings):
     """Application settings."""
 
-    log_level: str = "INFO"
+    log_level: str = "DEBUG"
     log_format: str = "%(message)s"
     data_path: Path = BASE_DIR / "data"
     raw_data_path: Path = BASE_DIR / "data" / "raw"
@@ -40,6 +41,16 @@ def init_settings_from_file(config_file: Path) -> Settings:
 def create_logger(
     logger_name: str, log_level: str | None = None, log_format: str | None = None
 ) -> logging.Logger:
+    """Instanciates the logger based on options
+
+    Args:
+        logger_name (str): _description_
+        log_level (str | None, optional): _description_. Defaults to None.
+        log_format (str | None, optional): _description_. Defaults to None.
+
+    Returns:
+        logging.Logger: _description_
+    """
     if log_level is None:
         log_level = Settings().log_level
 
@@ -53,3 +64,17 @@ def create_logger(
         handlers=[RichHandler()],
     )
     return logging.getLogger(logger_name)
+
+
+def create_logger_from_settings(
+    settings: Settings, logger_name: str | None = None
+) -> logging.Logger:
+    if logger_name is None:
+        callers_stack = inspect.stack()[1]
+        module_name = inspect.getmodule(callers_stack[0])
+        logger_name = module_name.__name__
+    return create_logger(
+        logger_name=logger_name,
+        log_level=settings.log_level,
+        log_format=settings.log_format,
+    )

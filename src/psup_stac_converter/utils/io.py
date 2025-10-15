@@ -1,8 +1,11 @@
+import logging
 import re
 from pathlib import Path
-from typing import Iterator, Literal
+from typing import Any, Iterator, Literal
 
 import pandas as pd
+import scipy.io as sio
+import xarray as xr
 from pydantic import HttpUrl
 from rich.console import Console
 from rich.tree import Tree
@@ -12,27 +15,57 @@ from psup_stac_converter.utils.downloader import Downloader, PsupArchive
 from psup_stac_converter.utils.formatting import walk_directory
 
 settings = Settings()
-log = create_logger(__name__)
 console = Console()
 
 
 class IoHandler:
     def __init__(
-        self, input_folder: Path | None = None, output_folder: Path | None = None
+        self,
+        input_folder: Path | None = None,
+        output_folder: Path | None = None,
+        log: logging.Logger | None = None,
     ):
+        if log is None:
+            self.log = create_logger(__name__)
+        else:
+            self.log = log
         if input_folder is None:
             input_folder = settings.raw_data_path
         else:
-            log.warning(f"Make sure you don't commit {input_folder} to version control")
+            self.log.warning(
+                f"Make sure you don't commit {input_folder} to version control"
+            )
         if output_folder is None:
             output_folder = settings.output_data_path
         else:
-            log.warning(
+            self.log.warning(
                 f"Make sure you don't commit {output_folder} to version control"
             )
 
-        self.input_folder = input_folder
-        self.output_folder = output_folder
+        self._input_folder = input_folder
+        self._output_folder = output_folder
+
+    @property
+    def input_folder(self) -> Path:
+        return self._input_folder
+
+    @property
+    def output_folder(self) -> Path:
+        return self._output_folder
+
+    @input_folder.setter
+    def input_folder(self, _v: Path):
+        if _v is None:
+            raise ValueError("input_folder must not be None")
+        self.log.warning(f"Make sure you don't commit {_v} to version control")
+        self._input_folder = _v
+
+    @output_folder.setter
+    def output_folder(self, _v: Path):
+        if _v is None:
+            raise ValueError("output_folder must not be None")
+        self.log.warning(f"Make sure you don't commit {_v} to version control")
+        self._output_folder = _v
 
     def count_input_elements(self) -> int:
         count = 0
@@ -77,7 +110,9 @@ class IoHandler:
         return self.output_folder.rglob(f"*.{extension}")
 
     def clean_output_folder(self):
-        log.warning(f"This action will remove the contents of {self.output_folder}")
+        self.log.warning(
+            f"This action will remove the contents of {self.output_folder}"
+        )
         for root, dirs, files in self.output_folder.walk(top_down=False):
             for name in files:
                 (root / name).unlink()
@@ -152,4 +187,44 @@ class PsupIoHandler(IoHandler):
     def get_omega_data(
         self, data_type: Literal["data_cubes_slice", "c_channel_slice"]
     ) -> pd.DataFrame:
+        """Wrapper method retrieving OMEGA cube data
+
+        Args:
+            data_type (Literal[&quot;data_cubes_slice&quot;, &quot;c_channel_slice&quot;]): _description_
+
+        Returns:
+            pd.DataFrame: _description_
+        """
         return self.psup_archive.get_omega_data(data_type=data_type)
+
+    def open_sav_dataset(self, file_href: str) -> dict[str, Any]:
+        """Opens an IDL .sav file
+
+        Args:
+            file_href (str): _description_
+
+        Returns:
+            dict[str, Any]: _description_
+        """
+        sav_ds = None
+
+        with self.psup_archive.open_resource(file_href) as sav_file:
+            sav_ds = sio.readsav(sav_file.name)
+
+        return sav_ds
+
+    def open_nc_dataset(self, file_href: str) -> Any:
+        """Opens NetCDF4 dataset
+
+        Args:
+            file_href (str): _description_
+
+        Returns:
+            Any: _description_
+        """
+        nc_dataset = None
+
+        with self.psup_archive.open_resource(file_href) as nc_file:
+            nc_dataset = xr.open_dataset(nc_file.name)
+
+        return nc_dataset

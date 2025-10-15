@@ -5,7 +5,10 @@ from typing import Annotated, Optional
 import typer
 
 from psup_stac_converter import _main as F
-from psup_stac_converter.settings import init_settings_from_file
+from psup_stac_converter.settings import (
+    create_logger_from_settings,
+    init_settings_from_file,
+)
 from psup_stac_converter.utils.file_utils import infos_from_tif
 
 app = typer.Typer(name="psup-stac")
@@ -50,6 +53,7 @@ def callback(
     if from_config is not None:
         typer.echo(f"Using config from {from_config}")
         ctx.obj["settings"] = init_settings_from_file(from_config)
+        ctx.obj["logger"] = create_logger_from_settings(ctx.obj["settings"])
 
 
 @app.command()
@@ -108,9 +112,9 @@ def create_stac_catalog(
     F.create_catalog(
         raw_data_folder=raw_data_folder or settings.catalog_folder_path,
         output_folder=output_folder or settings.output_data_path,
-        psup_data_inventory_file=psup_inventory_file
-        or settings.psup_data_inventory_file,
+        psup_data_inventory_file=psup_inventory_file or settings.psup_inventory_file,
         clean_prev_output=clean_previous_output,
+        **{k: v for k, v in ctx.obj.items() if k not in ["settings"]},
     )
 
 
@@ -167,7 +171,10 @@ def download_wkt_files(
     if output_folder is not None:
         file_name = output_folder / file_name
 
-    F.download_wkt_files(file_name)
+    F.download_wkt_files(
+        file_name,
+        **{k: v for k, v in ctx.obj.items() if k not in ["settings"]},
+    )
 
 
 @app.command()
@@ -194,7 +201,10 @@ def show_wkt_projections(
     file_name = file_name or (settings.extra_data_path / settings.wkt_file_name)
 
     F.show_wkt_projections(
-        file_name, solar_body=solar_body, proj_keywords=proj_keywords
+        file_name,
+        solar_body=solar_body,
+        proj_keywords=proj_keywords,
+        **{k: v for k, v in ctx.obj.items() if k not in ["settings"]},
     )
 
 
@@ -242,7 +252,7 @@ def format_data_for_analysis(
         ),
     ] = None,
 ):
-    F.format_data_for_analysis(file_name, fmt, catalog_folder, output_folder)
+    F.format_data_for_analysis(file_name, fmt, catalog_folder, output_folder, **ctx.obj)
 
 
 @app.command()
@@ -265,6 +275,7 @@ def preview_data(
 
     F.preview_data(
         catalog_folder or settings.catalog_folder_path,
+        **{k: v for k, v in ctx.obj.items() if k not in ["settings"]},
     )
 
 

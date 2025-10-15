@@ -1,6 +1,7 @@
 import re
 import tempfile
 import zipfile
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Iterable, Literal
 from urllib.parse import urlparse
@@ -168,6 +169,18 @@ class PsupArchive:
     def htotal_size(self) -> str:
         return sizeof_fmt(self.total_size)
 
+    def _find_single_file_name(self, file_name: str) -> pd.DataFrame:
+        fn_pattern = r"^" + re.escape(file_name) + r"$"
+        row = self.psup_archive[
+            self.psup_archive["file_name"].str.contains(fn_pattern, regex=True)
+        ]
+        if row.empty:
+            raise ValueError(f'Couldn\'t find item with the name "{file_name}"')
+
+        # In theory, only one item is left
+        row = row.drop_duplicates(subset=["file_name"]).squeeze()
+        return row
+
     def save_resource_on_disk(self, file_name: str, dest_folder: Path):
         """Saves a single resource on the disk
 
@@ -179,15 +192,8 @@ class PsupArchive:
             ValueError: _description_
             FileExistsError: _description_
         """
-        fn_pattern = r"^" + re.escape(file_name) + r"$"
-        row = self.psup_archive[
-            self.psup_archive["file_name"].str.contains(fn_pattern, regex=True)
-        ]
-        if row.empty:
-            raise ValueError(f'Couldn\'t find item with the name "{file_name}"')
 
-        # In theory, only one item is left
-        row = row.drop_duplicates(subset=["file_name"]).squeeze()
+        row = self._find_single_file_name(file_name=file_name)
         server_ref = row["href"]
 
         local_path = dest_folder / Path(row["rel_path"])
@@ -226,6 +232,33 @@ class PsupArchive:
                 for chunk in response.iter_bytes():
                     f.write(chunk)
                     pbar.update(len(chunk))
+
+    @contextmanager
+    def open_resource(self, file_href: str):
+        """Holds the data from the href temporarily in a file"""
+
+        log.debug(f"Downloading {file_href}")
+
+        with httpx.stream("GET", file_href) as response:
+            log.debug(f"Got response: {response}")
+            response.raise_for_status()
+
+            total_bytes = int(response.headers.get("Content-Length", 0))
+            log.debug(f"A total of {total_bytes} will be downloaded")
+
+            with (
+                tempfile.NamedTemporaryFile() as tmp_f,
+                tqdm(
+                    total=total_bytes, unit="B", unit_scale=True, desc=file_href
+                ) as pbar,
+            ):
+                for chunk in response.iter_bytes():
+                    tmp_f.write(chunk)
+                    pbar.update(len(chunk))
+                log.info(f"Saved {file_href} temporarily")
+                yield tmp_f
+                log.debug(f"{tmp_f.name} ready to use")
+            log.debug(f"{file_href} disposed")
 
     def save_slice_on_disk(
         self,
