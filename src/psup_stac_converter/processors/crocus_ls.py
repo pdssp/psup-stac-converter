@@ -4,8 +4,7 @@ from typing import NamedTuple
 
 import geopandas as gpd
 import pystac
-from altair import Geometry
-from shapely import bounds, to_geojson
+from shapely import Geometry, bounds, to_geojson
 
 from psup_stac_converter.extensions import apply_ssys
 from psup_stac_converter.processors.base import BaseProcessorModule
