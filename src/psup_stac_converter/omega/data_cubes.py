@@ -139,7 +139,7 @@ Please note that longitudes range from -180 to 180 degrees east.
         else:
             sav_info = self.extract_sav_info(orbit_cube_idx)
             with open(sav_md_state, "wb") as sav_md:
-                json.write(sav_md)
+                json.dump(sav_info, sav_md)
 
         # This one is given by the data description
         default_end_datetime = dt.datetime(2016, 4, 11, 0, 0)
