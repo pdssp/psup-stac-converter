@@ -1,13 +1,12 @@
 import re
 from pathlib import Path
-from typing import Literal
 
 import pandas as pd
 import pyproj
 from rich.console import Console
 from rich.panel import Panel
 
-from psup_stac_converter.processing import CatalogCreator, RawDataAnalysis
+from psup_stac_converter.processing import CatalogCreator
 from psup_stac_converter.utils.io import IoHandler
 
 console = Console()
@@ -52,33 +51,6 @@ def show_wkt_projections(
             subtitle=f"[bold]{row.solar_body} - {row.projection_name}",
         )
         console.print(panel)
-
-
-def format_data_for_analysis(
-    file_name: Path,
-    fmt: Literal["shp", "geosjon", "gpkg", "other"],
-    catalog_folder: Path,
-    output_folder: Path,
-):
-    """
-    ie. "lno_10_days.shp", "shp"
-    """
-    rda = RawDataAnalysis(catalog_folder, output_folder)
-    rda.save_to_format(file_name, fmt)
-
-
-def preview_data(
-    catalog_folder: Path,
-):
-    """
-    ie. "lno_10_days.shp", "shp"
-    """
-    rda = RawDataAnalysis(catalog_folder)
-    rda.preview_geodf()
-
-
-def show_possible_formats():
-    RawDataAnalysis.show_writable_formats()
 
 
 def create_catalog(

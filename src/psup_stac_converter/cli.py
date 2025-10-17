@@ -5,7 +5,6 @@ from typing import Annotated, Optional
 import typer
 
 from psup_stac_converter import _main as F
-from psup_stac_converter.exceptions import FileExtensionError
 from psup_stac_converter.settings import (
     create_logger_from_settings,
     init_settings_from_file,
@@ -128,59 +127,6 @@ def describe_folders():
 
 
 @app.command()
-def download_wkt_files(
-    ctx: typer.Context,
-    file_name: Annotated[
-        Path,
-        typer.Argument(
-            exists=False,
-            file_okay=True,
-            dir_okay=False,
-            writable=False,
-            readable=True,
-            help="The target file. Must be a CSV.",
-        ),
-    ] = None,
-    output_folder: Annotated[
-        Optional[Path],
-        typer.Option(
-            "--in-folder",
-            "-f",
-            exists=True,
-            file_okay=False,
-            dir_okay=True,
-            writable=False,
-            readable=True,
-            resolve_path=True,
-            help="The folder to put your downloaded data in",
-        ),
-    ] = None,
-):
-    """Downloads WKT files from the solar system in FILE_NAME
-
-    You can pass an OUTPUT_FOLDER option for simplicity. Do not use
-    OUTPUT_FOLDER if the resolved path is in FILE_NAME.
-    """
-    settings = ctx.obj.get("settings")
-    if file_name is None and settings.wkt_file_name is None:
-        raise typer.BadParameter("Must provide a mfile name of CSV type!")
-
-    file_name = file_name or settings.wkt_file_name
-    output_folder = output_folder or settings.extra_data_path
-
-    if not file_name.suffix.endswith("csv"):
-        raise FileExtensionError(["csv"], file_name.suffix)
-
-    if output_folder is not None:
-        file_name = output_folder / file_name
-
-    F.download_wkt_files(
-        file_name,
-        **{k: v for k, v in ctx.obj.items() if k not in ["settings"]},
-    )
-
-
-@app.command()
 def show_wkt_projections(
     ctx: typer.Context,
     file_name: Annotated[
@@ -209,83 +155,6 @@ def show_wkt_projections(
         proj_keywords=proj_keywords,
         **{k: v for k, v in ctx.obj.items() if k not in ["settings"]},
     )
-
-
-@app.command()
-def format_data_for_analysis(
-    ctx: typer.Context,
-    file_name: Annotated[
-        Path,
-        typer.Argument(
-            help="The name of the intermediate file",
-            exists=False,
-            file_okay=True,
-            dir_okay=False,
-            writable=True,
-            readable=True,
-        ),
-    ] = None,
-    fmt: Annotated[
-        FileFormat,
-        typer.Option("--format", "-f", help="The format of the intermediate file"),
-    ] = None,
-    catalog_folder: Annotated[
-        Path,
-        typer.Option(
-            "--catalog",
-            help="The folder in where the catalogs lie",
-            exists=True,
-            file_okay=False,
-            dir_okay=True,
-            writable=True,
-            readable=True,
-        ),
-    ] = None,
-    output_folder: Annotated[
-        Path,
-        typer.Option(
-            "--output-folder",
-            "-O",
-            help="The intermediate folder to export in",
-            exists=True,
-            file_okay=False,
-            dir_okay=True,
-            writable=True,
-            readable=True,
-        ),
-    ] = None,
-):
-    F.format_data_for_analysis(file_name, fmt, catalog_folder, output_folder, **ctx.obj)
-
-
-@app.command()
-def preview_data(
-    ctx: typer.Context,
-    catalog_folder: Annotated[
-        Path,
-        typer.Option(
-            "--catalog",
-            help="The folder in where the catalogs lie",
-            exists=True,
-            file_okay=False,
-            dir_okay=True,
-            writable=True,
-            readable=True,
-        ),
-    ] = None,
-):
-    settings = ctx.obj.get("settings")
-
-    F.preview_data(
-        catalog_folder or settings.catalog_folder_path,
-        **{k: v for k, v in ctx.obj.items() if k not in ["settings"]},
-    )
-
-
-@app.command()
-def show_possible_formats():
-    """Shows the available formats for saving"""
-    F.show_possible_formats()
 
 
 @app.command()

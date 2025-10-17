@@ -18,9 +18,8 @@ class Settings(BaseSettings):
     log_format: str = "%(asctime)s [%(levelname)s] %(message)s"
     data_path: Path = BASE_DIR / "data"
     raw_data_path: Path = BASE_DIR / "data" / "raw"
-    catalog_folder_path: Path = BASE_DIR / "data" / "raw" / "catalogs"
     output_data_path: Path = BASE_DIR / "data" / "processed"
-    intermediate_data_path: Path = BASE_DIR / "data" / "intermediate"
+    # This folder holds complementary information for the output
     extra_data_path: Path = BASE_DIR / "data" / "extra"
     psup_inventory_file: Path = BASE_DIR / "data" / "raw" / "psup_refs.csv"
 

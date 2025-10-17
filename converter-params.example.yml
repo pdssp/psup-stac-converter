@@ -6,9 +6,7 @@ settings:
   # Where the user keeps their data
   data_path: "./data"
   raw_data_path: "./data/raw"
-  catalog_folder_path: "./data/raw/catalogs"
   output_data_path: "./data/processed"
-  intermediate_data_path: "./data/intermediate"
   extra_data_path: "./data/extra"
   wkt_file_name: "wkt_solar_system.csv"
   psup_inventory_file: "./data/raw/psup_refs.csv"

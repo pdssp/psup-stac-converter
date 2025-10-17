@@ -3,19 +3,16 @@ import logging
 import time
 from io import StringIO
 from pathlib import Path
-from typing import Literal
 
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-import pyogrio
 import pystac
 from rich.console import Console
 from rich.panel import Panel
-from rich.table import Table
 from shapely import Polygon, bounds
 
-from psup_stac_converter.exceptions import FolderNotEmptyError
+from psup_stac_converter.exceptions import FileExtensionError, FolderNotEmptyError
 from psup_stac_converter.extensions import apply_sci, apply_ssys
 from psup_stac_converter.informations.data_providers import providers as data_providers
 from psup_stac_converter.informations.geojson_features import geojson_features
@@ -26,6 +23,7 @@ from psup_stac_converter.processors.selection import ProcessorName, select_proce
 from psup_stac_converter.settings import Settings, create_logger
 from psup_stac_converter.utils.io import IoHandler, PsupIoHandler
 
+# Place default settings as a backup
 settings = Settings()
 
 
@@ -120,64 +118,6 @@ class BaseProcessor:
         return pd.concat(self._open_as_geodf().values())
 
 
-class RawDataAnalysis(BaseProcessor):
-    """
-    Primarily serves as a concatenator for sparse JSON data files.
-
-    Can serve as a good middleman for those who can handle GeoDataframes.
-    """
-
-    def __init__(
-        self,
-        raw_data_folder: Path,
-        psup_data_inventory_file: Path | None = None,
-        output_folder: Path | None = None,
-    ):
-        super().__init__(raw_data_folder, output_folder)
-        if psup_data_inventory_file is not None and psup_data_inventory_file.exists():
-            self.psup_archive = PsupIoHandler(
-                psup_data_inventory_file, output_folder=self.io_handler.input_folder
-            )
-        else:
-            self.log.warning("No data archive found. Consider linking this one.")
-            self.psup_archive = None
-
-    @staticmethod
-    def show_writable_formats():
-        table = Table(title="Available formats")
-
-        table.add_column("Format", style="bold")
-        table.add_column("Permission")
-
-        for driver_name, driver_permissions in pyogrio.list_drivers().items():
-            if driver_permissions == "r":
-                permission = "[yellow]READ ONLY"
-            elif driver_permissions == "rw":
-                permission = "[bold green]READ/WRITE"
-
-            table.add_row(driver_name, permission)
-
-        console = Console()
-        console.print(table)
-
-    def save_to_format(
-        self,
-        filename: str,
-        fmt_name: Literal["shp", "geosjon", "gpkg", "other"] = "other",
-    ) -> gpd.GeoDataFrame:
-        output_file = self.io_handler.output_folder / filename
-        gdf = self.concat_geodf()
-
-        if fmt_name in ["shp", "other"]:
-            gdf.to_file(output_file)
-        elif fmt_name == "geojson":
-            gdf.to_file(output_file, driver="GeoJSON")
-        elif fmt_name == "geopackage":
-            gdf.to_file(output_file, layer="data", driver="GPKG")
-
-        return gdf
-
-
 class CatalogCreator(BaseProcessor):
     """PSUP's STAC generator
 
@@ -193,16 +133,22 @@ class CatalogCreator(BaseProcessor):
         log: logging.Logger | None = None,
     ):
         super().__init__(raw_data_folder, output_folder, log=log)
+        if psup_data_inventory_file is None:
+            psup_data_inventory_file = settings.psup_inventory_file
+        if not psup_data_inventory_file.exists():
+            raise FileNotFoundError(
+                f"""{psup_data_inventory_file} does not exist.
+                You can generate one with
+                `psup-scraper get-data-ref -O {psup_data_inventory_file.as_posix()} -f csv --clean` if needed"""
+            )
+
+        if not psup_data_inventory_file.suffix.endswith("csv"):
+            raise FileExtensionError(["csv"], psup_data_inventory_file.suffix)
+
         if psup_data_inventory_file is not None and psup_data_inventory_file.exists():
             self.psup_archive = PsupIoHandler(
                 psup_data_inventory_file, output_folder=self.io_handler.input_folder
             )
-        else:
-            self.log.warning(
-                "No data archive found. Consider linking this one to your converter to extract relevant metadata."
-            )
-            self.log.warning("You can use `psup-scraper` to generate one if needed.")
-            self.psup_archive = None
 
     def create_catalog(
         self, self_contained: bool = True, clean_previous_output: bool = False
