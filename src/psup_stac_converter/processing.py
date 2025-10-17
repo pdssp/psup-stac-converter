@@ -158,6 +158,7 @@ class CatalogCreator(BaseProcessor):
             catalog.add_child(omega_mmaps_collection)
 
             self.log.info("Creating OMEGA C Channel Proj collection")
+            self.log.debug(self.psup_archive)
             omega_c_channel_builder = OmegaCChannelProj(self.psup_archive, log=self.log)
             omega_c_channel_collection = omega_c_channel_builder.create_collection()
             catalog.add_child(omega_c_channel_collection)
