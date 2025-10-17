@@ -1,5 +1,6 @@
 import json
 import logging
+from typing import Any
 
 from shapely import bounds, to_geojson
 
@@ -26,6 +27,9 @@ Both files contain the cubes of reflectance of the surface at a given longitude,
             publications=omega_c_channel,
             log=log,
         )
+        self.sav_metadata_folder = self.io_handler.input_folder / "l3_sav"
+        if not self.sav_metadata_folder.exists():
+            self.sav_metadata_folder.mkdir()
 
     def create_collection(self):
         collection = super().create_collection()
@@ -34,6 +38,29 @@ Both files contain the cubes of reflectance of the surface at a given longitude,
         collection = apply_eo(collection, bands=[omega_bands[1]])
 
         return collection
+
+    def extract_sav_metadata(self, orbit_cube_idx: str, **kwargs) -> dict[str, Any]:
+        try:
+            sav_info = {}
+            self.log.debug(f"Opening the sav file for {orbit_cube_idx}")
+
+            # .sav files range from several GB to some KB
+            # It is generally not recommended to keep them on local disk
+            sav_data = self.open_file(
+                orbit_cube_idx, file_extension="sav", on_disk=False
+            )
+            sav_info["dims"] = sav_data["longi"].shape
+
+            return sav_info
+
+        except OSError as ose:
+            self.log.error(f"[{ose.__class__.__name__}] {ose}")
+            self.log.error(
+                f"""Cube {orbit_cube_idx}'s sav file is too big for the disk ({kwargs.get("sav_size")})."""
+            )
+        except Exception as e:
+            self.log.error(f"A problem with {orbit_cube_idx} occured")
+            self.log.error(f"[{e.__class__.__name__}] {e}")
 
     def create_stac_item(self, orbit_cube_idx):
         text_data: OmegaDataTextItem = self.open_file(
@@ -59,24 +86,19 @@ Both files contain the cubes of reflectance of the surface at a given longitude,
             },
         )
 
-        try:
-            self.log.debug(f"Opening the sav file for {orbit_cube_idx}")
-
-            # .sav files range from several GB to some KB
-            # It is generally not recommended to keep them on local disk
-            sav_data = self.open_file(
-                orbit_cube_idx, file_extension="sav", on_disk=False
+        sav_md_state = self.sav_metadata_folder / f"sav_{orbit_cube_idx}.json"
+        if sav_md_state.exists():
+            with open(
+                self.sav_metadata_folder / f"sav_{orbit_cube_idx}.json", "rb"
+            ) as sav_md:
+                sav_info = json.load(sav_md)
+        else:
+            sav_info = self.extract_sav_metadata(
+                orbit_cube_idx, sav_size=pystac_item.assets["sav"].extra_fields["size"]
             )
-            x_dim, y_dim = sav_data["longi"].shape
+            with open(sav_md_state, "wb") as sav_md:
+                json.write(sav_md)
 
-            pystac_item.assets["sav"].extra_fields["map_dimensions"] = (x_dim, y_dim)
-        except OSError as ose:
-            self.log.error(f"[{ose.__class__.__name__}] {ose}")
-            self.log.error(
-                f"""Cube {orbit_cube_idx}'s sav file is too big for the disk ({pystac_item.assets["sav"].extra_fields["size"]})."""
-            )
-        except Exception as e:
-            self.log.error(f"A problem with {orbit_cube_idx} occured")
-            self.log.error(f"[{e.__class__.__name__}] {e}")
+        pystac_item.assets["sav"].extra_fields["map_dimensions"] = sav_info["dims"]
 
         return pystac_item

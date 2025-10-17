@@ -36,6 +36,9 @@ Please note that longitudes range from -180 to 180 degrees east.
             publications=omega_data_cubes,
             log=log,
         )
+        self.sav_metadata_folder = self.io_handler.input_folder / "l2_sav"
+        if not self.sav_metadata_folder.exists():
+            self.sav_metadata_folder.mkdir()
 
     def create_collection(self):
         """Creates a collection based on the OMEGA datacubes' dataset
@@ -63,7 +66,8 @@ Please note that longitudes range from -180 to 180 degrees east.
 
     def extract_sav_info(self, orbit_cube_idx: str) -> dict[str, Any]:
         try:
-            sav_info = {}
+            orbit_number, cube_number = orbit_cube_idx.split("_")
+            sav_info = {"orbit_number": orbit_number, cube_number: int(cube_number)}
             self.log.debug(f"Opening the sav file for {orbit_cube_idx}")
 
             # .sav files range from several GB to some KB
@@ -116,7 +120,6 @@ Please note that longitudes range from -180 to 180 degrees east.
             )
         except ValueError as verr:
             self.log.error(f"[{verr.__class__.__name__}] {verr}")
-            self.log.error(f"""Shape of datacube was {sav_data["ldat_j"].shape}""")
         except Exception as e:
             self.log.error(f"A problem with {orbit_cube_idx} occured")
             self.log.error(f"[{e.__class__.__name__}] {e}")
@@ -125,7 +128,19 @@ Please note that longitudes range from -180 to 180 degrees east.
         """
         Information is contained within the IDL.sav files and NetCDF files
         """
-        sav_info = self.extract_sav_info(orbit_cube_idx)
+
+        sav_md_state = self.sav_metadata_folder / f"sav_{orbit_cube_idx}.json"
+        if sav_md_state.exists():
+            with open(
+                self.sav_metadata_folder / f"sav_{orbit_cube_idx}.json", "rb"
+            ) as sav_md:
+                sav_info = json.load(sav_md)
+        else:
+            sav_info = self.extract_sav_info(orbit_cube_idx)
+            with open(sav_md_state, "wb") as sav_md:
+                json.write(sav_md)
+
+        # This one is given by the data description
         default_end_datetime = dt.datetime(2016, 4, 11, 0, 0)
 
         pystac_item = super().create_stac_item(
@@ -156,5 +171,15 @@ Please note that longitudes range from -180 to 180 degrees east.
         pystac_item.assets["sav"].extra_fields["wavelength_range"] = sav_info[
             "wavelength_range"
         ]
+
+        # Apply EO extension
+        working_bands = [omega_bands[0]]
+        if sav_info["is_c_channel_working"]:
+            working_bands.append(omega_bands(1))
+
+        if sav_info["is_l_channel_working"]:
+            working_bands.append(omega_bands[2])
+
+        pystac_item = apply_eo(pystac_item, bands=working_bands)
 
         return pystac_item
