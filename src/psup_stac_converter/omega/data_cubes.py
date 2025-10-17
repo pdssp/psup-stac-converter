@@ -133,12 +133,12 @@ Please note that longitudes range from -180 to 180 degrees east.
         sav_md_state = self.sav_metadata_folder / f"sav_{orbit_cube_idx}.json"
         if sav_md_state.exists():
             with open(
-                self.sav_metadata_folder / f"sav_{orbit_cube_idx}.json", "rb"
+                self.sav_metadata_folder / f"sav_{orbit_cube_idx}.json", "r"
             ) as sav_md:
                 sav_info = json.load(sav_md)
         else:
             sav_info = self.extract_sav_info(orbit_cube_idx)
-            with open(sav_md_state, "wb") as sav_md:
+            with open(sav_md_state, "w") as sav_md:
                 json.dump(sav_info, sav_md)
 
         # This one is given by the data description
