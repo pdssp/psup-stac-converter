@@ -62,7 +62,9 @@ def create_logger(
     log.setLevel(log_level)
 
     rich_handler = RichHandler()
-    file_handler = logging.FileHandler(BASE_DIR / "logs" / "psup-stac-generator.log")
+    file_log_path = BASE_DIR / "logs" / "psup-stac-generator.log"
+    file_log_path.parent.mkdir(parents=True, exist_ok=True)
+    file_handler = logging.FileHandler(file_log_path)
 
     rich_formatter = logging.Formatter("%(message)s", datefmt="[%X]")
     file_formatter = logging.Formatter(log_format, datefmt="[%X]")

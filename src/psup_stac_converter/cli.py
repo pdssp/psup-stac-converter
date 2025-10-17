@@ -143,6 +143,7 @@ def show_wkt_projections(
     solar_body: Annotated[str, typer.Option("--solar-body", "-sb")] = None,
     proj_keywords: Annotated[list[str], typer.Option("--keywords", "-k")] = None,
 ):
+    """Displays the available WKT projections of the solar system from a WKT CSV file"""
     settings = ctx.obj.get("settings")
     if file_name is None and settings is None:
         raise typer.BadParameter("Must provide a valid WKT file of CSV type!")
