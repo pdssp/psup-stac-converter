@@ -112,7 +112,7 @@ def create_stac_catalog(
     settings = ctx.obj.get("settings")
 
     F.create_catalog(
-        raw_data_folder=raw_data_folder or settings.catalog_folder_path,
+        raw_data_folder=raw_data_folder or settings.raw_data_path,
         output_folder=output_folder or settings.output_data_path,
         psup_data_inventory_file=psup_inventory_file or settings.psup_inventory_file,
         clean_prev_output=clean_previous_output,
