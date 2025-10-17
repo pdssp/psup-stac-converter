@@ -3,6 +3,7 @@ import logging
 from pathlib import Path
 
 import yaml
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from rich.logging import RichHandler
 
@@ -27,6 +28,21 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict()
 
+    @field_validator(
+        "data_path",
+        "raw_data_path",
+        "output_data_path",
+        "extra_data_path",
+        "psup_inventory_file",
+        mode="after",
+    )
+    @classmethod
+    def resolve_path(cls, value: Path) -> Path:
+        value = value.expanduser()
+        if not value.exists():
+            raise FileNotFoundError(f"{value} isn't a valid path.")
+        return value
+
 
 def init_settings_from_file(config_file: Path) -> Settings:
     if not config_file.exists():
@@ -35,7 +51,7 @@ def init_settings_from_file(config_file: Path) -> Settings:
     if not config_file.suffix.endswith("yml") or config_file.suffix.endswith("yaml"):
         raise FileExtensionError(["yml", "yaml"], config_file.suffix)
 
-    cfg = yaml.safe_load(Path("converter-params.yml").read_text())
+    cfg = yaml.safe_load(Path(config_file).read_text())
     return Settings.model_validate(cfg["settings"])
 
 
