@@ -15,7 +15,6 @@ from psup_stac_converter.settings import Settings, create_logger
 from psup_stac_converter.utils.downloader import Downloader, PsupArchive
 from psup_stac_converter.utils.formatting import walk_directory
 
-settings = Settings()
 console = Console()
 
 
@@ -31,13 +30,13 @@ class IoHandler:
         else:
             self.log = log
         if input_folder is None:
-            input_folder = settings.raw_data_path
+            input_folder = Settings().raw_data_path
         else:
             self.log.warning(
                 f"Make sure you don't commit {input_folder} to version control"
             )
         if output_folder is None:
-            output_folder = settings.output_data_path
+            output_folder = Settings().output_data_path
         else:
             self.log.warning(
                 f"Make sure you don't commit {output_folder} to version control"

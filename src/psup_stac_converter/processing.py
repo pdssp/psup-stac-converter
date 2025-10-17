@@ -23,9 +23,6 @@ from psup_stac_converter.processors.selection import ProcessorName, select_proce
 from psup_stac_converter.settings import Settings, create_logger
 from psup_stac_converter.utils.io import IoHandler, PsupIoHandler
 
-# Place default settings as a backup
-settings = Settings()
-
 
 class BaseProcessor:
     @staticmethod
@@ -59,7 +56,9 @@ class BaseProcessor:
 
         if log is None:
             self.log = create_logger(
-                __name__, log_level=settings.log_level, log_format=settings.log_format
+                __name__,
+                log_level=Settings().log_level,
+                log_format=Settings().log_format,
             )
         else:
             self.log = log
@@ -134,7 +133,7 @@ class CatalogCreator(BaseProcessor):
     ):
         super().__init__(raw_data_folder, output_folder, log=log)
         if psup_data_inventory_file is None:
-            psup_data_inventory_file = settings.psup_inventory_file
+            psup_data_inventory_file = Settings().psup_inventory_file
         if not psup_data_inventory_file.exists():
             raise FileNotFoundError(
                 f"""{psup_data_inventory_file} does not exist.

@@ -39,8 +39,6 @@ class Settings(BaseSettings):
     @classmethod
     def resolve_path(cls, value: Path) -> Path:
         value = value.expanduser()
-        if not value.exists():
-            raise FileNotFoundError(f"{value} isn't a valid path.")
         return value
 
 
@@ -69,10 +67,10 @@ def create_logger(
         logging.Logger: _description_
     """
     if log_level is None:
-        log_level = Settings().log_level
+        log_level = "DEBUG"
 
     if log_format is None:
-        log_format = Settings().log_format
+        log_format = "%(asctime)s [%(levelname)s] %(message)s"
 
     log = logging.getLogger(logger_name)
     log.setLevel(log_level)
