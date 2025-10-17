@@ -121,9 +121,48 @@ def create_stac_catalog(
 
 
 @app.command()
-def describe_folders():
+def describe_folders(
+    ctx: typer.Context,
+    input_folder: Annotated[
+        Path,
+        typer.Option(
+            "--input",
+            "-I",
+            help="Where the raw data lies",
+            exists=True,
+            file_okay=False,
+            dir_okay=True,
+            writable=False,
+            readable=True,
+            resolve_path=True,
+        ),
+    ] = None,
+    output_folder: Annotated[
+        Path,
+        typer.Option(
+            "--output",
+            "-O",
+            help="Where the processed catalog is",
+            exists=True,
+            file_okay=False,
+            dir_okay=True,
+            writable=False,
+            readable=True,
+            resolve_path=True,
+        ),
+    ] = None,
+):
     """Shows the target folders from config"""
-    F.describe_target_folders()
+    settings = ctx.obj.get("settings")
+
+    if settings is not None:
+        input_folder = settings.raw_data_path
+        output_folder = settings.output_data_path
+
+    F.describe_target_folders(
+        input_folder=input_folder,
+        output_folder=output_folder,
+    )
 
 
 @app.command()

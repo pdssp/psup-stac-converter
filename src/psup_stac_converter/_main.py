@@ -12,8 +12,11 @@ from psup_stac_converter.utils.io import IoHandler
 console = Console()
 
 
-def describe_target_folders():
-    io_handler = IoHandler()
+def describe_target_folders(
+    input_folder: Path | None = None,
+    output_folder: Path | None = None,
+):
+    io_handler = IoHandler(input_folder=input_folder, output_folder=output_folder)
 
     console.print("Input folder:")
     io_handler.show_input_folder()
