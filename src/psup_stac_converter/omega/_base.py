@@ -14,6 +14,12 @@ from pystac.extensions.scientific import Publication
 from shapely import Polygon, bounds, box, to_geojson
 from tqdm.rich import tqdm
 
+from psup_stac_converter.exceptions import (
+    FileExtensionError,
+    OmegaCubeDataMissingError,
+    OmegaOrbitCubeIndexNotFoundError,
+    PropertySetterError,
+)
 from psup_stac_converter.extensions import apply_sci, apply_ssys
 from psup_stac_converter.informations.data_providers import providers as data_providers
 from psup_stac_converter.settings import create_logger
@@ -75,7 +81,7 @@ class OmegaDataReader:
 
     @omega_data.setter
     def omega_data(self, _v: pd.DataFrame):
-        raise ValueError(
+        raise PropertySetterError(
             "You can't modify `omega_data` without modifying `io_handler` first."
         )
 
@@ -106,7 +112,7 @@ class OmegaDataReader:
         file_extension: Literal["sav", "nc", "txt"] | None = None,
     ) -> pd.DataFrame:
         if orbit_cube_idx not in self.omega_data.index:
-            raise ValueError(
+            raise OmegaOrbitCubeIndexNotFoundError(
                 f'There is no such orbit/cube combination with "{orbit_cube_idx}" in the data.'
             )
 
@@ -117,14 +123,14 @@ class OmegaDataReader:
                 :,
             ]
             if omega_info.empty:
-                raise ProcessLookupError(
+                raise OmegaCubeDataMissingError(
                     f"{orbit_cube_idx} exists but the info requested with extension .{file_extension} couldn't be found"
                 )
             return omega_info
 
         omega_info = self.omega_data.loc[orbit_cube_idx, :]
         if omega_info.empty:
-            raise ProcessLookupError(
+            raise OmegaCubeDataMissingError(
                 f"{orbit_cube_idx} exists but the info required couldn't be found"
             )
 
@@ -158,7 +164,7 @@ class OmegaDataReader:
         elif file_extension == "txt":
             return self.open_txt_metadata(orbit_cube_idx, on_disk=on_disk, raw=text_raw)
         else:
-            raise ValueError("The extension can only be 'sav', 'nc' or 'txt'.")
+            raise FileExtensionError(["sav", "nc", "txt"], file_extension)
 
     def open_sav_dataset(
         self, orbit_cube_idx: str, on_disk: bool = True
@@ -297,8 +303,6 @@ class OmegaDataReader:
         Returns:
             pystac.Item: _description_
         """
-        sav_info = self.find_info_by_orbit_cube(orbit_cube_idx, file_extension="sav")
-        nc_info = self.find_info_by_orbit_cube(orbit_cube_idx, file_extension="nc")
 
         footprint = kwargs.get(
             "footprint", json.loads(to_geojson(box(-180.0, -90.0, 180.0, 90.0)))
@@ -318,23 +322,36 @@ class OmegaDataReader:
         )
 
         # assets
-        nc_asset = pystac.Asset(
-            href=nc_info["href"].item(),
-            media_type=pystac.MediaType.NETCDF,
-            roles=["data"],
-            description="NetCDF data",
-            extra_fields={"size": nc_info["h_total_size"].item()},
-        )
-        pystac_item.add_asset("nc", nc_asset)
 
-        sav_asset = pystac.Asset(
-            href=sav_info["href"].item(),
-            media_type=pystac.MediaType.TEXT,
-            roles=["data"],
-            description="IDL .sav data",
-            extra_fields={"size": sav_info["h_total_size"].item()},
-        )
-        pystac_item.add_asset("sav", sav_asset)
+        # NetCDF4 data
+        try:
+            nc_info = self.find_info_by_orbit_cube(orbit_cube_idx, file_extension="nc")
+            nc_asset = pystac.Asset(
+                href=nc_info["href"].item(),
+                media_type=pystac.MediaType.NETCDF,
+                roles=["data"],
+                description="NetCDF data",
+                extra_fields={"size": nc_info["h_total_size"].item()},
+            )
+            pystac_item.add_asset("nc", nc_asset)
+        except OmegaCubeDataMissingError:
+            self.log.warning(f"NetCDF file not found for {orbit_cube_idx}. Skipping.")
+
+        # IDL.sav data
+        try:
+            sav_info = self.find_info_by_orbit_cube(
+                orbit_cube_idx, file_extension="sav"
+            )
+            sav_asset = pystac.Asset(
+                href=sav_info["href"].item(),
+                media_type=pystac.MediaType.TEXT,
+                roles=["data"],
+                description="IDL .sav data",
+                extra_fields={"size": sav_info["h_total_size"].item()},
+            )
+            pystac_item.add_asset("sav", sav_asset)
+        except OmegaCubeDataMissingError:
+            self.log.warning(f"IDL.sav not found for {orbit_cube_idx}. Skipping.")
 
         # extensions
         pystac_item = apply_ssys(pystac_item)

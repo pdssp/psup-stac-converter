@@ -15,6 +15,7 @@ from rich.panel import Panel
 from rich.table import Table
 from shapely import Polygon, bounds
 
+from psup_stac_converter.exceptions import FolderNotEmptyError
 from psup_stac_converter.extensions import apply_sci, apply_ssys
 from psup_stac_converter.informations.data_providers import providers as data_providers
 from psup_stac_converter.informations.geojson_features import geojson_features
@@ -213,7 +214,7 @@ class CatalogCreator(BaseProcessor):
             raise FileNotFoundError("Your folder is empty! Download the data first.")
 
         if not self.io_handler.is_output_folder_empty() and not clean_previous_output:
-            raise ValueError(
+            raise FolderNotEmptyError(
                 "The output folder is not empty. Please clean it first or set clean_previous_output` to True"
             )
         elif not self.io_handler.is_output_folder_empty() and clean_previous_output:

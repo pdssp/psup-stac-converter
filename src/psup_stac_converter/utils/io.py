@@ -10,6 +10,7 @@ from pydantic import HttpUrl
 from rich.console import Console
 from rich.tree import Tree
 
+from psup_stac_converter.exceptions import FolderNotEmptyError
 from psup_stac_converter.settings import Settings, create_logger
 from psup_stac_converter.utils.downloader import Downloader, PsupArchive
 from psup_stac_converter.utils.formatting import walk_directory
@@ -99,7 +100,7 @@ class IoHandler:
 
     def download_data(self, file_path: str):
         if not self.is_input_folder_empty():
-            raise FileExistsError("The input folder is not empty!")
+            raise FolderNotEmptyError("The input folder is not empty!")
         downloader = Downloader(file_path)
         downloader.local_download(output_folder=self.input_folder)
 

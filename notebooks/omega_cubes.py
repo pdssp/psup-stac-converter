@@ -296,6 +296,7 @@ def _(ex_nc_ds):
         print(_k)
 
     print(ex_nc_ds["solar_longitude"].encoding)
+    print(ex_nc_ds.encoding)
     return
 
 
@@ -314,7 +315,6 @@ def _():
     MINIMUM LATITUDE =      37.9375
     DATA_QUALITY_ID                = 5
     """
-
     return
 
 

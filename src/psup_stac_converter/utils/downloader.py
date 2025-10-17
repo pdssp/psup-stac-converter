@@ -8,8 +8,10 @@ from urllib.parse import urlparse
 
 import httpx
 import pandas as pd
+from httpx_retries import Retry, RetryTransport
 from tqdm.rich import tqdm
 
+from psup_stac_converter.exceptions import ValueNotAcceptedError
 from psup_stac_converter.settings import create_logger
 
 log = create_logger(__name__)
@@ -53,16 +55,30 @@ class Downloader:
     def _download_remote_file(self, output_directory: Path, filename: str):
         """Bulk downloads the file if on remote, with progress bar"""
         self.local_path = output_directory / filename
-        with httpx.stream("GET", self.file_name) as response:
-            response.raise_for_status()
-            total = int(response.headers.get("Content-Length", 0))
-            with (
-                open(self.local_path, "wb") as f,
-                tqdm(total=total, unit="B", unit_scale=True, desc=filename) as pbar,
-            ):
-                for chunk in response.iter_bytes():
-                    f.write(chunk)
-                    pbar.update(len(chunk))
+
+        # define client config
+        retry = Retry(total=5, backoff_factor=0.5)
+        transport = RetryTransport(retry=retry)
+
+        with httpx.Client(transport=transport) as client:
+            with client.stream("GET", self.file_name) as response:
+                response.raise_for_status()
+                total = int(response.headers.get("Content-Length", 0))
+                with (
+                    open(self.local_path, "wb") as f,
+                    tqdm(
+                        total=total,
+                        unit="B",
+                        unit_scale=True,
+                        desc=filename,
+                        unit_divisor=1024,
+                    ) as pbar,
+                ):
+                    n_bytes_dl = response.num_bytes_downloaded
+                    for chunk in response.iter_bytes():
+                        f.write(chunk)
+                        pbar.update(response.num_bytes_downloaded - n_bytes_dl)
+                        n_bytes_dl = response.num_bytes_downloaded
 
     def local_download(self, output_folder: Path):
         if self.url_type != "local":
@@ -86,6 +102,17 @@ class PsupArchive:
         df["category"] = df["rel_path"].apply(lambda p: p.split("/")[0])
         df["root"] = df["rel_path"].apply(lambda p: p.split("/")[1])
         return df
+
+    @staticmethod
+    def create_http_client() -> httpx.Client:
+        """Defines an httpx Client with an exponential startegy to avoid crashouts
+
+        Returns:
+            httpx.Client: _description_
+        """
+        retry = Retry(total=5, backoff_factor=0.5)
+        transport = RetryTransport(retry=retry)
+        return httpx.Client(transport=transport)
 
     def __init__(self, psup_archive_file: Path):
         self.psup_archive = self.open_archive(psup_archive_file)
@@ -120,7 +147,7 @@ class PsupArchive:
             slice_copy = self.psup_archive
 
         if by not in self.fields:
-            raise ValueError(f""""{by}" not found among {self.fields}""")
+            raise ValueNotAcceptedError(self.fields, by)
 
         if by != "total_size" and type(criteria) is str:
             filtered_df = slice_copy[
@@ -217,21 +244,30 @@ class PsupArchive:
             dst (Path): _description_
             dl_desc (str | None, optional): _description_. Defaults to None.
         """
-        with httpx.stream("GET", remote_url) as response:
-            response.raise_for_status()
-            total = int(response.headers.get("Content-Length", 0))
-            with (
-                open(dst, "wb") as f,
-                tqdm(
-                    total=total,
-                    unit="B",
-                    unit_scale=True,
-                    desc=dl_desc if dl_desc is not None else dst.as_posix(),
-                ) as pbar,
-            ):
-                for chunk in response.iter_bytes():
-                    f.write(chunk)
-                    pbar.update(len(chunk))
+        retry = Retry(total=5, backoff_factor=0.5)
+        transport = RetryTransport(retry=retry)
+
+        with httpx.Client(transport=transport) as client:
+            with client.stream("GET", remote_url) as response:
+                response.raise_for_status()
+                total = int(response.headers.get("Content-Length", 0))
+                with (
+                    open(dst, "wb") as f,
+                    tqdm(
+                        total=total,
+                        unit="B",
+                        unit_scale=True,
+                        unit_divisor=1204,
+                        desc=dl_desc if dl_desc is not None else dst.as_posix(),
+                    ) as pbar,
+                ):
+                    num_bytes_downloaded = response.num_bytes_downloaded
+                    for chunk in response.iter_bytes():
+                        f.write(chunk)
+                        pbar.update(
+                            response.num_bytes_downloaded - num_bytes_downloaded
+                        )
+                        num_bytes_downloaded = response.num_bytes_downloaded
 
     @contextmanager
     def open_resource(self, file_href: str):
@@ -239,26 +275,38 @@ class PsupArchive:
 
         log.debug(f"Downloading {file_href}")
 
-        with httpx.stream("GET", file_href) as response:
-            log.debug(f"Got response: {response}")
-            response.raise_for_status()
+        retry = Retry(total=5, backoff_factor=0.5)
+        transport = RetryTransport(retry=retry)
 
-            total_bytes = int(response.headers.get("Content-Length", 0))
-            log.debug(f"A total of {total_bytes} will be downloaded")
+        with httpx.Client(transport=transport) as client:
+            with client.stream("GET", file_href) as response:
+                log.debug(f"Got response: {response}")
+                response.raise_for_status()
 
-            with (
-                tempfile.NamedTemporaryFile() as tmp_f,
-                tqdm(
-                    total=total_bytes, unit="B", unit_scale=True, desc=file_href
-                ) as pbar,
-            ):
-                for chunk in response.iter_bytes():
-                    tmp_f.write(chunk)
-                    pbar.update(len(chunk))
-                log.info(f"Saved {file_href} temporarily")
-                yield tmp_f
-                log.debug(f"{tmp_f.name} ready to use")
-            log.debug(f"{file_href} disposed")
+                total_bytes = int(response.headers.get("Content-Length", 0))
+                log.debug(f"A total of {total_bytes} bytes will be downloaded")
+
+                with (
+                    tempfile.NamedTemporaryFile() as tmp_f,
+                    tqdm(
+                        total=total_bytes,
+                        unit="B",
+                        unit_scale=True,
+                        desc=file_href,
+                        unit_divisor=1024,
+                    ) as pbar,
+                ):
+                    num_bytes_downloaded = response.num_bytes_downloaded
+                    for chunk in response.iter_bytes():
+                        tmp_f.write(chunk)
+                        pbar.update(
+                            response.num_bytes_downloaded - num_bytes_downloaded
+                        )
+                        num_bytes_downloaded = response.num_bytes_downloaded
+                    log.info(f"Saved {file_href} temporarily")
+                    yield tmp_f
+                    log.debug(f"{tmp_f.name} ready to use")
+                log.debug(f"{file_href} disposed")
 
     def save_slice_on_disk(
         self,

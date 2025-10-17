@@ -11,7 +11,9 @@ from rich.table import Table
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 
+from psup_scraper.items import WktLineItem
 from psup_scraper.spiders.psup_files import PsupFilesSpider
+from psup_scraper.spiders.wkt_spider import WktSpiderSpider
 from psup_stac_converter.utils.downloader import sizeof_fmt
 
 app = typer.Typer(name="psup-scraper")
@@ -135,6 +137,51 @@ def check_data(
         table.add_row(*[str(el) for el in row])
 
     console.print(table)
+
+
+@app.command()
+def get_wkt_proj(
+    output_path: Annotated[
+        Path,
+        typer.Option(
+            "--output",
+            "-O",
+            help="Where the download feed should be saved",
+            exists=False,
+            file_okay=True,
+            dir_okay=False,
+            writable=True,
+            readable=True,
+            resolve_path=True,
+        ),
+    ],
+    fmt: Annotated[
+        FeedFormatEnum,
+        typer.Option("--format", "-f", help="The format of the downloaded result"),
+    ],
+    clean_feed: Annotated[
+        bool,
+        typer.Option(
+            "--clean/--no-clean", help="Overwrites the feed file passed as an argument"
+        ),
+    ] = False,
+):
+    """Retrieves VESPA's projections under a CSV file"""
+    process = CrawlerProcess(scrapy_settings)
+    process.settings.set(
+        "FEEDS",
+        {
+            output_path.as_posix(): {
+                "format": fmt,
+                "item_classes": [WktLineItem],
+                "overwrite": clean_feed,
+            }
+        },
+    )
+    process.crawl(WktSpiderSpider)
+    log.info("Starting the scraper")
+    process.start()
+    log.info("Process finished!")
 
 
 if __name__ == "__main__":

@@ -6,6 +6,8 @@ import yaml
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from rich.logging import RichHandler
 
+from psup_stac_converter.exceptions import FileExtensionError
+
 BASE_DIR = Path(__file__).parents[2]
 
 
@@ -29,10 +31,10 @@ class Settings(BaseSettings):
 
 def init_settings_from_file(config_file: Path) -> Settings:
     if not config_file.exists():
-        raise ValueError(f"{config_file} not found.")
+        raise FileNotFoundError(f"{config_file} not found.")
 
     if not config_file.suffix.endswith("yml") or config_file.suffix.endswith("yaml"):
-        raise ValueError(f"{config_file} must end with .yml or .yaml!")
+        raise FileExtensionError(["yml", "yaml"], config_file.suffix)
 
     cfg = yaml.safe_load(Path("converter-params.yml").read_text())
     return Settings.model_validate(cfg["settings"])

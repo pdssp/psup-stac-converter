@@ -5,6 +5,7 @@ from typing import Annotated, Optional
 import typer
 
 from psup_stac_converter import _main as F
+from psup_stac_converter.exceptions import FileExtensionError
 from psup_stac_converter.settings import (
     create_logger_from_settings,
     init_settings_from_file,
@@ -168,7 +169,7 @@ def download_wkt_files(
     output_folder = output_folder or settings.extra_data_path
 
     if not file_name.suffix.endswith("csv"):
-        raise ValueError("Output file must be a CSV.")
+        raise FileExtensionError(["csv"], file_name.suffix)
 
     if output_folder is not None:
         file_name = output_folder / file_name
