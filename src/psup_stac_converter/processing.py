@@ -145,8 +145,9 @@ class CatalogCreator(BaseProcessor):
             raise FileExtensionError(["csv"], psup_data_inventory_file.suffix)
 
         self.psup_archive = PsupIoHandler(
-            psup_data_inventory_file, output_folder=self.io_handler.input_folder
+            psup_data_inventory_file, output_folder=raw_data_folder
         )
+        self.log.debug(self.psup_archive)
 
     def _add_collections_to_catalog(self, catalog: pystac.Catalog) -> pystac.Catalog:
         try:
