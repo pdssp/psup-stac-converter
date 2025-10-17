@@ -144,19 +144,15 @@ class CatalogCreator(BaseProcessor):
         if not psup_data_inventory_file.suffix.endswith("csv"):
             raise FileExtensionError(["csv"], psup_data_inventory_file.suffix)
 
-        if psup_data_inventory_file is not None and psup_data_inventory_file.exists():
-            self.psup_archive = PsupIoHandler(
-                psup_data_inventory_file, output_folder=self.io_handler.input_folder
-            )
+        self.psup_archive = PsupIoHandler(
+            psup_data_inventory_file, output_folder=self.io_handler.input_folder
+        )
 
     def create_catalog(
         self, self_contained: bool = True, clean_previous_output: bool = False
     ) -> pystac.Catalog:
         """Creates a catalog over the entire feature selection"""
         start_time = time.time()
-
-        if self.io_handler.is_input_folder_empty():
-            raise FileNotFoundError("Your folder is empty! Download the data first.")
 
         if not self.io_handler.is_output_folder_empty() and not clean_previous_output:
             raise FolderNotEmptyError(
