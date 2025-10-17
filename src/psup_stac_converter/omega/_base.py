@@ -289,8 +289,15 @@ class OmegaDataReader:
         collection = apply_sci(collection, publications=self.publications)
 
         for omega_data_idx in tqdm(self.omega_data_ids, total=self.n_elements):
-            omega_data_item = self.create_stac_item(omega_data_idx)
-            collection.add_item(omega_data_item)
+            try:
+                omega_data_item = self.create_stac_item(omega_data_idx)
+                collection.add_item(omega_data_item)
+                self.log.debug(f"Created: {omega_data_item}")
+            except Exception as e:
+                self.log.error(
+                    f"An unexpected error occured: [{e.__class__.__name__}] {e}"
+                )
+                self.log.error(f"{omega_data_idx} skipped!")
 
         return collection
 

@@ -350,8 +350,10 @@ def _(mo):
 
 
 @app.cell
-def _():
-    return
+def _(sio):
+    example_sav_l2 = sio.readsav(f"./data/raw/downloads/cube_omega/D195_2.sav")
+    example_sav_l2
+    return (example_sav_l2,)
 
 
 @app.cell(hide_code=True)
@@ -415,8 +417,17 @@ def _(mo):
 
 
 @app.cell
-def _():
+def _(example_sav_l2):
+    dc_dims = example_sav_l2["lat"].shape
+    print(dc_dims)
     return
+
+
+@app.cell
+def _(xr):
+    ex_nc_ds_l2 = xr.open_dataset("./data/raw/downloads/cube_omega/D195_2.nc")
+    ex_nc_ds_l2
+    return (ex_nc_ds_l2,)
 
 
 @app.cell(hide_code=True)
@@ -490,6 +501,12 @@ def _(mo):
     *   **orbit\_number** = "\[number\]"
     """
     )
+    return
+
+
+@app.cell
+def _(ex_nc_ds_l2):
+    ex_nc_ds_l2.attrs
     return
 
 

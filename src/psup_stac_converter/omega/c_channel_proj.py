@@ -67,11 +67,16 @@ Both files contain the cubes of reflectance of the surface at a given longitude,
             sav_data = self.open_file(
                 orbit_cube_idx, file_extension="sav", on_disk=False
             )
-            x_dim, _, y_dim = sav_data["carte"].shape
+            x_dim, y_dim = sav_data["longi"].shape
 
             pystac_item.assets["sav"].extra_fields["map_dimensions"] = (x_dim, y_dim)
+        except OSError as ose:
+            self.log.error(f"[{ose.__class__.__name__}] {ose}")
+            self.log.error(
+                f"""Cube {orbit_cube_idx}'s sav file is too big for the disk ({pystac_item.assets["sav"].extra_fields["size"]})."""
+            )
         except Exception as e:
-            self.log.error(f"A problem occured with {orbit_cube_idx}")
+            self.log.error(f"A problem with {orbit_cube_idx} occured")
             self.log.error(f"[{e.__class__.__name__}] {e}")
 
         return pystac_item

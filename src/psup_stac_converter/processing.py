@@ -148,6 +148,30 @@ class CatalogCreator(BaseProcessor):
             psup_data_inventory_file, output_folder=self.io_handler.input_folder
         )
 
+    def _add_collections_to_catalog(self, catalog: pystac.Catalog) -> pystac.Catalog:
+        try:
+            feature_collection = self.create_feature_collection()
+            catalog.add_child(feature_collection)
+
+            self.log.info("Creating OMEGA mineral maps collection")
+            omega_mmaps_collection = self.create_omega_mineral_maps_collection()
+            catalog.add_child(omega_mmaps_collection)
+
+            self.log.info("Creating OMEGA C Channel Proj collection")
+            omega_c_channel_builder = OmegaCChannelProj(self.psup_archive, log=self.log)
+            omega_c_channel_collection = omega_c_channel_builder.create_collection()
+            catalog.add_child(omega_c_channel_collection)
+
+            self.log.info("Creating OMEGA Data cubes collection")
+            omega_data_cubes_builder = OmegaDataCubes(self.psup_archive, log=self.log)
+            omega_data_cubes_collection = omega_data_cubes_builder.create_collection()
+            catalog.add_child(omega_data_cubes_collection)
+        except Exception as e:
+            self.log.error("There was a problem during collection generation!")
+            self.log.error(f"[{e.__class__.__name__}] {e}")
+        finally:
+            return catalog
+
     def create_catalog(
         self, self_contained: bool = True, clean_previous_output: bool = False
     ) -> pystac.Catalog:
@@ -169,23 +193,7 @@ class CatalogCreator(BaseProcessor):
 
         catalog = apply_ssys(catalog)
 
-        feature_collection = self.create_feature_collection()
-        catalog.add_child(feature_collection)
-
-        if self.psup_archive is not None:
-            self.log.info("Creating OMEGA mineral maps collection")
-            omega_mmaps_collection = self.create_omega_mineral_maps_collection()
-            catalog.add_child(omega_mmaps_collection)
-
-            self.log.info("Creating OMEGA C Channel Proj collection")
-            omega_c_channel_builder = OmegaCChannelProj(self.psup_archive, log=self.log)
-            omega_c_channel_collection = omega_c_channel_builder.create_collection()
-            catalog.add_child(omega_c_channel_collection)
-
-            self.log.info("Creating OMEGA Data cubes collection", log=self.log)
-            omega_data_cubes_builder = OmegaDataCubes(self.psup_archive)
-            omega_data_cubes_collection = omega_data_cubes_builder.create_collection()
-            catalog.add_child(omega_data_cubes_collection)
+        catalog = self._add_collections_to_catalog(catalog)
 
         # Save catalog (ie. in the STAC folder)
         self.log.info(f"Normalizing hrefs to {self.io_handler.output_folder}")
@@ -261,10 +269,8 @@ class CatalogCreator(BaseProcessor):
         master_collection = apply_ssys(master_collection)
 
         for feature_name in self.possible_names:
-            if self.psup_archive is not None:
-                file_location = self.psup_archive.find_or_download(feature_name)
-            else:
-                file_location = self.io_handler.input_folder / feature_name
+            file_location = self.psup_archive.find_or_download(feature_name)
+
             self.log.info(f"Found {feature_name} at {file_location}")
 
             self.log.info(f"Processing {feature_name}.")
