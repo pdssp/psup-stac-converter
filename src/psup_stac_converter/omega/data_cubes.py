@@ -36,7 +36,7 @@ Please note that longitudes range from -180 to 180 degrees east.
             publications=omega_data_cubes,
             log=log,
         )
-        self.sav_metadata_folder = psup_io_handler.input_folder / "l2_sav"
+        self.sav_metadata_folder = psup_io_handler.output_folder / "l2_sav"
         self.log.debug(f".sav metadata folder: {self.sav_metadata_folder}")
         if not self.sav_metadata_folder.exists():
             self.sav_metadata_folder.mkdir()

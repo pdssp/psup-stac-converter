@@ -27,7 +27,7 @@ Both files contain the cubes of reflectance of the surface at a given longitude,
             publications=omega_c_channel,
             log=log,
         )
-        self.sav_metadata_folder = psup_io_handler.input_folder / "l3_sav"
+        self.sav_metadata_folder = psup_io_handler.output_folder / "l3_sav"
         self.log.debug(f".sav metadata folder: {self.sav_metadata_folder}")
         if not self.sav_metadata_folder.exists():
             self.sav_metadata_folder.mkdir()
