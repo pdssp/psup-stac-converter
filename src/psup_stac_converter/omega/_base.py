@@ -292,7 +292,7 @@ class OmegaDataReader:
             try:
                 omega_data_item = self.create_stac_item(omega_data_idx)
                 collection.add_item(omega_data_item)
-                self.log.debug(f"Created: {omega_data_item}")
+                self.log.debug(f"Created item for cube # {omega_data_item}")
             except Exception as e:
                 self.log.error(
                     f"An unexpected error occured: [{e.__class__.__name__}] {e}"
@@ -332,6 +332,7 @@ class OmegaDataReader:
 
         # NetCDF4 data
         try:
+            self.log.debug(f"Creating NetCDF asset for # {orbit_cube_idx}")
             nc_info = self.find_info_by_orbit_cube(orbit_cube_idx, file_extension="nc")
             nc_asset = pystac.Asset(
                 href=nc_info["href"].item(),
@@ -346,6 +347,7 @@ class OmegaDataReader:
 
         # IDL.sav data
         try:
+            self.log.debug(f"Creating IDL.sav asset for # {orbit_cube_idx}")
             sav_info = self.find_info_by_orbit_cube(
                 orbit_cube_idx, file_extension="sav"
             )
@@ -367,5 +369,7 @@ class OmegaDataReader:
         # common metadata
         pystac_item.common_metadata.mission = "mex"
         pystac_item.common_metadata.instruments = ["omega"]
+
+        self.log.debug(f"Created item from base method {pystac_item}")
 
         return pystac_item

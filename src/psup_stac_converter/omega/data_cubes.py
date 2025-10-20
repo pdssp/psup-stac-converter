@@ -150,8 +150,10 @@ Please note that longitudes range from -180 to 180 degrees east.
                 "%d/%m/%y",
             ).isoformat()
 
+            self.log.debug(f"Obtained nc_info={nc_info}")
             nc_data.close()
             return nc_info
+
         except OSError as ose:
             self.log.error(f"[{ose.__class__.__name__}] {ose}")
             self.log.error(

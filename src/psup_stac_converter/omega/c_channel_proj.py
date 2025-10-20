@@ -59,6 +59,7 @@ Both files contain the cubes of reflectance of the surface at a given longitude,
                 orbit_cube_idx, file_extension="sav", on_disk=False
             )
             sav_info["dims"] = sav_data["longi"].shape
+            self.log.debug(f"Obtained sav_info={sav_info}")
 
             return sav_info
 
