@@ -206,7 +206,6 @@ You can also generate this file using the following command:
 $ uv run psup-scraper get-wkt-proj -O <wkt-data-path-csv> -f csv --clean
 ```
 
-
 ## References
 
 See [References](./references.md) for more information.

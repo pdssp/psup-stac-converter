@@ -97,15 +97,21 @@ Both files contain the cubes of reflectance of the surface at a given longitude,
 
         sav_md_state = self.sav_metadata_folder / f"sav_{orbit_cube_idx}.json"
         if sav_md_state.exists():
+            self.log.debug(f"{sav_md_state} found! Opening...")
             with open(
-                self.sav_metadata_folder / f"sav_{orbit_cube_idx}.json", "r"
+                sav_md_state,
+                "r",
+                encoding="utf-8",
             ) as sav_md:
                 sav_info = json.load(sav_md)
         else:
+            self.log.debug(
+                f"{sav_md_state} Not found. Creating from # {orbit_cube_idx}"
+            )
             sav_info = self.extract_sav_metadata(
                 orbit_cube_idx, sav_size=pystac_item.assets["sav"].extra_fields["size"]
             )
-            with open(sav_md_state, "w") as sav_md:
+            with open(sav_md_state, "w", encoding="utf-8") as sav_md:
                 json.dump(sav_info, sav_md)
 
         pystac_item.assets["sav"].extra_fields["map_dimensions"] = sav_info["dims"]

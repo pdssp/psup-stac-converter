@@ -166,26 +166,30 @@ Please note that longitudes range from -180 to 180 degrees east.
         """
 
         sav_md_state = self.sav_metadata_folder / f"sav_{orbit_cube_idx}.json"
+        self.log.debug(f"Opening {sav_md_state}")
         if sav_md_state.exists():
-            with open(
-                self.sav_metadata_folder / f"sav_{orbit_cube_idx}.json", "r"
-            ) as sav_md:
+            with open(sav_md_state, "r", encoding="utf-8") as sav_md:
                 sav_info = json.load(sav_md)
         else:
+            self.log.debug(
+                f"{sav_md_state} not found. Creating it from # {orbit_cube_idx}"
+            )
             sav_info = self.extract_sav_info(orbit_cube_idx)
-            with open(sav_md_state, "w") as sav_md:
+            with open(sav_md_state, "w", encoding="utf-8") as sav_md:
                 json.dump(sav_info, sav_md)
 
         # Open NC metadata to complete
         nc_md_state = self.nc_metadata_folder / f"nc_{orbit_cube_idx}.json"
+        self.log.debug(f"Opening {nc_md_state}")
         if nc_md_state.exists():
-            with open(
-                self.nc_metadata_folder / f"nc_{orbit_cube_idx}.json", "r"
-            ) as nc_md:
+            with open(nc_md_state, "r") as nc_md:
                 nc_info = json.load(nc_md)
         else:
+            self.log.debug(
+                f"{nc_md_state} not found. Creating it from # {orbit_cube_idx}"
+            )
             nc_info = self.extract_nc_info(orbit_cube_idx)
-            with open(nc_md_state, "w") as nc_md:
+            with open(nc_md_state, "w", encoding="utf-8") as nc_md:
                 json.dump(nc_info, nc_md)
 
         # This one is given by the data description
@@ -235,4 +239,5 @@ Please note that longitudes range from -180 to 180 degrees east.
 
         pystac_item = apply_eo(pystac_item, bands=working_bands)
 
+        self.log.debug(f"Creating OMEGA data cube item {pystac_item}")
         return pystac_item
