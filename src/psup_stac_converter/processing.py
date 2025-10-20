@@ -158,16 +158,17 @@ class CatalogCreator(BaseProcessor):
             omega_mmaps_collection = self.create_omega_mineral_maps_collection()
             catalog.add_child(omega_mmaps_collection)
 
+            self.log.info("Creating OMEGA Data cubes collection")
+            omega_data_cubes_builder = OmegaDataCubes(self.psup_archive, log=self.log)
+            omega_data_cubes_collection = omega_data_cubes_builder.create_collection()
+            catalog.add_child(omega_data_cubes_collection)
+
             self.log.info("Creating OMEGA C Channel Proj collection")
             self.log.debug(self.psup_archive)
             omega_c_channel_builder = OmegaCChannelProj(self.psup_archive, log=self.log)
             omega_c_channel_collection = omega_c_channel_builder.create_collection()
             catalog.add_child(omega_c_channel_collection)
 
-            self.log.info("Creating OMEGA Data cubes collection")
-            omega_data_cubes_builder = OmegaDataCubes(self.psup_archive, log=self.log)
-            omega_data_cubes_collection = omega_data_cubes_builder.create_collection()
-            catalog.add_child(omega_data_cubes_collection)
         except Exception as e:
             self.log.error("There was a problem during collection generation!")
             self.log.error(f"[{e.__class__.__name__}] {e}")

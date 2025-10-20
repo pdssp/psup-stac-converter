@@ -120,6 +120,7 @@ Please note that longitudes range from -180 to 180 degrees east.
             )
 
             # With martian time, is it possible to deduce Earth time?
+            self.log.debug(f"Obtained sav_info={sav_info}")
 
             # Image dims
             return sav_info
