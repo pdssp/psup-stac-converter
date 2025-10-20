@@ -11,15 +11,33 @@ def _():
     import pandas as pd
     import numpy as np
     import httpx
+    import re
+    import datetime as dt
     import time
     import tempfile
     import xarray as xr
     import scipy.io as sio
     import matplotlib.pyplot as plt
     from mpl_toolkits.axes_grid1 import make_axes_locatable
-    from shapely import box
+    from shapely import box, to_geojson, bounds
+    import json
 
-    return Path, box, make_axes_locatable, mo, np, pd, plt, sio, xr
+    return (
+        Path,
+        bounds,
+        box,
+        dt,
+        json,
+        make_axes_locatable,
+        mo,
+        np,
+        pd,
+        plt,
+        re,
+        sio,
+        to_geojson,
+        xr,
+    )
 
 
 @app.cell
@@ -301,6 +319,30 @@ def _(ex_nc_ds):
 
 
 @app.cell
+def _(ex_nc_ds):
+    ex_nc_ds.attrs
+    return
+
+
+@app.cell
+def _(dt, ex_nc_ds, json, re):
+    json.dumps(
+        {
+            "created": dt.datetime.strptime(
+                re.match(
+                    r"Created (\d{2}/\d{2}/\d{2})", ex_nc_ds.attrs["history"]
+                ).group(1),
+                "%d/%m/%y",
+            )
+        },
+        indent=4,
+        sort_keys=True,
+        default=str,
+    )
+    return
+
+
+@app.cell
 def _():
     ex_txt = """
     FILENAME=cube5964_3.sav
@@ -424,6 +466,49 @@ def _(example_sav_l2):
 
 
 @app.cell
+def _(bounds, box, example_sav_l2, json, np, to_geojson):
+    def extract_l2_sav_info(sav_dataset: dict):
+        orbit_cube_idx = "D195_2"
+        orbit_number, cube_number = orbit_cube_idx.split("_")
+        sav_info = {"orbit_number": orbit_number, cube_number: int(cube_number)}
+
+        cube_dims = sav_dataset["lat"].shape
+        em_wl_range = sav_dataset["wvl"].size
+        bbox = box(
+            xmin=sav_dataset["lon"][0, :].min(),
+            xmax=sav_dataset["lon"][0, :].max(),
+            ymin=sav_dataset["lat"][:, 0].min(),
+            ymax=sav_dataset["lat"][:, 0].max(),
+        )
+        sav_info["dims"] = cube_dims
+        sav_info["wavelength_n_values"] = em_wl_range
+        sav_info["wavelength_range"] = [
+            np.nanmin(sav_dataset["wvl"]).item(),
+            np.nanmax(sav_dataset["wvl"]).item(),
+        ]
+        sav_info["footprint"] = json.loads(to_geojson(bbox))
+        sav_info["bbox"] = bounds(bbox).tolist()
+        # retrieve scalar data
+        sav_info["solar_longitude"] = sav_dataset["solarlong"].item()
+        sav_info["data_quality"] = sav_dataset["data_quality"].item()
+        sav_info["pointing_mode"] = sav_dataset["pointing_mode"].decode().strip('"')
+        sav_info["martian_year"] = sav_dataset["year"]
+        sav_info["prop_working_channels"] = sav_dataset["pres"].tolist()
+        sav_info["is_target_mars"] = bool(sav_dataset["tag_ok"] != 0)
+        sav_info["is_l_channel_working"] = sav_dataset["tag_l"] != 0
+        sav_info["is_c_channel_working"] = sav_dataset["tag_c"] != 0
+        sav_info["martian_time"] = (
+            f"""{sav_dataset["year"]}:{sav_dataset["solarlong"]}:{np.nanmin(sav_dataset["heure"])}"""
+        )
+
+        return sav_info
+
+    for k, v in extract_l2_sav_info(example_sav_l2).items():
+        print(k, v, type(v))
+    return
+
+
+@app.cell
 def _(xr):
     ex_nc_ds_l2 = xr.open_dataset("./data/raw/downloads/cube_omega/D195_2.nc")
     ex_nc_ds_l2
@@ -507,6 +592,15 @@ def _(mo):
 @app.cell
 def _(ex_nc_ds_l2):
     ex_nc_ds_l2.attrs
+    return
+
+
+@app.cell
+def _(dt, ex_nc_ds_l2, re):
+    dt.datetime.strptime(
+        re.match(r"Created (\d{2}/\d{2}/\d{2})", ex_nc_ds_l2.attrs["history"]).group(1),
+        "%d/%m/%y",
+    ).isoformat()
     return
 
 

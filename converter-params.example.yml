@@ -5,8 +5,14 @@ settings:
   log_format: "%(asctime)s [%(levelname)s] %(message)s"
   # Where the user keeps their data
   data_path: "./data"
+  # Where the raw data can be downloaded
+  # Used mostly for relatively lightweight files whose metadata can be extracted and stored "on the fly"
   raw_data_path: "./data/raw"
+  # Where the catalog should lie
   output_data_path: "./data/processed"
+  # Folder containing anything that can be used as a side material for processing
   extra_data_path: "./data/extra"
+  # Contains the scrapped results from the WKT projections
   wkt_file_name: "wkt_solar_system.csv"
+  # Contains all the scraped results by using `psup-scraper get-data-ref -O <psup-inventory-file> -f csv --clean`
   psup_inventory_file: "./data/raw/psup_refs.csv"

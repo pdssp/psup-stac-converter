@@ -23,14 +23,19 @@ class OmegaCChannelProj(OmegaDataReader):
 
 They contain all the OMEGA observations acquired with the C channel after filtering. Filtering processes have been implemented to remove some instrumental artefacts and observational conditions. Each OMEGA record is available as a `netCDF4.nc` file and an `idl.sav`.
 
-Both files contain the cubes of reflectance of the surface at a given longitude, latitude and wavelength λ. The reflectance is defined by the “reflectance factor” $\frac{I(\lambda)}{F \cos(i)}$ where i is the solar incidence angle with $\lambda$ from 0.97 to 2.55 µm (second dimension of the cube with 120 wavelengths). The spectra are corrected for atmospheric and aerosol contributions according to the method described in Vincendon et al. (Icarus, 251, 2015). It therefore corresponds to albedo for a lambertian surface. The first dimension of the cube refers to the length of scan. It can be 32, 64, or 128 pixels. It gives the first spatial dimension. The third dimension refers to the rank of the scan. It is the second spatial dimension.""",
+Both files contain the cubes of reflectance of the surface at a given longitude, latitude and wavelength λ. The reflectance is defined by the “reflectance factor” $\frac{I(\\lambda)}{F \\cos(i)}$ where i is the solar incidence angle with $\\lambda$ from 0.97 to 2.55 µm (second dimension of the cube with 120 wavelengths). The spectra are corrected for atmospheric and aerosol contributions according to the method described in Vincendon et al. (Icarus, 251, 2015). It therefore corresponds to albedo for a lambertian surface. The first dimension of the cube refers to the length of scan. It can be 32, 64, or 128 pixels. It gives the first spatial dimension. The third dimension refers to the rank of the scan. It is the second spatial dimension.""",
             publications=omega_c_channel,
             log=log,
         )
         self.sav_metadata_folder = psup_io_handler.output_folder / "l3_sav"
+        self.nc_metadata_folder = psup_io_handler.output_folder / "l3_nc"
         self.log.debug(f".sav metadata folder: {self.sav_metadata_folder}")
+        self.log.debug(f".nc metadata folder: {self.nc_metadata_folder}")
         if not self.sav_metadata_folder.exists():
             self.sav_metadata_folder.mkdir()
+
+        if not self.nc_metadata_folder.exists():
+            self.nc_metadata_folder.mkdir()
 
     def create_collection(self):
         collection = super().create_collection()
@@ -41,6 +46,9 @@ Both files contain the cubes of reflectance of the surface at a given longitude,
         return collection
 
     def extract_sav_metadata(self, orbit_cube_idx: str, **kwargs) -> dict[str, Any]:
+        """
+        Note: when extracting information, always make sure it's JSON serializable.
+        """
         try:
             sav_info = {}
             self.log.debug(f"Opening the sav file for {orbit_cube_idx}")

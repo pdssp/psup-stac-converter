@@ -1,6 +1,7 @@
 import datetime as dt
 import json
 import logging
+import re
 from typing import Any
 
 import numpy as np
@@ -37,9 +38,14 @@ Please note that longitudes range from -180 to 180 degrees east.
             log=log,
         )
         self.sav_metadata_folder = psup_io_handler.output_folder / "l2_sav"
+        self.nc_metadata_folder = psup_io_handler.output_folder / "l2_nc"
         self.log.debug(f".sav metadata folder: {self.sav_metadata_folder}")
+        self.log.debug(f".nc metadata folder: {self.nc_metadata_folder}")
         if not self.sav_metadata_folder.exists():
             self.sav_metadata_folder.mkdir()
+
+        if not self.nc_metadata_folder.exists():
+            self.nc_metadata_folder.mkdir()
 
     def create_collection(self):
         """Creates a collection based on the OMEGA datacubes' dataset
@@ -68,7 +74,7 @@ Please note that longitudes range from -180 to 180 degrees east.
     def extract_sav_info(self, orbit_cube_idx: str) -> dict[str, Any]:
         try:
             orbit_number, cube_number = orbit_cube_idx.split("_")
-            sav_info = {"orbit_number": orbit_number, cube_number: int(cube_number)}
+            sav_info = {"orbit_number": orbit_number, "cube_number": int(cube_number)}
             self.log.debug(f"Opening the sav file for {orbit_cube_idx}")
 
             # .sav files range from several GB to some KB
@@ -89,21 +95,23 @@ Please note that longitudes range from -180 to 180 degrees east.
             sav_info["dims"] = cube_dims
             sav_info["wavelength_n_values"] = em_wl_range
             sav_info["wavelength_range"] = [
-                np.nanmin(sav_data["wvl"]),
-                np.nanmax(sav_data["wvl"]),
+                np.nanmin(sav_data["wvl"]).item(),
+                np.nanmax(sav_data["wvl"]).item(),
             ]
             sav_info["footprint"] = json.loads(to_geojson(bbox))
             sav_info["bbox"] = bounds(bbox).tolist()
 
             # retrieve scalar data
-            sav_info["solar_longitude"] = sav_data["solarlong"]
-            sav_info["data_quality"] = sav_data["data_quality"]
-            sav_info["pointing_mode"] = sav_data["pointing_mode"]
-            sav_info["martian_year"] = sav_data["year"]
-            sav_info["prop_working_channels"] = sav_data["pres"]
-            sav_info["is_target_mars"] = sav_data["tag_ok"] != 0
-            sav_info["is_l_channel_working"] = sav_data["tag_l"] != 0
-            sav_info["is_c_channel_working"] = sav_data["tag_c"] != 0
+            sav_info["solar_longitude"] = sav_data["solarlong"].item()
+            sav_info["data_quality"] = sav_data["data_quality"].item()
+            sav_info["pointing_mode"] = sav_data["pointing_mode"].decode().strip('"')
+            sav_info["martian_year"] = sav_data["year"].item()
+            sav_info["prop_working_channels"] = [
+                int(pres_idx) for pres_idx in sav_data["pres"]
+            ]
+            sav_info["is_target_mars"] = bool(sav_data["tag_ok"] != 0)
+            sav_info["is_l_channel_working"] = bool(sav_data["tag_l"] != 0)
+            sav_info["is_c_channel_working"] = bool(sav_data["tag_c"] != 0)
 
             sav_info["martian_time"] = (
                 f"""{sav_data["year"]}:{sav_data["solarlong"]}:{np.nanmin(sav_data["heure"])}"""
@@ -114,6 +122,33 @@ Please note that longitudes range from -180 to 180 degrees east.
             # Image dims
             return sav_info
 
+        except OSError as ose:
+            self.log.error(f"[{ose.__class__.__name__}] {ose}")
+            self.log.error(
+                f"""Cube {orbit_cube_idx}'s sav file is too big for the disk."""
+            )
+        except ValueError as verr:
+            self.log.error(f"[{verr.__class__.__name__}] {verr}")
+        except Exception as e:
+            self.log.error(f"A problem with {orbit_cube_idx} occured")
+            self.log.error(f"[{e.__class__.__name__}] {e}")
+
+    def extract_nc_info(self, orbit_cube_idx: str) -> dict[str, Any]:
+        try:
+            nc_info = {}
+            self.log.debug(f"Opening the nc file for {orbit_cube_idx}")
+
+            nc_data = self.open_file(orbit_cube_idx, file_extension="nc", on_disk=False)
+
+            nc_info["creation_date"] = dt.datetime.strptime(
+                re.match(
+                    r"Created (\d{2}/\d{2}/\d{2})", nc_data.attrs["history"]
+                ).group(1),
+                "%d/%m/%y",
+            ).isoformat()
+
+            nc_data.close()
+            return nc_info
         except OSError as ose:
             self.log.error(f"[{ose.__class__.__name__}] {ose}")
             self.log.error(
@@ -140,6 +175,18 @@ Please note that longitudes range from -180 to 180 degrees east.
             sav_info = self.extract_sav_info(orbit_cube_idx)
             with open(sav_md_state, "w") as sav_md:
                 json.dump(sav_info, sav_md)
+
+        # Open NC metadata to complete
+        nc_md_state = self.nc_metadata_folder / f"nc_{orbit_cube_idx}.json"
+        if nc_md_state.exists():
+            with open(
+                self.nc_metadata_folder / f"nc_{orbit_cube_idx}.json", "r"
+            ) as nc_md:
+                nc_info = json.load(nc_md)
+        else:
+            nc_info = self.extract_nc_info(orbit_cube_idx)
+            with open(nc_md_state, "w") as nc_md:
+                json.dump(nc_info, nc_md)
 
         # This one is given by the data description
         default_end_datetime = dt.datetime(2016, 4, 11, 0, 0)
@@ -171,6 +218,11 @@ Please note that longitudes range from -180 to 180 degrees east.
         ]
         pystac_item.assets["sav"].extra_fields["wavelength_range"] = sav_info[
             "wavelength_range"
+        ]
+
+        # NC properties
+        pystac_item.assets["nc"].extra_fields["creation_date"] = nc_info[
+            "creation_date"
         ]
 
         # Apply EO extension
