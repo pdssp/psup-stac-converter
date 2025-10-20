@@ -51,3 +51,7 @@ class PropertySetterError(Exception):
     """Raises when the user attempts to modify attributes"""
 
     pass
+
+
+class StacItemCreationError(Exception):
+    """Raises when the user can't go through with an item's creation"""

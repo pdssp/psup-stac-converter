@@ -5,8 +5,10 @@ import re
 from typing import Any
 
 import numpy as np
+import pystac
 from shapely import bounds, box, to_geojson
 
+from psup_stac_converter.exceptions import StacItemCreationError
 from psup_stac_converter.extensions import apply_eo
 from psup_stac_converter.informations.instruments import omega_bands
 from psup_stac_converter.informations.publications import omega_data_cubes
@@ -160,7 +162,7 @@ Please note that longitudes range from -180 to 180 degrees east.
             self.log.error(f"A problem with {orbit_cube_idx} occured")
             self.log.error(f"[{e.__class__.__name__}] {e}")
 
-    def create_stac_item(self, orbit_cube_idx: str):
+    def create_stac_item(self, orbit_cube_idx: str) -> pystac.Item:
         """
         Information is contained within the IDL.sav files and NetCDF files
         """
@@ -174,9 +176,15 @@ Please note that longitudes range from -180 to 180 degrees east.
             self.log.debug(
                 f"{sav_md_state} not found. Creating it from # {orbit_cube_idx}"
             )
-            sav_info = self.extract_sav_info(orbit_cube_idx)
-            with open(sav_md_state, "w", encoding="utf-8") as sav_md:
-                json.dump(sav_info, sav_md)
+            try:
+                sav_info = self.extract_sav_info(orbit_cube_idx)
+                with open(sav_md_state, "w", encoding="utf-8") as sav_md:
+                    json.dump(sav_info, sav_md)
+            except Exception as e:
+                self.log.warning(
+                    f"Couldn't save .sav information for # {orbit_cube_idx} because of the following: {e}"
+                )
+                sav_info = {}
 
         # Open NC metadata to complete
         nc_md_state = self.nc_metadata_folder / f"nc_{orbit_cube_idx}.json"
@@ -188,9 +196,23 @@ Please note that longitudes range from -180 to 180 degrees east.
             self.log.debug(
                 f"{nc_md_state} not found. Creating it from # {orbit_cube_idx}"
             )
-            nc_info = self.extract_nc_info(orbit_cube_idx)
-            with open(nc_md_state, "w", encoding="utf-8") as nc_md:
-                json.dump(nc_info, nc_md)
+            try:
+                nc_info = self.extract_nc_info(orbit_cube_idx)
+                with open(nc_md_state, "w", encoding="utf-8") as nc_md:
+                    json.dump(nc_info, nc_md)
+            except Exception as e:
+                self.log.warning(
+                    f"Couldn't save .nc information for # {orbit_cube_idx} because of the following: {e}"
+                )
+                nc_info = {}
+
+        if not sav_info:
+            self.log.error(
+                f"Couldn't extract metadata for # {orbit_cube_idx}. Skipping"
+            )
+            raise StacItemCreationError(
+                f"Vital information for # {orbit_cube_idx} is missing!"
+            )
 
         # This one is given by the data description
         default_end_datetime = dt.datetime(2016, 4, 11, 0, 0)
