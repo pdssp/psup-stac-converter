@@ -118,10 +118,8 @@ class BaseProcessor:
 
 
 class CatalogCreator(BaseProcessor):
-    """PSUP's STAC generator
-
-    Args:
-        BaseProcessor (_type_): _description_
+    """The entrypoint class that translates PSUP data information into
+    a STAC catalog, using the appropriate collections and items.
     """
 
     def __init__(
@@ -168,6 +166,8 @@ class CatalogCreator(BaseProcessor):
             omega_c_channel_builder = OmegaCChannelProj(self.psup_archive, log=self.log)
             omega_c_channel_collection = omega_c_channel_builder.create_collection()
             catalog.add_child(omega_c_channel_collection)
+        except KeyboardInterrupt:
+            self.log.warning("User stopped collection generation.")
 
         except Exception as e:
             self.log.error("There was a problem during collection generation!")
@@ -178,7 +178,18 @@ class CatalogCreator(BaseProcessor):
     def create_catalog(
         self, self_contained: bool = True, clean_previous_output: bool = False
     ) -> pystac.Catalog:
-        """Creates a catalog over the entire feature selection"""
+        """Creates a catalog over the entire feature selection
+
+        Args:
+            self_contained (bool, optional): _description_. Defaults to True.
+            clean_previous_output (bool, optional): _description_. Defaults to False.
+
+        Raises:
+            FolderNotEmptyError: _description_
+
+        Returns:
+            pystac.Catalog: _description_
+        """
         start_time = time.time()
 
         if not self.io_handler.is_output_folder_empty() and not clean_previous_output:
@@ -196,19 +207,24 @@ class CatalogCreator(BaseProcessor):
 
         catalog = apply_ssys(catalog)
 
-        catalog = self._add_collections_to_catalog(catalog)
+        try:
+            catalog = self._add_collections_to_catalog(catalog)
+        except KeyboardInterrupt:
+            self.log.warning("Process interrupted by user! Catalog is incomplete.")
+        except Exception as e:
+            self.log.error(f"A problem occured when generating the catalog: {e}")
+        finally:
+            # Save catalog (ie. in the STAC folder)
+            self.log.info(f"Normalizing hrefs to {self.io_handler.output_folder}")
+            catalog.normalize_hrefs(self.io_handler.output_folder.as_posix())
 
-        # Save catalog (ie. in the STAC folder)
-        self.log.info(f"Normalizing hrefs to {self.io_handler.output_folder}")
-        catalog.normalize_hrefs(self.io_handler.output_folder.as_posix())
-
-        self.log.info(
-            f"""Saving catalog as {"self-contained" if self_contained else "absolute published"}"""
-        )
-        if self_contained:
-            catalog.save(catalog_type=pystac.CatalogType.SELF_CONTAINED)
-        else:
-            catalog.save(catalog_type=pystac.CatalogType.ABSOLUTE_PUBLISHED)
+            self.log.info(
+                f"""Saving catalog as {"self-contained" if self_contained else "absolute published"}"""
+            )
+            if self_contained:
+                catalog.save(catalog_type=pystac.CatalogType.SELF_CONTAINED)
+            else:
+                catalog.save(catalog_type=pystac.CatalogType.ABSOLUTE_PUBLISHED)
 
         exec_time = time.time() - start_time
         self.log.info(

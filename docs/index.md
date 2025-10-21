@@ -37,7 +37,7 @@ Both files contain the cubes of reflectance of the surface at a given longitude,
 
 The availability of value-added data allows their display and scientific analysis in a 3D directly on the visualization interface "Mars Visu".
 
-![mars_visu_img](docs/img/mars_visu_example.png)
+![mars_visu_img](../img/mars_visu_example.png))
 
 ## Features
 
@@ -123,8 +123,8 @@ $ uv run psup-scraper --help
 
 ```
 
->[!TIP]
->You can avoid using `uv run` for simplicity, but you'll need to activate the virtual environment first.
+!!! tip "Without `uv`"
+    You can avoid using `uv run` for simplicity, but you'll need to activate the virtual environment first.
 
 
 ## Config file (YAML) example
@@ -209,33 +209,6 @@ $ uv run psup-scraper get-wkt-proj -O <wkt-data-path-csv> -f csv --clean
 ## References
 
 See [References](./references.md) for more information.
-
-# Set for development
-
-To install this project in development mode, simply follow the same steps than in the installation and just change the options from `uv sync`instead:
-
-```console
-$ uv sync --all-groups
-```
-
-This command will allow you to install dependencies related to development (linter, formatter), notebooks with marimo for data exploration, and documentation with mkdocs.
-
-## Using notebooks
-
-Start a marimo session with the following command:
-
-```console
-$ uv run marimo edit
-```
-And select `notebooks`.
-
-## Building docs
-
-Spin up the documentation's server and preview the docs with this command:
-
-```console
-$ uv run mkdocs serve
-```
 
 ---
 

@@ -1,0 +1,36 @@
+site_name: PSUP STAC Converter
+theme:
+  name: material
+repo_name: psup-stac-converter
+repo_url: https://github.com/pdssp/psup-stac-converter
+nav:
+  - Home: index.md
+  - References: references.md
+  - Spatio-Temporal Asset Catalog (STAC): stac-model.md
+  - PSUP raw data: psup-raw-data.md
+  - Code Reference:
+    - Catalog Processor: code/psup-catalog.md
+    - Spiders (scraping): code/psup-scraper.md
+extra_javascript:
+  - js/katex.js
+  - https://unpkg.com/katex@0/dist/katex.min.js
+  - https://unpkg.com/katex@0/dist/contrib/auto-render.min.js
+
+extra_css:
+  - https://unpkg.com/katex@0/dist/katex.min.css
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.arithmatex:
+      generic: true
+  - footnotes
+plugins:
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            docstring_options:
+              ignore_init_summary: true
+            docstring_section_style: list

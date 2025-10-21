@@ -13,7 +13,14 @@ BASE_DIR = Path(__file__).parents[2]
 
 
 class Settings(BaseSettings):
-    """Application settings."""
+    """The converter's setting class
+
+    Args:
+        BaseSettings (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
 
     log_level: str = "DEBUG"
     log_format: str = "%(asctime)s [%(levelname)s] %(message)s"
@@ -43,6 +50,21 @@ class Settings(BaseSettings):
 
 
 def init_settings_from_file(config_file: Path) -> Settings:
+    """From a `.yml`file, generates the settings.
+
+    See the structure from `covnerter-params.example.yml` for
+    more information.
+
+    Args:
+        config_file (Path): _description_
+
+    Raises:
+        FileNotFoundError: _description_
+        FileExtensionError: _description_
+
+    Returns:
+        Settings: _description_
+    """
     if not config_file.exists():
         raise FileNotFoundError(f"{config_file} not found.")
 
