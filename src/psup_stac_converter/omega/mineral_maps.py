@@ -237,6 +237,16 @@ def _create_pystac_item(
 
 
 def omega_maps_collection_generator(psup_archive: PsupIoHandler) -> pystac.Collection:
+    """Generates a STAC collection of the OMEGA mineral maps dataset.
+
+    Args:
+        psup_archive (PsupIoHandler): The handler for I/O operations related to
+        PSUP's raw data. It's mostly used to operate on the outside.
+
+    Returns:
+        pystac.Collection: A STAC collection representing each item of the OMEGA
+        mineral maps.
+    """
     collection_extent = pystac.Extent(
         spatial=_spatial_extent(), temporal=_temporal_extent()
     )
