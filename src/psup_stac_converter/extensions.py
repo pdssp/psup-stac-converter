@@ -26,7 +26,7 @@ def apply_ssys(
         # Adding SSYS extension
         ssys = SolSysExtension.summaries(stac_instance, add_if_missing=True)
         ssys.targets = ["mars"]
-        ssys.target_class = SolSysTargetClass.PLANET
+        ssys.target_class = SolSysTargetClass.PLANET  # type: ignore
 
     elif isinstance(stac_instance, pystac.Catalog):
         stac_instance.stac_extensions.append(SCHEMA_URI)
@@ -63,11 +63,11 @@ def apply_sci(
 
 
 # TODO: proj
-def apply_proj(stac_instance: StacInstance) -> StacInstance:
-    pass
+# def apply_proj(stac_instance: StacInstance) -> StacInstance:
+#     pass
 
 
-def apply_eo(stac_instance: StacInstance, bands=list[Band]) -> StacInstance:
+def apply_eo(stac_instance: StacInstance, bands: list[Band]) -> StacInstance:
     if isinstance(stac_instance, pystac.Item) or isinstance(
         stac_instance, pystac.Asset
     ):

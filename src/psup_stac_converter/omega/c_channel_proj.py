@@ -1,7 +1,8 @@
 import json
 import logging
-from typing import Any
+from typing import Any, cast
 
+import pystac
 from shapely import bounds, to_geojson
 
 from psup_stac_converter.extensions import apply_eo
@@ -37,11 +38,13 @@ Both files contain the cubes of reflectance of the surface at a given longitude,
         if not self.nc_metadata_folder.exists():
             self.nc_metadata_folder.mkdir()
 
-    def create_collection(self):
+    def create_collection(self) -> pystac.Collection:
         collection = super().create_collection()
 
         # Only the C band is needed
-        collection = apply_eo(collection, bands=[omega_bands[1]])
+        collection = cast(
+            pystac.Collection, apply_eo(collection, bands=[omega_bands[1]])
+        )
 
         return collection
 
@@ -55,8 +58,9 @@ Both files contain the cubes of reflectance of the surface at a given longitude,
 
             # .sav files range from several GB to some KB
             # It is generally not recommended to keep them on local disk
-            sav_data = self.open_file(
-                orbit_cube_idx, file_extension="sav", on_disk=False
+            sav_data: dict[str, Any] = cast(
+                dict[str, Any],
+                self.open_file(orbit_cube_idx, file_extension="sav", on_disk=False),
             )
             sav_info["dims"] = sav_data["longi"].shape
             self.log.debug(f"Obtained sav_info={sav_info}")
@@ -72,11 +76,12 @@ Both files contain the cubes of reflectance of the surface at a given longitude,
             self.log.error(f"A problem with {orbit_cube_idx} occured")
             self.log.error(f"[{e.__class__.__name__}] {e}")
 
-    def create_stac_item(self, orbit_cube_idx):
-        text_data: OmegaDataTextItem = self.open_file(
-            orbit_cube_idx, "txt", on_disk=True
-        )
+        return {}
 
+    def create_stac_item(self, orbit_cube_idx):
+        text_data: OmegaDataTextItem = cast(
+            OmegaDataTextItem, self.open_file(orbit_cube_idx, "txt", on_disk=True)
+        )
         footprint = json.loads(to_geojson(text_data.bbox))
         bbox = bounds(text_data.bbox).tolist()
 
@@ -105,6 +110,7 @@ Both files contain the cubes of reflectance of the surface at a given longitude,
                 encoding="utf-8",
             ) as sav_md:
                 sav_info = json.load(sav_md)
+                self.log.debug(f"sav_info loaded with {sav_info}")
         else:
             self.log.debug(
                 f"{sav_md_state} Not found. Creating from # {orbit_cube_idx}"
@@ -116,6 +122,7 @@ Both files contain the cubes of reflectance of the surface at a given longitude,
                 )
                 with open(sav_md_state, "w", encoding="utf-8") as sav_md:
                     json.dump(sav_info, sav_md)
+                    self.log.debug(f"{sav_md_state} with {sav_info} created!")
             except Exception as e:
                 self.log.warning(
                     f"Couldn't save .sav information for # {orbit_cube_idx} because of the following: {e}"

@@ -63,9 +63,9 @@ class SolSysExtension(
 
     def apply(
         self,
-        targets: list[str] = None,
-        local_time: str = None,
-        target_class: SolSysTargetClass = None,
+        targets: list[str] | None = None,
+        local_time: str | None = None,
+        target_class: SolSysTargetClass | None = None,
     ):
         """Applies Solar System Extension properties to the extended
         :class:`~pystac.Item` or :class:`~pystac.Asset`.
@@ -78,9 +78,9 @@ class SolSysExtension(
             target_class: The identity of the type of the target as defined by
                 the `International Virtual Observatory Alliance<https://www.ivoa.net/documents/EPNTAP/20220822/REC-EPNTAP-2.0.html#tth_sEc2.1.3>`_
         """
-        self.targets = targets
-        self.local_time = local_time
-        self.target_class = target_class
+        self.targets = targets  # pyright: ignore[reportAttributeAccessIssue]
+        self.local_time = local_time  # pyright: ignore[reportAttributeAccessIssue]
+        self.target_class = target_class  # pyright: ignore[reportAttributeAccessIssue]
 
     @property
     def targets(self) -> list[str] | None:
@@ -211,7 +211,7 @@ class SummariesSolSysExtension(SummariesExtension):
         for this Collection.
         """
 
-        return (self.summaries.get_list(TARGETS_PROPS),)
+        return (self.summaries.get_list(TARGETS_PROPS),)  # pyright: ignore[reportReturnType]
 
     @targets.setter
     def targets(self, v: list[str] | None) -> None:

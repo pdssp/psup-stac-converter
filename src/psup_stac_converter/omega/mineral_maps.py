@@ -1,6 +1,7 @@
 import datetime as dt
 import json
 from pathlib import Path
+from typing import cast
 
 import pystac
 from pydantic import BaseModel, ConfigDict, HttpUrl
@@ -32,7 +33,9 @@ omega_mineral_maps = {
         raster_description="OMEGA NIR albedo",
         raster_lng_description="""This data product is a global NIR 1-micrometer albedo map of Mars based on reflectance data acquired by the Mars Express OMEGA hyperspectral camera from January 2004 to August 2010""",
         raster_keywords=["albedo", "global"],
-        thumbnail="http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/albedo_r1080_equ_map_reduce.png/sitools/upload/download-thumb.png",
+        thumbnail=HttpUrl(
+            "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/albedo_r1080_equ_map_reduce.png/sitools/upload/download-thumb.png"
+        ),
         publication=Publication(
             citation="""
         Ody, A., F. Poulet, Y. Langevin, J.-P. Bibring, G. Bellucci, F. Altieri, B. Gondet, M. Vincendon, J. Carter, and N. Manaud (2012), Global maps of anhydrous minerals at the surface of Mars from OMEGA/MEx, J. Geophys. Res., 117, E00J14
@@ -46,7 +49,9 @@ omega_mineral_maps = {
         raster_description="OMEGA Ferric BD530",
         raster_lng_description="""This data product is a global ferric oxide spectral parameter map of Mars based on reflectance data acquired by the Mars Express OMEGA hyperspectral camera from January 2004 to August 2010. This ferric oxide spectral parameter (DB530) is based on the strength of the 0.53 micrometer ferric absorption edge.""",
         raster_keywords=["ferric oxides", "global"],
-        thumbnail="http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/ferric_bd530_equ_map_reduce.png/sitools/upload/download-thumb.png",
+        thumbnail=HttpUrl(
+            "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/ferric_bd530_equ_map_reduce.png/sitools/upload/download-thumb.png"
+        ),
         publication=Publication(
             citation="""
         Ody, A., F. Poulet, Y. Langevin, J.-P. Bibring, G. Bellucci, F. Altieri, B. Gondet, M. Vincendon, J. Carter, and N. Manaud (2012), Global maps of anhydrous minerals at the surface of Mars from OMEGA/MEx, J. Geophys. Res., 117, E00J14
@@ -60,7 +65,9 @@ omega_mineral_maps = {
         raster_description="OMEGA Ferric Nanophase",
         raster_lng_description="""This data product is a global nanophase ferric oxide (dust) spectral parameter map of Mars based on reflectance data acquired by the Mars Express OMEGA hyperspectral camera from January 2004 to August 2010. This nanophase ferric oxide spectral parameter (NNPHS) is based on the absorption feature centered at 0.86 micrometer.""",
         raster_keywords=["nanophase ferric oxides", "global"],
-        thumbnail="http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/ferric_nnphs_equ_map_reduce.png/sitools/upload/download-thumb.png",
+        thumbnail=HttpUrl(
+            "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/ferric_nnphs_equ_map_reduce.png/sitools/upload/download-thumb.png"
+        ),
         publication=Publication(
             citation="""
         Ody, A., F. Poulet, Y. Langevin, J.-P. Bibring, G. Bellucci, F. Altieri, B. Gondet, M. Vincendon, J. Carter, and N. Manaud (2012), Global maps of anhydrous minerals at the surface of Mars from OMEGA/MEx, J. Geophys. Res., 117, E00J14
@@ -74,7 +81,9 @@ omega_mineral_maps = {
         raster_description="OMEGA Olivine SP1",
         raster_lng_description="""This data product is a global olivine spectral parameter map of Mars based on reflectance data acquired by the Mars Express OMEGA hyperspectral camera from January 2004 to August 2010. This olivine spectral parameter (OSP1) detects Mg-rich and/or small grain size and/or low abundance olivine.""",
         raster_keywords=["olivine", "global"],
-        thumbnail="http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/olivine_osp1_equ_map_reduce.png/sitools/upload/download-thumb.png",
+        thumbnail=HttpUrl(
+            "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/olivine_osp1_equ_map_reduce.png/sitools/upload/download-thumb.png"
+        ),
         publication=Publication(
             citation="""
         Ody, A., F. Poulet, Y. Langevin, J.-P. Bibring, G. Bellucci, F. Altieri, B. Gondet, M. Vincendon, J. Carter, and N. Manaud (2012), Global maps of anhydrous minerals at the surface of Mars from OMEGA/MEx, J. Geophys. Res., 117, E00J14
@@ -88,7 +97,9 @@ omega_mineral_maps = {
         raster_description="OMEGA Olivine SP2",
         raster_lng_description="""This data product is a global olivine spectral parameter map of Mars based on reflectance data acquired by the Mars Express OMEGA hyperspectral camera from January 2004 to August 2010. This olivine spectral parameter (OSP2) is sensitive to olivine with high iron content and/or large grain size and/or high abundance.""",
         raster_keywords=["olivine", "global"],
-        thumbnail="http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/olivine_osp2_equ_map_reduce.png/sitools/upload/download-thumb.png",
+        thumbnail=HttpUrl(
+            "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/olivine_osp2_equ_map_reduce.png/sitools/upload/download-thumb.png"
+        ),
         publication=Publication(
             citation="""
         Ody, A., F. Poulet, Y. Langevin, J.-P. Bibring, G. Bellucci, F. Altieri, B. Gondet, M. Vincendon, J. Carter, and N. Manaud (2012), Global maps of anhydrous minerals at the surface of Mars from OMEGA/MEx, J. Geophys. Res., 117, E00J14
@@ -102,7 +113,9 @@ omega_mineral_maps = {
         raster_description="OMEGA Olivine SP3",
         raster_lng_description="""This data product is a global olivine spectral parameter map of Mars based on reflectance data acquired by the Mars Express OMEGA hyperspectral camera from January 2004 to August 2010. This olivine spectral parameter (OSP3) determines the full band depth at 1.36 micrometer relative to a continuum. It preferentially detects olivine with a large Fe content and/or with large grain size and/or with high abundance.""",
         raster_keywords=["olivine", "global"],
-        thumbnail="http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/olivine_osp3_equ_map_reduce.png/sitools/upload/download-thumb.png",
+        thumbnail=HttpUrl(
+            "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/olivine_osp3_equ_map_reduce.png/sitools/upload/download-thumb.png"
+        ),
         publication=Publication(
             citation="""
         Ody, A., F. Poulet, Y. Langevin, J.-P. Bibring, G. Bellucci, F. Altieri, B. Gondet, M. Vincendon, J. Carter, and N. Manaud (2012), Global maps of anhydrous minerals at the surface of Mars from OMEGA/MEx, J. Geophys. Res., 117, E00J14
@@ -116,7 +129,9 @@ omega_mineral_maps = {
         raster_description="OMEGA Pyroxene",
         raster_lng_description="""This data product is a global pyroxene spectral parameter map of Mars based on reflectance data acquired by the Mars Express OMEGA hyperspectral camera from January 2004 to August 2010. This pyroxene spectral parameter (BD2000) is based on its 2 micrometer absorption band due to both high-calcium and low-calcium pyroxene.""",
         raster_keywords=["pyroxene", "global"],
-        thumbnail="http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/pyroxene_bd2000_equ_map_reduce.png/sitools/upload/download-thumb.png",
+        thumbnail=HttpUrl(
+            "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/pyroxene_bd2000_equ_map_reduce.png/sitools/upload/download-thumb.png"
+        ),
         publication=Publication(
             citation="""
         Ody, A., F. Poulet, Y. Langevin, J.-P. Bibring, G. Bellucci, F. Altieri, B. Gondet, M. Vincendon, J. Carter, and N. Manaud (2012), Global maps of anhydrous minerals at the surface of Mars from OMEGA/MEx, J. Geophys. Res., 117, E00J14
@@ -130,7 +145,9 @@ omega_mineral_maps = {
         raster_description="OMEGA Albedo Filled",
         raster_lng_description="""60 ppd global map of Solar Albedo from OMEGA data fileld with TES 20 ppd solar albedo global maps (Putzig and Mellon, 2007b) (21600x10800 pixels). This map is 100% filled. Variable name is "albedo". "latitude" and "longitude" indicate the coordinates of the centers of the pixels. Reference : Vincendon et al., Icarus, 2015""",
         raster_keywords=["albedo", "filled", "global"],
-        thumbnail="http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/albedo_filled_reduce.png/sitools/upload/download-thumb.png",
+        thumbnail=HttpUrl(
+            "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/albedo_filled_reduce.png/sitools/upload/download-thumb.png"
+        ),
         publication=Publication(
             citation="""
         M. Vincendon, J. Audouard, F. Altieri, A. Ody, Mars Express measurements of surface albedo changes over 2004–2010, Icarus, Volume 251, 2015, Pages 145-163, ISSN 0019-1035
@@ -144,7 +161,9 @@ omega_mineral_maps = {
         raster_description="OMEGA Albedo Unfilled",
         raster_lng_description="""60 ppd global map of Solar Albedo from OMEGA data only (21600 x 10800 pixels). This map is filled at 94.79% (rest are NaN). Variable name is "albedo". "latitude" and "longitude" indicate the coordinates of the centers of the pixels. Reference : Vincendon et al., Icarus, 2015.""",
         raster_keywords=["albedo", "unfilled", "global"],
-        thumbnail="http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/albedo_unfilled_reduce.png/sitools/upload/download-thumb.png",
+        thumbnail=HttpUrl(
+            "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/albedo_unfilled_reduce.png/sitools/upload/download-thumb.png"
+        ),
         publication=Publication(
             citation="""
         M. Vincendon, J. Audouard, F. Altieri, A. Ody, Mars Express measurements of surface albedo changes over 2004–2010, Icarus, Volume 251, 2015, Pages 145-163, ISSN 0019-1035
@@ -158,7 +177,9 @@ omega_mineral_maps = {
         raster_description="OMEGA0 Emissivity at 5.03 mic",
         raster_lng_description="""40 ppd global maps of surface emissivity at 5.03 mic. Holes are set to NaN.""",
         raster_keywords=["emissivity", "5mic", "global"],
-        thumbnail="http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/emissivite_5.03mic_OMEGA0_reduce.png/sitools/upload/download-thumb.png",
+        thumbnail=HttpUrl(
+            "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/emissivite_5.03mic_OMEGA0_reduce.png/sitools/upload/download-thumb.png"
+        ),
         publication=Publication(
             citation="""
         J. Audouard, F. Poulet, M. Vincendon, J.-P. Bibring, F. Forget, Y. Langevin, B. Gondet, Mars surface thermal inertia and heterogeneities from OMEGA/MEX, Icarus, Volume 233, 2014, Pages 194-213, ISSN 0019-1035,
@@ -226,9 +247,11 @@ def _create_pystac_item(
     )
     pystac_item.add_asset("fits", fits_asset)
     # extensions
-    pystac_item = apply_sci(pystac_item, publications=omega_map_item.publication)
-    pystac_item = apply_ssys(pystac_item)
-    pystac_item = apply_eo(pystac_item, bands=omega_bands)
+    pystac_item = cast(
+        pystac.Item, apply_sci(pystac_item, publications=omega_map_item.publication)
+    )
+    pystac_item = cast(pystac.Item, apply_ssys(pystac_item))
+    pystac_item = cast(pystac.Item, apply_eo(pystac_item, bands=omega_bands))
     # common metadata
     pystac_item.common_metadata.platform = "mex"
     pystac_item.common_metadata.instruments = ["omega"]
@@ -271,11 +294,11 @@ This Dataset is also available as a VO TAP service (ivo://idoc/psup/omega_maps/q
     )
 
     # Apply extensions here
-    master_collection = apply_ssys(master_collection)
-    master_collection = apply_sci(
-        master_collection, publications=omega_map_publications
+    master_collection = cast(pystac.Collection, apply_ssys(master_collection))
+    master_collection = cast(
+        pystac.Collection,
+        apply_sci(master_collection, publications=omega_map_publications),
     )
-
     # iterate on the maps
     for omega_map_item in omega_mineral_maps.values():
         omega_item = _create_pystac_item(omega_map_item, psup_archive=psup_archive)

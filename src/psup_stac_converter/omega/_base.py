@@ -1,7 +1,7 @@
 import datetime as dt
 import json
 import logging
-from typing import Any, Literal
+from typing import Any, Literal, cast
 from zoneinfo import ZoneInfo
 
 import pandas as pd
@@ -61,7 +61,7 @@ class OmegaDataReader:
         license_name: str = "CC-BY-4.0",
         collection_description: str = "",
         publications: list[Publication] = [],
-        log: logging.Logger = None,
+        log: logging.Logger | None = None,
     ):
         self.io_handler = psup_io_handler
         self.data_type = data_type
@@ -128,7 +128,7 @@ class OmegaDataReader:
                 )
             return omega_info
 
-        omega_info = self.omega_data.loc[orbit_cube_idx, :]
+        omega_info = self.omega_data.loc[[orbit_cube_idx], :]
         if omega_info.empty:
             raise OmegaCubeDataMissingError(
                 f"{orbit_cube_idx} exists but the info required couldn't be found"
@@ -142,7 +142,7 @@ class OmegaDataReader:
         file_extension: Literal["sav", "nc", "txt"],
         on_disk: bool = True,
         text_raw: bool = False,
-    ):
+    ) -> Any:
         """Opens an asset of a particular OMEGA cube. Allows IDL .sav, NetCDF and text.
 
         Args:
@@ -241,10 +241,17 @@ class OmegaDataReader:
             with self.io_handler.psup_archive.open_resource(
                 oc_info["href"].item()
             ) as txt_file:
-                textinfo = txt_file.read()
+                with self.io_handler.psup_archive.open_resource(
+                    oc_info["href"].item()
+                ) as txt_file:
+                    raw_txt = txt_file.read()
+                    if isinstance(raw_txt, (bytes, bytearray)):
+                        textinfo = raw_txt.decode("utf-8", errors="replace")
+                    else:
+                        textinfo = str(raw_txt)
 
-        if raw:
-            return textinfo
+            if raw:
+                return textinfo
 
         text_obj = {}
         for line in textinfo.strip().split("\n"):
@@ -261,7 +268,7 @@ class OmegaDataReader:
         return pystac.SpatialExtent(bboxes=[[-180.0, -90.0, 180.0, 90.0]])
 
     def find_temporal_extent(self) -> pystac.TemporalExtent:
-        pystac.TemporalExtent(
+        return pystac.TemporalExtent(
             intervals=[
                 [
                     pd.Timestamp.min.to_pydatetime(),
@@ -285,8 +292,10 @@ class OmegaDataReader:
             providers=data_providers,
         )
 
-        collection = apply_ssys(collection)
-        collection = apply_sci(collection, publications=self.publications)
+        collection = cast(pystac.Collection, apply_ssys(collection))
+        collection = cast(
+            pystac.Collection, apply_sci(collection, publications=self.publications)
+        )
 
         for omega_data_idx in tqdm(self.omega_data_ids, total=self.n_elements):
             try:
@@ -363,7 +372,7 @@ class OmegaDataReader:
             self.log.warning(f"IDL.sav not found for {orbit_cube_idx}. Skipping.")
 
         # extensions
-        pystac_item = apply_ssys(pystac_item)
+        pystac_item = cast(pystac.Item, apply_ssys(pystac_item))
         # EO only if data allows it
 
         # common metadata

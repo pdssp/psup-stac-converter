@@ -2,10 +2,11 @@ import datetime as dt
 import json
 import logging
 import re
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
 import pystac
+import xarray as xr
 from shapely import bounds, box, to_geojson
 
 from psup_stac_converter.exceptions import StacItemCreationError
@@ -49,7 +50,7 @@ Please note that longitudes range from -180 to 180 degrees east.
         if not self.nc_metadata_folder.exists():
             self.nc_metadata_folder.mkdir()
 
-    def create_collection(self):
+    def create_collection(self) -> pystac.Collection:
         """Creates a collection based on the OMEGA datacubes' dataset
 
                 This dataset contains all the OMEGA observations acquired with the C, L and VIS channels until April 2016, 11, after filtering. Filtering processes have been implemented to remove some instrumental artefacts and observational conditions. Each OMEGA record is available as a netCDF4.nc file and an idl.sav
@@ -69,7 +70,7 @@ Please note that longitudes range from -180 to 180 degrees east.
         collection = super().create_collection()
 
         # Only the C band is needed
-        collection = apply_eo(collection, bands=omega_bands)
+        collection = cast(pystac.Collection, apply_eo(collection, bands=omega_bands))
 
         return collection
 
@@ -81,8 +82,9 @@ Please note that longitudes range from -180 to 180 degrees east.
 
             # .sav files range from several GB to some KB
             # It is generally not recommended to keep them on local disk
-            sav_data = self.open_file(
-                orbit_cube_idx, file_extension="sav", on_disk=False
+            sav_data = cast(
+                dict[str, Any],
+                self.open_file(orbit_cube_idx, file_extension="sav", on_disk=False),
             )
             cube_dims = sav_data["lat"].shape
             em_wl_range = sav_data["wvl"].size
@@ -135,20 +137,29 @@ Please note that longitudes range from -180 to 180 degrees east.
         except Exception as e:
             self.log.error(f"A problem with {orbit_cube_idx} occured")
             self.log.error(f"[{e.__class__.__name__}] {e}")
+        return {}
 
     def extract_nc_info(self, orbit_cube_idx: str) -> dict[str, Any]:
         try:
             nc_info = {}
             self.log.debug(f"Opening the nc file for {orbit_cube_idx}")
 
-            nc_data = self.open_file(orbit_cube_idx, file_extension="nc", on_disk=False)
+            nc_data = cast(
+                xr.Dataset,
+                self.open_file(orbit_cube_idx, file_extension="nc", on_disk=False),
+            )
 
-            nc_info["creation_date"] = dt.datetime.strptime(
-                re.match(
-                    r"Created (\d{2}/\d{2}/\d{2})", nc_data.attrs["history"]
-                ).group(1),
-                "%d/%m/%y",
-            ).isoformat()
+            # Obtain creation date from .nc metadata
+            creation_date_match = re.match(
+                r"Created (\d{2}/\d{2}/\d{2})", nc_data.attrs["history"]
+            )
+            if creation_date_match is not None:
+                nc_info["creation_date"] = dt.datetime.strptime(
+                    creation_date_match.group(1),
+                    "%d/%m/%y",
+                ).isoformat()
+            else:
+                nc_info["creation_date"] = None
 
             self.log.debug(f"Obtained nc_info={nc_info}")
             nc_data.close()
@@ -167,6 +178,7 @@ Please note that longitudes range from -180 to 180 degrees east.
             self.log.error(f"[{e.__class__.__name__}] {e}")
         finally:
             nc_data.close()
+        return {}
 
     def create_stac_item(self, orbit_cube_idx: str) -> pystac.Item:
         """
@@ -178,6 +190,7 @@ Please note that longitudes range from -180 to 180 degrees east.
         if sav_md_state.exists():
             with open(sav_md_state, "r", encoding="utf-8") as sav_md:
                 sav_info = json.load(sav_md)
+                self.log.debug(f"sav_info loaded with {sav_info}")
         else:
             self.log.debug(
                 f"{sav_md_state} not found. Creating it from # {orbit_cube_idx}"
@@ -186,6 +199,7 @@ Please note that longitudes range from -180 to 180 degrees east.
                 sav_info = self.extract_sav_info(orbit_cube_idx)
                 with open(sav_md_state, "w", encoding="utf-8") as sav_md:
                     json.dump(sav_info, sav_md)
+                self.log.debug(f"{sav_md_state} with {sav_info} created!")
             except Exception as e:
                 self.log.warning(
                     f"Couldn't save .sav information for # {orbit_cube_idx} because of the following: {e}"
@@ -266,7 +280,7 @@ Please note that longitudes range from -180 to 180 degrees east.
         if sav_info["is_l_channel_working"]:
             working_bands.append(omega_bands[2])
 
-        pystac_item = apply_eo(pystac_item, bands=working_bands)
+        pystac_item = cast(pystac.Item, apply_eo(pystac_item, bands=working_bands))
 
         self.log.debug(f"Creating OMEGA data cube item {pystac_item}")
         return pystac_item

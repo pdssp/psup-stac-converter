@@ -3,6 +3,7 @@ import logging
 import time
 from io import StringIO
 from pathlib import Path
+from typing import cast
 
 import geopandas as gpd
 import numpy as np
@@ -154,6 +155,7 @@ class CatalogCreator(BaseProcessor):
             self.log.debug(f"Collection {feature_collection.id} successfully created!")
             self.log.debug(feature_collection.to_dict())
 
+            # OMEGA mineral maps
             self.log.info("Creating OMEGA mineral maps collection")
             omega_mmaps_collection = self.create_omega_mineral_maps_collection()
             catalog.add_child(omega_mmaps_collection)
@@ -162,6 +164,7 @@ class CatalogCreator(BaseProcessor):
             )
             self.log.debug(omega_mmaps_collection.to_dict())
 
+            # OMEGA data cubes
             self.log.info("Creating OMEGA Data cubes collection")
             omega_data_cubes_builder = OmegaDataCubes(self.psup_archive, log=self.log)
             omega_data_cubes_collection = omega_data_cubes_builder.create_collection()
@@ -171,6 +174,7 @@ class CatalogCreator(BaseProcessor):
             )
             self.log.debug(omega_data_cubes_collection.to_dict())
 
+            # OMEGA C channel proj
             self.log.info("Creating OMEGA C Channel Proj collection")
             self.log.debug(self.psup_archive)
             omega_c_channel_builder = OmegaCChannelProj(self.psup_archive, log=self.log)
@@ -222,7 +226,7 @@ class CatalogCreator(BaseProcessor):
             description="""This test STAC catalog contains Mars data collections and sub-catalogs currently hosted and distributed by\n[PSUP](http://psup.ias.u-psud.fr/sitools/client-user/index.html?project=PLISonMars) (Planetary SUrface Portal).\n\n![Mars](https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Mars_%28white_background%29.jpg/120px-Mars_%28white_background%29.jpg)\n""",
         )
 
-        catalog = apply_ssys(catalog)
+        catalog = cast(pystac.Catalog, apply_ssys(catalog))
 
         try:
             catalog = self._add_collections_to_catalog(catalog)
@@ -302,7 +306,7 @@ class CatalogCreator(BaseProcessor):
         )
 
         # Apply extensions here
-        master_collection = apply_ssys(master_collection)
+        master_collection = cast(pystac.Collection, apply_ssys(master_collection))
 
         for feature_name in self.possible_names:
             file_location = self.psup_archive.find_or_download(feature_name)
@@ -311,13 +315,17 @@ class CatalogCreator(BaseProcessor):
 
             self.log.info(f"Processing {feature_name}.")
             processor = select_processor(
-                feature_name,
+                cast(ProcessorName, feature_name),
                 catalog_folder=file_location.parent,
             )
             subcollection = processor.create_collection()
             # Apply extensions here
-            subcollection = apply_sci(
-                subcollection, publications=geojson_features[feature_name].publications
+            subcollection = cast(
+                pystac.Collection,
+                apply_sci(
+                    subcollection,
+                    publications=geojson_features[feature_name].publications,
+                ),
             )
             master_collection.add_child(subcollection)
 
