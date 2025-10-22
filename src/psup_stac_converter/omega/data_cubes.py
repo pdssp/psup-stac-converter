@@ -157,13 +157,16 @@ Please note that longitudes range from -180 to 180 degrees east.
         except OSError as ose:
             self.log.error(f"[{ose.__class__.__name__}] {ose}")
             self.log.error(
-                f"""Cube {orbit_cube_idx}'s sav file is too big for the disk."""
+                f"""Either cube {orbit_cube_idx}'s sav file is too big for the disk or
+                the file is corrupted. Check exception for details."""
             )
         except ValueError as verr:
             self.log.error(f"[{verr.__class__.__name__}] {verr}")
         except Exception as e:
             self.log.error(f"A problem with {orbit_cube_idx} occured")
             self.log.error(f"[{e.__class__.__name__}] {e}")
+        finally:
+            nc_data.close()
 
     def create_stac_item(self, orbit_cube_idx: str) -> pystac.Item:
         """
@@ -250,14 +253,15 @@ Please note that longitudes range from -180 to 180 degrees east.
         ]
 
         # NC properties
-        pystac_item.assets["nc"].extra_fields["creation_date"] = nc_info[
-            "creation_date"
-        ]
+        if nc_info:
+            pystac_item.assets["nc"].extra_fields["creation_date"] = nc_info[
+                "creation_date"
+            ]
 
         # Apply EO extension
         working_bands = [omega_bands[0]]
         if sav_info["is_c_channel_working"]:
-            working_bands.append(omega_bands(1))
+            working_bands.append(omega_bands[1])
 
         if sav_info["is_l_channel_working"]:
             working_bands.append(omega_bands[2])

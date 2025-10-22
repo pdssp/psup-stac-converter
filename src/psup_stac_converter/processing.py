@@ -14,7 +14,7 @@ from shapely import Polygon, bounds
 
 from psup_stac_converter.exceptions import FileExtensionError, FolderNotEmptyError
 from psup_stac_converter.extensions import apply_sci, apply_ssys
-from psup_stac_converter.informations.data_providers import providers as data_providers
+from psup_stac_converter.informations.data_providers import providers
 from psup_stac_converter.informations.geojson_features import geojson_features
 from psup_stac_converter.omega.c_channel_proj import OmegaCChannelProj
 from psup_stac_converter.omega.data_cubes import OmegaDataCubes
@@ -151,23 +151,40 @@ class CatalogCreator(BaseProcessor):
         try:
             feature_collection = self.create_feature_collection()
             catalog.add_child(feature_collection)
+            self.log.debug(f"Collection {feature_collection.id} successfully created!")
+            self.log.debug(feature_collection.to_dict())
 
             self.log.info("Creating OMEGA mineral maps collection")
             omega_mmaps_collection = self.create_omega_mineral_maps_collection()
             catalog.add_child(omega_mmaps_collection)
+            self.log.debug(
+                f"Collection {omega_mmaps_collection.id} successfully created!"
+            )
+            self.log.debug(omega_mmaps_collection.to_dict())
 
             self.log.info("Creating OMEGA Data cubes collection")
             omega_data_cubes_builder = OmegaDataCubes(self.psup_archive, log=self.log)
             omega_data_cubes_collection = omega_data_cubes_builder.create_collection()
             catalog.add_child(omega_data_cubes_collection)
+            self.log.debug(
+                f"Collection {omega_data_cubes_collection.id} successfully created!"
+            )
+            self.log.debug(omega_data_cubes_collection.to_dict())
 
             self.log.info("Creating OMEGA C Channel Proj collection")
             self.log.debug(self.psup_archive)
             omega_c_channel_builder = OmegaCChannelProj(self.psup_archive, log=self.log)
             omega_c_channel_collection = omega_c_channel_builder.create_collection()
             catalog.add_child(omega_c_channel_collection)
+            self.log.debug(
+                f"Collection {omega_c_channel_collection.id} successfully created!"
+            )
+            self.log.debug(omega_c_channel_collection.to_dict())
+
         except KeyboardInterrupt:
-            self.log.warning("User stopped collection generation.")
+            self.log.warning(
+                "Stopped collection generation. Use the same command (ie. Ctrl+C) to shut down the process."
+            )
 
         except Exception as e:
             self.log.error("There was a problem during collection generation!")
@@ -281,7 +298,7 @@ class CatalogCreator(BaseProcessor):
                 "mineralogy",
             ],
             license="CC-BY-4.0",
-            providers=data_providers,
+            providers=providers,
         )
 
         # Apply extensions here

@@ -8,7 +8,7 @@ from pystac.extensions.scientific import Publication
 from shapely import Polygon, bounds, to_geojson
 
 from psup_stac_converter.extensions import apply_eo, apply_sci, apply_ssys
-from psup_stac_converter.informations import data_providers
+from psup_stac_converter.informations.data_providers import providers
 from psup_stac_converter.informations.instruments import omega_bands
 from psup_stac_converter.informations.publications import omega_map_publications
 from psup_stac_converter.utils.io import PsupIoHandler
@@ -258,7 +258,7 @@ def omega_maps_collection_generator(psup_archive: PsupIoHandler) -> pystac.Colle
         description="""PSUP OMEGA mineral maps are OMEGA-based NIR albedo, Ferric BD530, Ferric Nanophase, Olivine SP1, SP2, SP3, Pyroxene and Emissivity at 5.03µm. OMEGA is the VISNIR imaging spectrometer onboard ESA/Mars-Express spacecraft operating around Mars from January 2004. All maps are provided in FITS file format via the "download" column.
 
 This Dataset is also available as a VO TAP service (ivo://idoc/psup/omega_maps/q/epn_core).""",
-        providers=data_providers,
+        providers=providers,
         keywords=list(
             set(
                 [
