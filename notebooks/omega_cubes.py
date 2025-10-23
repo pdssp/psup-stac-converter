@@ -263,8 +263,8 @@ def _(box, example_sav, np):
 
 
 @app.cell
-def _(xr):
-    ex_nc_ds = xr.open_dataset("./data/raw/downloads/cube_omega/3644_4.nc")
+def _(ex_ids, xr):
+    ex_nc_ds = xr.open_dataset(f"./data/raw/downloads/cube_omega/{ex_ids[0]}.nc")
     ex_nc_ds
     return (ex_nc_ds,)
 
@@ -310,11 +310,41 @@ def _(mo):
 
 @app.cell
 def _(ex_nc_ds):
-    for _k in ex_nc_ds.keys():
-        print(_k)
+    print("[DIMS]\n", ex_nc_ds.dims)
+    print("[DATA VARIABLES]", ex_nc_ds.data_vars)
+    print("[COORDINATES]", ex_nc_ds.coords)
+    print("[ATTRIBUTES]", ex_nc_ds.attrs)
+    return
 
-    print(ex_nc_ds["solar_longitude"].encoding)
-    print(ex_nc_ds.encoding)
+
+@app.cell
+def _(ex_nc_ds):
+    ex_nc_ds.dims
+    return
+
+
+@app.cell
+def _(ex_nc_ds):
+    for _k in ex_nc_ds.data_vars.keys():
+        print(_k)
+        print("------")
+        # print(ex_nc_ds.data_vars[_k])
+        print(ex_nc_ds.data_vars[_k].data)
+        print(ex_nc_ds.data_vars[_k].attrs)
+        print("======\n")
+    return
+
+
+@app.cell
+def _(ex_nc_ds):
+    for _k in ex_nc_ds.coords.keys():
+        print(_k)
+        print("------")
+        # print(ex_nc_ds.coords[_k])
+        print(ex_nc_ds.coords[_k].data)
+        print(ex_nc_ds.coords[_k].coords)
+        print(ex_nc_ds.coords[_k].attrs)
+        print("==========================")
     return
 
 
@@ -586,6 +616,46 @@ def _(mo):
     *   **orbit\_number** = "\[number\]"
     """
     )
+    return
+
+
+@app.cell
+def _(ex_nc_ds_l2):
+    print("[DIMS]\n", ex_nc_ds_l2.dims)
+    print("[DATA VARIABLES]", ex_nc_ds_l2.data_vars)
+    print("[COORDINATES]", ex_nc_ds_l2.coords)
+    print("[ATTRIBUTES]", ex_nc_ds_l2.attrs)
+    return
+
+
+@app.cell
+def _(ex_nc_ds_l2):
+    ex_nc_ds_l2.dims
+    return
+
+
+@app.cell
+def _(ex_nc_ds_l2):
+    for _k in ex_nc_ds_l2.data_vars.keys():
+        print(_k)
+        print("------")
+        # print(ex_nc_ds_l2.data_vars[_k])
+        print(ex_nc_ds_l2.data_vars[_k].data)
+        print(ex_nc_ds_l2.data_vars[_k].attrs)
+        print("======")
+    return
+
+
+@app.cell
+def _(ex_nc_ds_l2):
+    for _k in ex_nc_ds_l2.coords.keys():
+        print(_k)
+        print("------")
+        # print(ex_nc_ds_l2.coords[_k])
+        print(ex_nc_ds_l2.coords[_k].data)
+        print(ex_nc_ds_l2.coords[_k].coords)
+        print(ex_nc_ds_l2.coords[_k].attrs)
+        print("==========================")
     return
 
 

@@ -57,6 +57,7 @@ class OmegaDataReader:
         self,
         psup_io_handler: PsupIoHandler,
         data_type: Literal["data_cubes_slice", "c_channel_slice"],
+        processing_level: Literal["L2", "L3"],
         collection_id: str = "",
         license_name: str = "CC-BY-4.0",
         collection_description: str = "",
@@ -65,6 +66,7 @@ class OmegaDataReader:
     ):
         self.io_handler = psup_io_handler
         self.data_type = data_type
+        self.processing_level = processing_level
         self._omega_data = self._get_omega_data(data_type)
         self.collection_id = collection_id
         self.license_name = license_name
@@ -146,16 +148,18 @@ class OmegaDataReader:
         """Opens an asset of a particular OMEGA cube. Allows IDL .sav, NetCDF and text.
 
         Args:
-            orbit_cube_idx (str): _description_
-            file_extension (Literal[&quot;sav&quot;, &quot;nc&quot;, &quot;txt&quot;]): _description_
+            orbit_cube_idx (str): OMEGA data ID of the item
+            file_extension (Literal[&quot;sav&quot;, &quot;nc&quot;, &quot;txt&quot;]): The extension of the file.
+            Can be a `.txt` text (only available with OMEGA C Channel data), an IDL `.sav` file or a NetCDF `.nc`file.
             on_disk (bool, optional): _description_. Defaults to True.
-            text_raw (bool, optional): _description_. Defaults to False.
+            text_raw (bool, optional): Either returns the text `.txt`file as it is (str) if left to True, or as an
+            interpreted object of left to False. Defaults to False.
 
         Raises:
-            ValueError: _description_
+            FileExtensionError: If the extension isn't recognized
 
         Returns:
-            _type_: _description_
+            OmegaDataTextItem | dict[str, Any] | str | xr.Dataset: The opened file. The type depends of the extension.
         """
         if file_extension == "sav":
             return self.open_sav_dataset(orbit_cube_idx, on_disk=on_disk)
@@ -169,13 +173,15 @@ class OmegaDataReader:
     def open_sav_dataset(
         self, orbit_cube_idx: str, on_disk: bool = True
     ) -> dict[str, Any]:
-        """Opens an IDL .sav file
+        """Opens an IDL .sav file as a dict of attributes
 
         Args:
-            file_href (str): _description_
+            orbit_cube_idx (str): OMEGA data ID of the item
+            on_disk (bool, optional): Whether the file should be downloaded on the local
+            disk or not. Defaults to True.
 
         Returns:
-            dict[str, Any]: _description_
+            dict[str, Any]: An IDL AttrDict of the.sav file
         """
         sav_ds = None
         oc_info = self.find_info_by_orbit_cube(orbit_cube_idx, file_extension="sav")
@@ -191,14 +197,16 @@ class OmegaDataReader:
 
         return sav_ds
 
-    def open_nc_dataset(self, orbit_cube_idx: str, on_disk: bool = True) -> Any:
-        """Opens NetCDF4 dataset
+    def open_nc_dataset(self, orbit_cube_idx: str, on_disk: bool = True) -> xr.Dataset:
+        """Opens NetCDF4 dataset using the XArray package
 
         Args:
-            file_href (str): _description_
+            orbit_cube_idx (str): OMEGA data ID of the item
+            on_disk (bool, optional): Whether the file should be downloaded on the local
+            disk or not. Defaults to True.
 
         Returns:
-            Any: _description_
+            xr.Dataset: The NetCDF dataset under an xarray dataset.
         """
         nc_dataset = None
         oc_info = self.find_info_by_orbit_cube(orbit_cube_idx, file_extension="nc")
@@ -223,9 +231,11 @@ class OmegaDataReader:
         available for Data Cubes.
 
         Args:
-            orbit_cube_idx (str): _description_
-            on_disk (bool, optional): _description_. Defaults to True.
-            raw (bool, optional): _description_. Defaults to False.
+            orbit_cube_idx (str): the ID of the OMEGA data cube
+            on_disk (bool, optional): Whether the file should be saved locally or not. Useful for
+            saved states. Defaults to True.
+            raw (bool, optional): Whether the file should be returned as str or directly intepreted
+            as an object if left to `False`. Defaults to False.
 
         Returns:
             str | OmegaDataTextItem: The result. Either the raw text if `raw=True` or
@@ -265,9 +275,20 @@ class OmegaDataReader:
         return OmegaDataTextItem.model_validate_json(json.dumps(text_obj))
 
     def find_spatial_extent(self) -> pystac.SpatialExtent:
+        """Assesses the spatial extent of the collection (the whole planet by default)
+
+        Returns:
+            pystac.SpatialExtent: A SpatialExtent object for the collection
+        """
         return pystac.SpatialExtent(bboxes=[[-180.0, -90.0, 180.0, 90.0]])
 
     def find_temporal_extent(self) -> pystac.TemporalExtent:
+        """Assesses the spatial extent of the collection (the extrema defined
+        by `pandas.Timestamp`by default)
+
+        Returns:
+            pystac.TemporalExtent: A TemporalExtent object for the collection
+        """
         return pystac.TemporalExtent(
             intervals=[
                 [
@@ -278,6 +299,11 @@ class OmegaDataReader:
         )
 
     def create_collection(self) -> pystac.Collection:
+        """Creates a STAC collection based over the OMEGA data series.
+
+        Returns:
+            pystac.Collection: The corresponding STAC collection
+        """
         spatial_extent = self.find_spatial_extent()
         temporal_extent = self.find_temporal_extent()
         collection_extent = pystac.Extent(
@@ -296,6 +322,8 @@ class OmegaDataReader:
         collection = cast(
             pystac.Collection, apply_sci(collection, publications=self.publications)
         )
+        # TODO: make a pystac extension for processing
+        # collection.extra_fields["processing:level"] = self.processing_level
 
         for omega_data_idx in tqdm(self.omega_data_ids, total=self.n_elements):
             try:
@@ -311,13 +339,13 @@ class OmegaDataReader:
         return collection
 
     def create_stac_item(self, orbit_cube_idx: str, **kwargs) -> pystac.Item:
-        """Creates a STAC item based on the common properties of OMEGA cubes
+        """Creates a STAC item based on the common properties of OMEGA cubes.
 
         Args:
-            orbit_cube_idx (str): _description_
+            orbit_cube_idx (str): The ID of the data cube
 
         Returns:
-            pystac.Item: _description_
+            pystac.Item: The corresponding item of the orbit-cube ID
         """
 
         footprint = kwargs.get(
@@ -338,7 +366,6 @@ class OmegaDataReader:
         )
 
         # assets
-
         # NetCDF4 data
         try:
             self.log.debug(f"Creating NetCDF asset for # {orbit_cube_idx}")
@@ -351,6 +378,7 @@ class OmegaDataReader:
                 extra_fields={"size": nc_info["h_total_size"].item()},
             )
             pystac_item.add_asset("nc", nc_asset)
+            self.log.debug(f"{nc_asset} successfully added: {nc_asset.to_dict()}")
         except OmegaCubeDataMissingError:
             self.log.warning(f"NetCDF file not found for {orbit_cube_idx}. Skipping.")
 
@@ -362,12 +390,13 @@ class OmegaDataReader:
             )
             sav_asset = pystac.Asset(
                 href=sav_info["href"].item(),
-                media_type=pystac.MediaType.TEXT,
+                media_type=pystac.MediaType.GEOTIFF,
                 roles=["data"],
                 description="IDL .sav data",
                 extra_fields={"size": sav_info["h_total_size"].item()},
             )
             pystac_item.add_asset("sav", sav_asset)
+            self.log.debug(f"{sav_asset} successfully added: {sav_asset.to_dict()}")
         except OmegaCubeDataMissingError:
             self.log.warning(f"IDL.sav not found for {orbit_cube_idx}. Skipping.")
 

@@ -67,6 +67,40 @@ def apply_sci(
 #     pass
 
 
+# TODO: Datacube for OMEGA
+# def apply_datacube(stac_item: pystac.Item) -> pystac.Item:
+#     dc_ext = DatacubeExtension.ext(stac_item, add_if_missing=True)
+
+#     dc_ext.apply(
+#         dimensions={
+#             "mydim": Dimension(
+#                 properties={
+#                     "type": "",
+#                     "axis": "",
+#                     "description": "",
+#                     "extent": [1, 2, 3, 4],
+#                     "values": [4, 5, 8, 7, 74, 1265, 894],
+#                     "step": None,  # use number instead
+#                     "reference_system": "IAU:1354:584",
+#                 }
+#             )
+#         },
+#         variables={
+#             "myvariable": Variable(
+#                 properties={
+#                     "dimensions": ["e", "f"],
+#                     "type": "data|auxiliary",
+#                     "description": """Insert description here""",
+#                     "extent": [1, 4, 5],
+#                     "values": [4, 8, 9],
+#                     "unit": "km",
+#                 }
+#             )
+#         },
+#     )
+#     return stac_item
+
+
 def apply_eo(stac_instance: StacInstance, bands: list[Band]) -> StacInstance:
     if isinstance(stac_instance, pystac.Item) or isinstance(
         stac_instance, pystac.Asset

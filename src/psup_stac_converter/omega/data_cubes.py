@@ -24,13 +24,14 @@ class OmegaDataCubes(OmegaDataReader):
         super().__init__(
             psup_io_handler,
             data_type="data_cubes_slice",
+            processing_level="L2",
             collection_id="urn:pdssp:ias:collection:omega_data_cubes",
             collection_description="""
 This dataset contains all the OMEGA observations acquired with the C, L and VIS channels until April 2016, 11, after filtering. Filtering processes have been implemented to remove some instrumental artefacts and observational conditions. Each OMEGA record is available as a `netCDF4.nc` file and an `idl.sav`
 
-Both files contain the cubes of reflectance of the surface at a given longitude, latitude and wavelength $\lambda$. The surface reflectance is defined as $\frac{I(\lambda)}{F \cos(i)}$  where:
+Both files contain the cubes of reflectance of the surface at a given longitude, latitude and wavelength $\\lambda$. The surface reflectance is defined as $\frac{I(\\lambda)}{F \\cos(i)}$  where:
 
-- channel $C=[0.93-2.73 \mu m]$; $L=[2.55-5.10 \mu m]$; $\text{Visible}=[0.38-1.05 \mu m]$;
+- channel $C=[0.93-2.73 \\mu m]$; $L=[2.55-5.10 \\mu m]$; $\\text{Visible}=[0.38-1.05 \\mu m]$;
 - atmospheric attenuation is corrected (1-5 µm);
 - airborne dust scattering is corrected (0.4-2.5 µm and for 5 µm emissivity estimations);
 - thermal contribution is removed (> 3 µm); L channel data and VIS channel are co-registered with C channel when available.
@@ -53,7 +54,7 @@ Please note that longitudes range from -180 to 180 degrees east.
     def create_collection(self) -> pystac.Collection:
         """Creates a collection based on the OMEGA datacubes' dataset
 
-                This dataset contains all the OMEGA observations acquired with the C, L and VIS channels until April 2016, 11, after filtering. Filtering processes have been implemented to remove some instrumental artefacts and observational conditions. Each OMEGA record is available as a netCDF4.nc file and an idl.sav
+        This dataset contains all the OMEGA observations acquired with the C, L and VIS channels until April 2016, 11, after filtering. Filtering processes have been implemented to remove some instrumental artefacts and observational conditions. Each OMEGA record is available as a netCDF4.nc file and an idl.sav
 
         Both files contain the cubes of reflectance of the surface at a given longitude, latitude and wavelength λ. The surface reflectance is defined as I/F/cos(i) where:
 
@@ -64,10 +65,23 @@ Please note that longitudes range from -180 to 180 degrees east.
 
         Please note that longitudes range from -180 to 180 degrees east.
 
-                Returns:
-                    _type_: _description_
+        Returns:
+            pystac.Collection: OMEGA Data Cubes' collection
         """
         collection = super().create_collection()
+
+        # Change spatial extent since temporal extent is
+        item_spatial_range = [
+            item.bbox for item in collection.get_items() if item.bbox is not None
+        ]
+        coll_min_x = min([itembox[0] for itembox in item_spatial_range])
+        coll_min_y = min([itembox[1] for itembox in item_spatial_range])
+        coll_max_x = max([itembox[2] for itembox in item_spatial_range])
+        coll_max_y = max([itembox[3] for itembox in item_spatial_range])
+
+        collection.extent.spatial = pystac.SpatialExtent(
+            bboxes=[[coll_min_x, coll_min_y, coll_max_x, coll_max_y]]
+        )
 
         # Only the C band is needed
         collection = cast(pystac.Collection, apply_eo(collection, bands=omega_bands))
@@ -75,6 +89,27 @@ Please note that longitudes range from -180 to 180 degrees east.
         return collection
 
     def extract_sav_info(self, orbit_cube_idx: str) -> dict[str, Any]:
+        """Extracts information from the IDL.sav file.
+
+        This method is considered as the main method for information extraction. If the .sav file
+        can't be opened, the item's creation process is skipped.
+
+        The following exceptions can occur:
+            * The file is too big for the system to handle.
+            * There was an error during file reading (`ValueError`). This
+            can happen if the file is corrupted or if the data is uneven among
+            items.
+            * Any other kind of exception
+
+        Notes:
+            The lack of data can be covered by the NetCDF data file
+
+        Args:
+            orbit_cube_idx (str): The ID of the .sav item
+
+        Returns:
+            dict[str, Any]: Useful information from the .sav file
+        """
         try:
             orbit_number, cube_number = orbit_cube_idx.split("_")
             sav_info = {"orbit_number": orbit_number, "cube_number": int(cube_number)}
@@ -118,7 +153,9 @@ Please note that longitudes range from -180 to 180 degrees east.
             sav_info["is_c_channel_working"] = bool(sav_data["tag_c"] != 0)
 
             sav_info["martian_time"] = (
-                f"""{sav_data["year"]}:{sav_data["solarlong"]}:{np.nanmin(sav_data["heure"])}"""
+                f"{int(sav_data['year'].item())}:"
+                f"{float(sav_data['solarlong'].item()):.2f}:"
+                f"{float(np.nanmin(sav_data['heure']).item()):.2f}"
             )
 
             # With martian time, is it possible to deduce Earth time?
@@ -140,6 +177,17 @@ Please note that longitudes range from -180 to 180 degrees east.
         return {}
 
     def extract_nc_info(self, orbit_cube_idx: str) -> dict[str, Any]:
+        """Opens the NetCDF file to fetch metadata on the item
+
+        This file serves as a setback or as a secondary item in case the .sav
+        file isn't sufficient.
+
+        Args:
+            orbit_cube_idx (str): The ID of the .sav item
+
+        Returns:
+            dict[str, Any]: Useful information from the .nc file
+        """
         try:
             nc_info = {}
             self.log.debug(f"Opening the nc file for {orbit_cube_idx}")
@@ -181,10 +229,6 @@ Please note that longitudes range from -180 to 180 degrees east.
         return {}
 
     def create_stac_item(self, orbit_cube_idx: str) -> pystac.Item:
-        """
-        Information is contained within the IDL.sav files and NetCDF files
-        """
-
         sav_md_state = self.sav_metadata_folder / f"sav_{orbit_cube_idx}.json"
         self.log.debug(f"Opening {sav_md_state}")
         if sav_md_state.exists():
