@@ -15,6 +15,7 @@ def _():
     import datetime as dt
     import time
     import tempfile
+    from pystac.extensions.datacube import Dimension, Variable
     import xarray as xr
     import scipy.io as sio
     import matplotlib.pyplot as plt
@@ -24,6 +25,7 @@ def _():
 
     return (
         Path,
+        Variable,
         bounds,
         box,
         dt,
@@ -309,6 +311,24 @@ def _(mo):
 
 
 @app.cell
+def _():
+    from psup_stac_converter.utils.models import (
+        CubedataVariable,
+        HorizontalSpatialRasterDimension,
+        VerticalSpatialRasterDimension,
+        TemporalDimension,
+        SpatialVectorDimension,
+        AdditionalDimension,
+    )
+
+    return (
+        CubedataVariable,
+        HorizontalSpatialRasterDimension,
+        VerticalSpatialRasterDimension,
+    )
+
+
+@app.cell
 def _(ex_nc_ds):
     print("[DIMS]\n", ex_nc_ds.dims)
     print("[DATA VARIABLES]", ex_nc_ds.data_vars)
@@ -319,7 +339,7 @@ def _(ex_nc_ds):
 
 @app.cell
 def _(ex_nc_ds):
-    ex_nc_ds.dims
+    ex_nc_ds.sizes  # Z, Y and X
     return
 
 
@@ -329,10 +349,38 @@ def _(ex_nc_ds):
         print(_k)
         print("------")
         # print(ex_nc_ds.data_vars[_k])
-        print(ex_nc_ds.data_vars[_k].data)
+        print(ex_nc_ds.data_vars[_k].values)
         print(ex_nc_ds.data_vars[_k].attrs)
         print("======\n")
     return
+
+
+@app.cell
+def _(CubedataVariable, ex_nc_ds):
+    l3_cube_variables = {}
+
+    for _k in ex_nc_ds.data_vars.keys():
+        _vars_attrs = ex_nc_ds.data_vars[_k].attrs
+        if "valid_min" in _vars_attrs and "valid_max" in _vars_attrs:
+            extent = [
+                _vars_attrs["valid_min"].item(),
+                _vars_attrs["valid_max"].item(),
+            ]
+            values = None
+        else:
+            extent = None
+            # Should be a scalar
+            values = [ex_nc_ds.data_vars[_k].values.item()]
+
+        l3_cube_variables[_k] = CubedataVariable(
+            description=_vars_attrs["long_name"],
+            type="data",
+            dimensions=["wavelength", "latitude", "longitude"],
+            unit=_vars_attrs["units"],
+            extent=extent,
+            values=values,
+        )
+    return (l3_cube_variables,)
 
 
 @app.cell
@@ -346,6 +394,74 @@ def _(ex_nc_ds):
         print(ex_nc_ds.coords[_k].attrs)
         print("==========================")
     return
+
+
+@app.cell
+def _(
+    CubedataVariable,
+    HorizontalSpatialRasterDimension,
+    VerticalSpatialRasterDimension,
+    ex_nc_ds,
+    l3_cube_variables,
+    np,
+):
+    l3_cube_dimensions = {}
+
+    def find_step_from_values(vals: np.ndarray) -> float | None:
+        steps = vals[1:] - vals[:-1]
+        unique_steps = np.unique(steps)
+        if unique_steps.size > 1 or unique_steps.size == 0:
+            return None
+        return unique_steps.item()
+
+    for _k in ex_nc_ds.coords:
+        _k_attrs = ex_nc_ds.coords[_k].attrs
+        if _k in ["longitude", "latitude"]:
+            l3_cube_dimensions[_k] = HorizontalSpatialRasterDimension(
+                axis=_k_attrs["axis"].lower(),
+                extent=[
+                    _k_attrs["valid_min"].item(),
+                    _k_attrs["valid_max"].item(),
+                ],
+                unit=_k_attrs["units"],
+                step=find_step_from_values(ex_nc_ds.coords[_k].values),
+                description=_k_attrs["long_name"],
+            )
+            l3_cube_variables[_k] = CubedataVariable(
+                dimensions=[_k_attrs["axis"].lower()],
+                type="auxiliary",
+                extent=[
+                    _k_attrs["valid_min"].item(),
+                    _k_attrs["valid_max"].item(),
+                ],
+                unit=_k_attrs["units"],
+                step=find_step_from_values(ex_nc_ds.coords[_k].values),
+                description=_k_attrs["long_name"],
+            )
+        elif _k == "wavelength":
+            l3_cube_dimensions[_k] = VerticalSpatialRasterDimension(
+                extent=[
+                    _k_attrs["valid_min"].item(),
+                    _k_attrs["valid_max"].item(),
+                ],
+                unit=_k_attrs["units"],
+                step=find_step_from_values(ex_nc_ds.coords[_k].values),
+                description=_k_attrs["long_name"],
+            )
+            l3_cube_variables[_k] = CubedataVariable(
+                dimensions=[_k_attrs["axis"].lower()],
+                type="auxiliary",
+                extent=[
+                    _k_attrs["valid_min"].item(),
+                    _k_attrs["valid_max"].item(),
+                ],
+                unit=_k_attrs["units"],
+                step=find_step_from_values(ex_nc_ds.coords[_k].values),
+                description=_k_attrs["long_name"],
+            )
+
+    print(l3_cube_variables)
+    return (find_step_from_values,)
 
 
 @app.cell
@@ -640,10 +756,40 @@ def _(ex_nc_ds_l2):
         print(_k)
         print("------")
         # print(ex_nc_ds_l2.data_vars[_k])
-        print(ex_nc_ds_l2.data_vars[_k].data)
+        print(ex_nc_ds_l2.data_vars[_k].values)
         print(ex_nc_ds_l2.data_vars[_k].attrs)
         print("======")
     return
+
+
+@app.cell
+def _(CubedataVariable, ex_nc_ds_l2):
+    from pydantic import ValidationError
+
+    l2_cube_variables = {}
+
+    for _k in ex_nc_ds_l2.data_vars.keys():
+        _vars_attrs = ex_nc_ds_l2.data_vars[_k].attrs
+        if "valid_min" in _vars_attrs and "valid_max" in _vars_attrs:
+            extent_l2 = [
+                _vars_attrs["valid_min"].item(),
+                _vars_attrs["valid_max"].item(),
+            ]
+            values_l2 = None
+        else:
+            extent_l2 = None
+            # Should be a scalar
+            values_l2 = [ex_nc_ds_l2.data_vars[_k].values.item()]
+
+        l2_cube_variables[_k] = CubedataVariable(
+            description=_vars_attrs["long_name"],
+            type="data",
+            dimensions=["wavelength", "pixel_y", "pixel_x"],
+            unit=_vars_attrs["units"],
+            extent=extent_l2,
+            values=values_l2,
+        )
+    return (l2_cube_variables,)
 
 
 @app.cell
@@ -652,10 +798,76 @@ def _(ex_nc_ds_l2):
         print(_k)
         print("------")
         # print(ex_nc_ds_l2.coords[_k])
-        print(ex_nc_ds_l2.coords[_k].data)
+        print(ex_nc_ds_l2.coords[_k].values)
         print(ex_nc_ds_l2.coords[_k].coords)
         print(ex_nc_ds_l2.coords[_k].attrs)
         print("==========================")
+    return
+
+
+@app.cell
+def _(
+    CubedataVariable,
+    HorizontalSpatialRasterDimension,
+    Variable,
+    VerticalSpatialRasterDimension,
+    ex_nc_ds,
+    ex_nc_ds_l2,
+    find_step_from_values,
+    json,
+    l2_cube_variables,
+    l3_cube_variables,
+):
+    l2_cube_dimensions = {}
+
+    for _k in ex_nc_ds_l2.coords.keys():
+        _k_attrs = ex_nc_ds_l2.coords[_k].attrs
+        if _k in ["pixel_x", "pixel_y"]:
+            l2_cube_dimensions[_k] = HorizontalSpatialRasterDimension(
+                axis=_k_attrs["axis"].lower(),
+                extent=[
+                    _k_attrs["valid_min"].item(),
+                    _k_attrs["valid_max"].item(),
+                ],
+                unit=_k_attrs["units"],
+                step=find_step_from_values(ex_nc_ds_l2.coords[_k].values),
+                description=_k_attrs["long_name"],
+            )
+            l3_cube_variables[_k] = CubedataVariable(
+                dimensions=[_k_attrs["axis"].lower()],
+                type="auxiliary",
+                extent=[
+                    _k_attrs["valid_min"].item(),
+                    _k_attrs["valid_max"].item(),
+                ],
+                unit=_k_attrs["units"],
+                step=find_step_from_values(ex_nc_ds_l2.coords[_k].values),
+                description=_k_attrs["long_name"],
+            )
+        elif _k == "wavelength":
+            l2_cube_dimensions[_k] = VerticalSpatialRasterDimension(
+                extent=[
+                    _k_attrs["valid_min"].item(),
+                    _k_attrs["valid_max"].item(),
+                ],
+                unit=_k_attrs["units"],
+                step=find_step_from_values(ex_nc_ds.coords[_k].values),
+                description=_k_attrs["long_name"],
+            )
+            l3_cube_variables[_k] = CubedataVariable(
+                dimensions=[_k_attrs["axis"].lower()],
+                type="auxiliary",
+                extent=[
+                    _k_attrs["valid_min"].item(),
+                    _k_attrs["valid_max"].item(),
+                ],
+                unit=_k_attrs["units"],
+                step=find_step_from_values(ex_nc_ds_l2.coords[_k].values),
+                description=_k_attrs["long_name"],
+            )
+
+    for _k, _v in l2_cube_variables.items():
+        json.dumps({_k: Variable(properties={_k: _v.model_dump(exclude_none=True)})})
     return
 
 

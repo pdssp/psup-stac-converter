@@ -9,7 +9,6 @@ import pystac
 import xarray as xr
 from shapely import bounds, box, to_geojson
 
-from psup_stac_converter.exceptions import StacItemCreationError
 from psup_stac_converter.extensions import apply_eo
 from psup_stac_converter.informations.instruments import omega_bands
 from psup_stac_converter.informations.publications import omega_data_cubes
@@ -25,6 +24,8 @@ class OmegaDataCubes(OmegaDataReader):
             psup_io_handler,
             data_type="data_cubes_slice",
             processing_level="L2",
+            dim_names=("pixel_x", "pixel_y", "wavelength"),
+            metadata_folder_prefix="l2_",
             collection_id="urn:pdssp:ias:collection:omega_data_cubes",
             collection_description="""
 This dataset contains all the OMEGA observations acquired with the C, L and VIS channels until April 2016, 11, after filtering. Filtering processes have been implemented to remove some instrumental artefacts and observational conditions. Each OMEGA record is available as a `netCDF4.nc` file and an `idl.sav`
@@ -41,15 +42,6 @@ Please note that longitudes range from -180 to 180 degrees east.
             publications=omega_data_cubes,
             log=log,
         )
-        self.sav_metadata_folder = psup_io_handler.output_folder / "l2_sav"
-        self.nc_metadata_folder = psup_io_handler.output_folder / "l2_nc"
-        self.log.debug(f".sav metadata folder: {self.sav_metadata_folder}")
-        self.log.debug(f".nc metadata folder: {self.nc_metadata_folder}")
-        if not self.sav_metadata_folder.exists():
-            self.sav_metadata_folder.mkdir()
-
-        if not self.nc_metadata_folder.exists():
-            self.nc_metadata_folder.mkdir()
 
     def create_collection(self) -> pystac.Collection:
         """Creates a collection based on the OMEGA datacubes' dataset
@@ -176,57 +168,24 @@ Please note that longitudes range from -180 to 180 degrees east.
             self.log.error(f"[{e.__class__.__name__}] {e}")
         return {}
 
-    def extract_nc_info(self, orbit_cube_idx: str) -> dict[str, Any]:
-        """Opens the NetCDF file to fetch metadata on the item
+    def find_extra_nc_data(self, nc_data: xr.Dataset) -> dict[str, Any]:
+        extras = {}
 
-        This file serves as a setback or as a secondary item in case the .sav
-        file isn't sufficient.
+        # Obtain creation date from .nc metadata
+        creation_date_match = re.match(
+            r"Created (\d{2}/\d{2}/\d{2})", nc_data.attrs["history"]
+        )
+        if creation_date_match is not None:
+            extras["creation_date"] = dt.datetime.strptime(
+                creation_date_match.group(1),
+                "%d/%m/%y",
+            ).isoformat()
+        else:
+            extras["creation_date"] = None
 
-        Args:
-            orbit_cube_idx (str): The ID of the .sav item
+        self.log.debug(f"Obtained nc_info={extras}")
 
-        Returns:
-            dict[str, Any]: Useful information from the .nc file
-        """
-        try:
-            nc_info = {}
-            self.log.debug(f"Opening the nc file for {orbit_cube_idx}")
-
-            nc_data = cast(
-                xr.Dataset,
-                self.open_file(orbit_cube_idx, file_extension="nc", on_disk=False),
-            )
-
-            # Obtain creation date from .nc metadata
-            creation_date_match = re.match(
-                r"Created (\d{2}/\d{2}/\d{2})", nc_data.attrs["history"]
-            )
-            if creation_date_match is not None:
-                nc_info["creation_date"] = dt.datetime.strptime(
-                    creation_date_match.group(1),
-                    "%d/%m/%y",
-                ).isoformat()
-            else:
-                nc_info["creation_date"] = None
-
-            self.log.debug(f"Obtained nc_info={nc_info}")
-            nc_data.close()
-            return nc_info
-
-        except OSError as ose:
-            self.log.error(f"[{ose.__class__.__name__}] {ose}")
-            self.log.error(
-                f"""Either cube {orbit_cube_idx}'s sav file is too big for the disk or
-                the file is corrupted. Check exception for details."""
-            )
-        except ValueError as verr:
-            self.log.error(f"[{verr.__class__.__name__}] {verr}")
-        except Exception as e:
-            self.log.error(f"A problem with {orbit_cube_idx} occured")
-            self.log.error(f"[{e.__class__.__name__}] {e}")
-        finally:
-            nc_data.close()
-        return {}
+        return extras
 
     def create_stac_item(self, orbit_cube_idx: str) -> pystac.Item:
         sav_md_state = self.sav_metadata_folder / f"sav_{orbit_cube_idx}.json"
@@ -249,34 +208,6 @@ Please note that longitudes range from -180 to 180 degrees east.
                     f"Couldn't save .sav information for # {orbit_cube_idx} because of the following: {e}"
                 )
                 sav_info = {}
-
-        # Open NC metadata to complete
-        nc_md_state = self.nc_metadata_folder / f"nc_{orbit_cube_idx}.json"
-        self.log.debug(f"Opening {nc_md_state}")
-        if nc_md_state.exists():
-            with open(nc_md_state, "r") as nc_md:
-                nc_info = json.load(nc_md)
-        else:
-            self.log.debug(
-                f"{nc_md_state} not found. Creating it from # {orbit_cube_idx}"
-            )
-            try:
-                nc_info = self.extract_nc_info(orbit_cube_idx)
-                with open(nc_md_state, "w", encoding="utf-8") as nc_md:
-                    json.dump(nc_info, nc_md)
-            except Exception as e:
-                self.log.warning(
-                    f"Couldn't save .nc information for # {orbit_cube_idx} because of the following: {e}"
-                )
-                nc_info = {}
-
-        if not sav_info:
-            self.log.error(
-                f"Couldn't extract metadata for # {orbit_cube_idx}. Skipping"
-            )
-            raise StacItemCreationError(
-                f"Vital information for # {orbit_cube_idx} is missing!"
-            )
 
         # This one is given by the data description
         default_end_datetime = dt.datetime(2016, 4, 11, 0, 0)
@@ -309,12 +240,6 @@ Please note that longitudes range from -180 to 180 degrees east.
         pystac_item.assets["sav"].extra_fields["wavelength_range"] = sav_info[
             "wavelength_range"
         ]
-
-        # NC properties
-        if nc_info:
-            pystac_item.assets["nc"].extra_fields["creation_date"] = nc_info[
-                "creation_date"
-            ]
 
         # Apply EO extension
         working_bands = [omega_bands[0]]

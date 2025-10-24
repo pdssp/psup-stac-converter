@@ -4,12 +4,14 @@ import logging
 from typing import Any, Literal, cast
 from zoneinfo import ZoneInfo
 
+import numpy as np
 import pandas as pd
 import pystac
 import scipy.io as sio
 import xarray as xr
 from pydantic import BaseModel, ConfigDict, computed_field
 from pydantic.alias_generators import to_snake
+from pystac.extensions.datacube import DatacubeExtension, Dimension, Variable
 from pystac.extensions.scientific import Publication
 from shapely import Polygon, bounds, box, to_geojson
 from tqdm.rich import tqdm
@@ -24,6 +26,40 @@ from psup_stac_converter.extensions import apply_sci, apply_ssys
 from psup_stac_converter.informations.data_providers import providers as data_providers
 from psup_stac_converter.settings import create_logger
 from psup_stac_converter.utils.io import PsupIoHandler
+from psup_stac_converter.utils.models import (
+    CubedataVariable,
+    HorizontalSpatialRasterDimension,
+    VerticalSpatialRasterDimension,
+)
+
+
+class SpecialObjectEncoder(json.JSONEncoder):
+    def default(self, o: Any) -> Any:
+        if isinstance(o, Dimension) or isinstance(o, Variable):
+            return o.to_dict()
+        return super().default(o)
+
+
+def reformat_nc_info(nc_info: dict[str, Any]) -> dict[str, Any]:
+    for k, v in nc_info["variables"].items():
+        nc_info["variables"][k] = Variable(properties={**v})
+    for k, v in nc_info["dimensions"].items():
+        nc_info["dimensions"][k] = Dimension(properties={**v})
+
+    return nc_info
+
+
+def find_step_from_values(vals: np.ndarray) -> float | None:
+    """Identifies the step from the array's values by evaluating
+    the difference between the current and previous step. If the function
+    finds an unique value, it means the step is regular and taken into
+    account.
+    """
+    steps = vals[1:] - vals[:-1]
+    unique_steps = np.unique(steps)
+    if unique_steps.size > 1 or unique_steps.size == 0:
+        return None
+    return unique_steps.item()
 
 
 class OmegaDataTextItem(BaseModel):
@@ -58,6 +94,8 @@ class OmegaDataReader:
         psup_io_handler: PsupIoHandler,
         data_type: Literal["data_cubes_slice", "c_channel_slice"],
         processing_level: Literal["L2", "L3"],
+        dim_names: tuple[str, str, str],
+        metadata_folder_prefix: str,
         collection_id: str = "",
         license_name: str = "CC-BY-4.0",
         collection_description: str = "",
@@ -67,6 +105,8 @@ class OmegaDataReader:
         self.io_handler = psup_io_handler
         self.data_type = data_type
         self.processing_level = processing_level
+        self.dim_names = dim_names
+        self.metadata_folder_prefix = metadata_folder_prefix
         self._omega_data = self._get_omega_data(data_type)
         self.collection_id = collection_id
         self.license_name = license_name
@@ -76,6 +116,20 @@ class OmegaDataReader:
             self.log = create_logger(__name__)
         else:
             self.log = log
+
+        self.sav_metadata_folder = (
+            psup_io_handler.output_folder / f"{self.metadata_folder_prefix}sav"
+        )
+        self.nc_metadata_folder = (
+            psup_io_handler.output_folder / f"{self.metadata_folder_prefix}nc"
+        )
+        self.log.debug(f".sav metadata folder: {self.sav_metadata_folder}")
+        self.log.debug(f".nc metadata folder: {self.nc_metadata_folder}")
+        if not self.sav_metadata_folder.exists():
+            self.sav_metadata_folder.mkdir()
+
+        if not self.nc_metadata_folder.exists():
+            self.nc_metadata_folder.mkdir()
 
     @property
     def omega_data(self) -> pd.DataFrame:
@@ -402,7 +456,16 @@ class OmegaDataReader:
 
         # extensions
         pystac_item = cast(pystac.Item, apply_ssys(pystac_item))
-        # EO only if data allows it
+
+        # apply cubedata
+        self.log.debug("Applying DatacubeExtension")
+        cubedata = self.retrieve_nc_info_from_saved_state(orbit_cube_idx=orbit_cube_idx)
+        self.log.debug(f"Loading: {cubedata}")
+        dc_ext = DatacubeExtension.ext(pystac_item, add_if_missing=True)
+        dc_ext.apply(dimensions=cubedata["dimensions"], variables=cubedata["variables"])
+
+        for extra_name, extra_value in cubedata["extras"].items():
+            pystac_item.assets["nc"].extra_fields[extra_name] = extra_value
 
         # common metadata
         pystac_item.common_metadata.mission = "mex"
@@ -411,3 +474,149 @@ class OmegaDataReader:
         self.log.debug(f"Created item from base method {pystac_item}")
 
         return pystac_item
+
+    def find_cubedata_from_ncfile(
+        self, orbit_cube_idx: str
+    ) -> dict[str, dict[str, Dimension | Variable]]:
+        """From the NetCDF file, extracts the cubedata information needed for the
+        generated STAC item
+
+        Args:
+            orbit_cube_idx (str): _description_
+        """
+        dimensions = {}
+        variables = {}
+        extras = {}
+
+        try:
+            self.log.debug(f"Opening the nc file for {orbit_cube_idx}")
+
+            nc_data = cast(
+                xr.Dataset,
+                self.open_file(orbit_cube_idx, file_extension="nc", on_disk=False),
+            )
+
+            # Start with the variables
+            for data_var_name in nc_data.data_vars.keys():
+                data_attrs = nc_data.data_vars[data_var_name].attrs
+                if "valid_min" in data_attrs and "valid_max" in data_attrs:
+                    # The data is an array
+                    # Don't pass any values (too many) and pass the range given
+                    extent = [
+                        data_attrs["valid_min"].item(),
+                        data_attrs["valid_max"].item(),
+                    ]
+                    attr_values = None
+                else:
+                    # A scalar, no range but values
+                    extent = None
+                    attr_values = [nc_data.data_vars[data_var_name].values.item()]
+                var_model = CubedataVariable(
+                    description=data_attrs["long_name"],
+                    type="data",
+                    dimensions=list(self.dim_names),
+                    unit=data_attrs["units"],
+                    extent=extent,
+                    values=attr_values,
+                )
+                self.log.debug(f"{var_model} created!")
+                variables[data_var_name] = Variable(
+                    properties={data_var_name: var_model.model_dump(exclude_none=True)}
+                )
+
+            # ... Then move on with the dimensions
+            for data_dim_name in nc_data.coords:
+                dim_attrs = nc_data.coords[data_dim_name].attrs
+                dim_x, dim_y, dim_z = self.dim_names
+                if data_dim_name in [dim_x, dim_y]:
+                    dim_obj = HorizontalSpatialRasterDimension(
+                        axis=dim_attrs["axis"].lower(),
+                        extent=[
+                            dim_attrs["valid_min"].item(),
+                            dim_attrs["valid_max"].item(),
+                        ],
+                        unit=dim_attrs["units"],
+                        step=find_step_from_values(
+                            nc_data.coords[data_dim_name].values
+                        ),
+                        description=dim_attrs["long_name"],
+                    )
+                elif data_dim_name == dim_z:
+                    dim_obj = VerticalSpatialRasterDimension(
+                        extent=[
+                            dim_attrs["valid_min"].item(),
+                            dim_attrs["valid_max"].item(),
+                        ],
+                        unit=dim_attrs["units"],
+                        step=find_step_from_values(
+                            nc_data.coords[data_dim_name].values
+                        ),
+                        description=dim_attrs["long_name"],
+                    )
+                dim_var = CubedataVariable(
+                    dimensions=[dim_attrs["axis"].lower()],
+                    type="auxiliary",
+                    extent=[
+                        dim_attrs["valid_min"].item(),
+                        dim_attrs["valid_max"].item(),
+                    ],
+                    unit=dim_attrs["units"],
+                    description=dim_attrs["long_name"],
+                )
+
+                variables[data_dim_name] = Variable(
+                    properties={data_dim_name: dim_var.model_dump(exclude_none=True)}
+                )
+                dimensions[data_dim_name] = Dimension(
+                    properties={data_dim_name: dim_obj.model_dump(exclude_none=True)}
+                )
+
+            # Add some extras if you want
+            extras = self.find_extra_nc_data(nc_data)
+
+            nc_data.close()
+        except OSError as ose:
+            self.log.error(f"[{ose.__class__.__name__}] {ose}")
+            self.log.error(
+                f"""Either cube {orbit_cube_idx}'s sav file is too big for the disk or
+                the file is corrupted. Check exception for details."""
+            )
+        except ValueError as verr:
+            self.log.error(f"[{verr.__class__.__name__}] {verr}")
+        except Exception as e:
+            self.log.error(f"A problem with {orbit_cube_idx} occured")
+            self.log.error(f"[{e.__class__.__name__}] {e}")
+        finally:
+            nc_data.close()
+
+        self.log.debug(f"Obtained dimensions {dimensions}")
+        self.log.debug(f"Obtained variables {variables}")
+        return {"dimensions": dimensions, "variables": variables, "extras": extras}
+
+    def find_extra_nc_data(self, nc_data: xr.Dataset) -> dict[str, Any]:
+        return {}
+
+    def retrieve_nc_info_from_saved_state(self, orbit_cube_idx: str) -> dict[str, Any]:
+        nc_md_state = self.nc_metadata_folder / f"nc_{orbit_cube_idx}.json"
+        self.log.debug(f"Opening {nc_md_state}")
+        if nc_md_state.exists():
+            with open(nc_md_state, "r", encoding="utf-8") as nc_md:
+                nc_info = json.load(nc_md)
+                nc_info = reformat_nc_info(nc_info)
+                self.log.debug(f"nc_info loaded with {nc_info}")
+        else:
+            self.log.debug(
+                f"{nc_md_state} not found. Creating it from # {orbit_cube_idx}"
+            )
+            try:
+                nc_info = self.find_cubedata_from_ncfile(orbit_cube_idx=orbit_cube_idx)
+                with open(nc_md_state, "w", encoding="utf-8") as nc_md:
+                    json.dump(nc_info, nc_md, cls=SpecialObjectEncoder)
+                self.log.debug(f"{nc_md_state} with {nc_info} created!")
+            except Exception as e:
+                self.log.warning(
+                    f"Couldn't save .sav information for # {orbit_cube_idx} because of the following: {e}"
+                )
+                nc_info = {}
+
+        return nc_info

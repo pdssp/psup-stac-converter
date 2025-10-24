@@ -2,7 +2,7 @@ import datetime as dt
 from typing import Literal, Optional
 
 from geojson_pydantic import Feature
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 
 class CubedataDimensionBase(BaseModel):
@@ -14,13 +14,13 @@ class CubedataDimensionBase(BaseModel):
     """
 
     type: Optional[str]
-    description: Optional[str]
+    description: Optional[str] = None
     axis: Optional[str]
     extent: Optional[list[str | int | float | None]]
     values: Optional[list[str | int | float | None]]
     step: Optional[int | float | str | float | None]
     reference_system: Optional[str | int]
-    unit: Optional[str]
+    unit: Optional[str] = None
 
 
 class CubedataVariable(BaseModel):
@@ -49,10 +49,10 @@ class CubedataVariable(BaseModel):
 
     dimensions: list[str]
     type: Literal["data", "auxiliary"]
-    description: Optional[str]
-    extent: Optional[list[str | int | float | None]]
-    values: Optional[list[str | int | float]]
-    unit: Optional[str]
+    description: Optional[str] = None
+    extent: Optional[list[str | int | float | None]] = None
+    values: Optional[list[str | int | float]] = None
+    unit: Optional[str] = None
 
 
 class HorizontalSpatialRasterDimension(CubedataDimensionBase):
@@ -73,9 +73,9 @@ class HorizontalSpatialRasterDimension(CubedataDimensionBase):
     type: str = "spatial"
     axis: Literal["x", "y"]
     extent: list[int | float]
-    values: Optional[list[int | float]]
-    step: Optional[int | float | None]
-    reference_system: Optional[str | int]
+    values: Optional[list[int | float]] = None
+    step: Optional[int | float | None] = None
+    reference_system: Optional[str | int] = None
 
 
 class VerticalSpatialRasterDimension(CubedataDimensionBase):
@@ -97,11 +97,11 @@ class VerticalSpatialRasterDimension(CubedataDimensionBase):
 
     type: str = "spatial"
     axis: str = "z"
-    extent: Optional[list[int | float]]
-    values: Optional[list[int | float | str]]
-    step: Optional[int | float | None]
-    unit: Optional[str]
-    reference_system: Optional[str | int]
+    extent: Optional[list[int | float]] = None
+    values: Optional[list[int | float | str]] = None
+    step: Optional[int | float | None] = None
+    unit: Optional[str] = None
+    reference_system: Optional[str | int] = None
 
 
 class TemporalDimension(CubedataDimensionBase):
@@ -115,9 +115,9 @@ class TemporalDimension(CubedataDimensionBase):
     """
 
     type: str = "temporal"
-    extent: Optional[list[dt.datetime]]
-    values: Optional[list[dt.datetime]]
-    step: Optional[dt.datetime | None]
+    extent: Optional[list[dt.datetime]] = None
+    values: Optional[list[dt.datetime]] = None
+    step: Optional[dt.datetime | None] = None
 
 
 class SpatialVectorDimension(CubedataDimensionBase):
@@ -144,9 +144,9 @@ class SpatialVectorDimension(CubedataDimensionBase):
     type: str = "geometry"
     axes: list[Literal["x", "y", "z"]] = ["x", "y"]
     bbox: list[float | int]
-    values: Optional[list[str]]
-    geometry_types: Optional[Feature]
-    reference_system: Optional[str | int]
+    values: Optional[list[str]] = None
+    geometry_types: Optional[Feature] = None
+    reference_system: Optional[str | int] = None
 
 
 class AdditionalDimension(CubedataDimensionBase):
@@ -178,8 +178,15 @@ class AdditionalDimension(CubedataDimensionBase):
     """
 
     type: str
-    extent: Optional[list[int | float | None]]
-    values: Optional[list[int | float | str]]
-    step: Optional[int | float | str]
-    unit: Optional[str]
-    reference_system: Optional[str]
+    extent: Optional[list[int | float | None]] = None
+    values: Optional[list[int | float | str]] = None
+    step: Optional[int | float | str] = None
+    unit: Optional[str] = None
+    reference_system: Optional[str] = None
+
+    @field_validator("type", mode="before")
+    @classmethod
+    def validate_type(cls, value: str) -> str:
+        if value in ["spatial", "geometry"]:
+            raise ValueError(f"{value} is not allowed.")
+        return value

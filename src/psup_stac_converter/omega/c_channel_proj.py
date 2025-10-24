@@ -3,7 +3,6 @@ import logging
 from typing import Any, cast
 
 import pystac
-import xarray as xr
 from shapely import bounds, to_geojson
 
 from psup_stac_converter.extensions import apply_eo
@@ -21,6 +20,8 @@ class OmegaCChannelProj(OmegaDataReader):
             psup_io_handler,
             data_type="c_channel_slice",
             processing_level="L3",
+            dim_names=("longitude", "latitude", "wavelength"),
+            metadata_folder_prefix="l3_",
             collection_id="urn:pdssp:ias:collection:omega_c_channel_proj",
             collection_description="""These data cubes have been specifically selected and filtered for studies of the surface mineralogy between 1 and 2.5 µm.
 
@@ -102,47 +103,6 @@ Both files contain the cubes of reflectance of the surface at a given longitude,
             self.log.error(f"[{e.__class__.__name__}] {e}")
 
         return {}
-
-    def extract_nc_metadata(self, orbit_cube_idx: str):
-        """Extracts data from NetCDF dataset
-
-        Args:
-            orbit_cube_idx (str): _description_
-        """
-        nc_info = {}
-        try:
-            self.log.debug(f"Opening the nc file for {orbit_cube_idx}")
-
-            nc_data = cast(
-                xr.Dataset,
-                self.open_file(orbit_cube_idx, file_extension="nc", on_disk=False),
-            )
-
-            # Check dims
-            nc_info["n_wavelength"] = nc_data.dims["wavelength"]
-            nc_info["n_latitude"] = nc_data.dims["latitude"]
-            nc_info["n_longitude"] = nc_data.dims["longitude"]
-
-            # Check data vars
-            # Check coords
-            # Check attributes
-
-            self.log.debug(f"Obtained nc_info={nc_info}")
-            nc_data.close()
-        except OSError as ose:
-            self.log.error(f"[{ose.__class__.__name__}] {ose}")
-            self.log.error(
-                f"""Either cube {orbit_cube_idx}'s sav file is too big for the disk or
-                the file is corrupted. Check exception for details."""
-            )
-        except ValueError as verr:
-            self.log.error(f"[{verr.__class__.__name__}] {verr}")
-        except Exception as e:
-            self.log.error(f"A problem with {orbit_cube_idx} occured")
-            self.log.error(f"[{e.__class__.__name__}] {e}")
-        finally:
-            nc_data.close()
-        return nc_info
 
     def create_stac_item(self, orbit_cube_idx) -> pystac.Item:
         text_data: OmegaDataTextItem = cast(
