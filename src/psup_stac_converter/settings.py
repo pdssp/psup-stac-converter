@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     extra_data_path: Path = BASE_DIR / "data" / "extra"
     psup_inventory_file: Path = BASE_DIR / "data" / "raw" / "psup_refs.csv"
 
-    wkt_file_name: Path = "wkt_solar_system.csv"
+    wkt_file_path: Path = BASE_DIR / "data" / "extra" / "wkt_solar_system.csv"
 
     model_config = SettingsConfigDict()
 
@@ -41,6 +41,7 @@ class Settings(BaseSettings):
         "output_data_path",
         "extra_data_path",
         "psup_inventory_file",
+        "wkt_file_path",
         mode="after",
     )
     @classmethod

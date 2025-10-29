@@ -60,6 +60,7 @@ def create_catalog(
     raw_data_folder: Path,
     output_folder: Path,
     psup_data_inventory_file: Path = None,
+    wkt_file_path: Path = None,
     clean_prev_output: bool = False,
     **kwargs,
 ):
@@ -67,6 +68,7 @@ def create_catalog(
         raw_data_folder=raw_data_folder,
         output_folder=output_folder,
         psup_data_inventory_file=psup_data_inventory_file,
+        wkt_file=wkt_file_path,
         log=kwargs.get("logger"),
     )
     return catalog_creator.create_catalog(clean_previous_output=clean_prev_output)

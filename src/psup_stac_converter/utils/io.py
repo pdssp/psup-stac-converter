@@ -1,3 +1,4 @@
+import datetime as dt
 import logging
 import re
 from pathlib import Path
@@ -6,16 +7,26 @@ from typing import Any, Iterator, Literal
 import pandas as pd
 import scipy.io as sio
 import xarray as xr
-from pydantic import HttpUrl
+from pydantic import BaseModel, HttpUrl
 from rich.console import Console
 from rich.tree import Tree
 
-from psup_stac_converter.exceptions import FolderNotEmptyError
+from psup_stac_converter.exceptions import FolderNotEmptyError, ValueNotAcceptedError
 from psup_stac_converter.settings import Settings, create_logger
 from psup_stac_converter.utils.downloader import Downloader, PsupArchive
 from psup_stac_converter.utils.formatting import walk_directory
 
 console = Console()
+
+
+class WktProjectionItem(BaseModel):
+    created_at: dt.datetime
+    id: str
+    solar_body: str
+    datum_name: str
+    ellipsoid_name: str
+    projection_name: str
+    wkt: str
 
 
 class IoHandler:
@@ -180,6 +191,9 @@ class PsupIoHandler(IoHandler):
 
     def find_file_remote_path(self, file_name: str) -> HttpUrl:
         slice = self.psup_archive.slice_by_one("file_name", file_name)
+        if slice is None:
+            raise ValueError(f"Couldn't find any data with file name {file_name}")
+
         slice = slice.drop_duplicates(subset=["file_name"]).squeeze()
         server_ref = slice["href"]
         return HttpUrl(url=server_ref)
@@ -228,3 +242,36 @@ class PsupIoHandler(IoHandler):
             nc_dataset = xr.open_dataset(nc_file.name)
 
         return nc_dataset
+
+
+class WktIoHandler:
+    crs_no_projection_type = ["ocentric", "ographic", "sphere"]
+
+    @staticmethod
+    def open_file(wkt_file: Path) -> pd.DataFrame:
+        df = pd.read_csv(wkt_file)
+        df["created_at"] = pd.to_datetime(df["created_at"])
+        return df
+
+    def __init__(self, wkt_file: Path) -> None:
+        if not wkt_file.exists():
+            raise FileNotFoundError(
+                f"Couldn't open {wkt_file} because it does not exist."
+            )
+        self.wkt_data = self.open_file(wkt_file)
+        self.ss_bodies = self.wkt_data["solar_body"].unique()
+
+    def pick_sphere_projection_by_body_and_kind(
+        self, ss_body: str, proj_kind: Literal["ocentric", "ographic", "sphere"]
+    ) -> WktProjectionItem:
+        if ss_body not in self.ss_bodies:
+            raise ValueNotAcceptedError(self.ss_bodies.tolist(), ss_body)
+
+        result = self.wkt_data[
+            self.wkt_data["solar_body"].str.contains(ss_body.capitalize())
+            & self.wkt_data["projection_name"].str.contains("No projection")
+            & self.wkt_data["wkt"].str.contains(proj_kind.capitalize())
+        ]
+        if result.empty:
+            raise ValueError("No such result was found with the criteria you passed in")
+        return WktProjectionItem.model_validate(result.to_dict(orient="records")[0])

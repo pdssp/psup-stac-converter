@@ -1,5 +1,6 @@
 import pystac
 from pystac.extensions.eo import Band, EOExtension
+from pystac.extensions.projection import ProjectionExtension
 from pystac.extensions.scientific import Publication, ScientificExtension
 
 from psup_stac_converter.stac_extra.ssys_extension import (
@@ -7,6 +8,7 @@ from psup_stac_converter.stac_extra.ssys_extension import (
     SolSysExtension,
     SolSysTargetClass,
 )
+from psup_stac_converter.utils.io import WktProjectionItem
 
 type StacInstance = pystac.Catalog | pystac.Collection | pystac.Item
 
@@ -62,9 +64,26 @@ def apply_sci(
     return stac_instance
 
 
-# TODO: proj
-# def apply_proj(stac_instance: StacInstance) -> StacInstance:
-#     pass
+def apply_proj(stac_instance: StacInstance, wkt_obj: WktProjectionItem) -> StacInstance:
+    if isinstance(stac_instance, pystac.Item):
+        proj = ProjectionExtension.ext(stac_instance, add_if_missing=True)
+        proj.apply(
+            # bbox=[],
+            # centroid={},
+            code=wkt_obj.id,
+            # epsg=0,
+            # geometry={},
+            # projjson={},
+            # shape=[],
+            # transform=[],
+            wkt2=wkt_obj.wkt,
+        )
+
+    elif isinstance(stac_instance, pystac.Collection):
+        # Adding SSYS extension
+        proj = ProjectionExtension.summaries(stac_instance, add_if_missing=True)
+        proj.code = [wkt_obj.id]
+    return stac_instance
 
 
 def apply_eo(stac_instance: StacInstance, bands: list[Band]) -> StacInstance:

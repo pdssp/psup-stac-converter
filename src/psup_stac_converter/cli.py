@@ -101,6 +101,20 @@ def create_stac_catalog(
             resolve_path=True,
         ),
     ] = None,
+    wkt_file_path: Annotated[
+        Path,
+        typer.Option(
+            "--proj",
+            "-p",
+            help="File containing details on Solar System projections",
+            exists=True,
+            file_okay=True,
+            dir_okay=False,
+            writable=False,
+            readable=True,
+            resolve_path=True,
+        ),
+    ] = None,
     clean_previous_output: Annotated[
         bool,
         typer.Option("--clean/--no-clean", "-c/-nc", help="Cleans the output folder"),
@@ -115,6 +129,7 @@ def create_stac_catalog(
         raw_data_folder=raw_data_folder or settings.raw_data_path,
         output_folder=output_folder or settings.output_data_path,
         psup_data_inventory_file=psup_inventory_file or settings.psup_inventory_file,
+        wkt_file_path=wkt_file_path or settings.wkt_file_path,
         clean_prev_output=clean_previous_output,
         **{k: v for k, v in ctx.obj.items() if k not in ["settings"]},
     )

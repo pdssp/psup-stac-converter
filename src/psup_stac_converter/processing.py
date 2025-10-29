@@ -14,7 +14,7 @@ from rich.panel import Panel
 from shapely import Polygon, bounds
 
 from psup_stac_converter.exceptions import FileExtensionError, FolderNotEmptyError
-from psup_stac_converter.extensions import apply_sci, apply_ssys
+from psup_stac_converter.extensions import apply_proj, apply_sci, apply_ssys
 from psup_stac_converter.informations.data_providers import providers
 from psup_stac_converter.informations.geojson_features import geojson_features
 from psup_stac_converter.omega.c_channel_proj import OmegaCChannelProj
@@ -22,7 +22,7 @@ from psup_stac_converter.omega.data_cubes import OmegaDataCubes
 from psup_stac_converter.omega.mineral_maps import omega_maps_collection_generator
 from psup_stac_converter.processors.selection import ProcessorName, select_processor
 from psup_stac_converter.settings import Settings, create_logger
-from psup_stac_converter.utils.io import IoHandler, PsupIoHandler
+from psup_stac_converter.utils.io import IoHandler, PsupIoHandler, WktIoHandler
 
 
 class BaseProcessor:
@@ -128,6 +128,7 @@ class CatalogCreator(BaseProcessor):
         raw_data_folder: Path,
         output_folder: Path,
         psup_data_inventory_file: Path | None = None,
+        wkt_file: Path | None = None,
         log: logging.Logger | None = None,
     ):
         super().__init__(raw_data_folder, output_folder, log=log)
@@ -146,11 +147,24 @@ class CatalogCreator(BaseProcessor):
         self.psup_archive = PsupIoHandler(
             psup_data_inventory_file, output_folder=raw_data_folder
         )
+
+        if wkt_file is not None:
+            self.wkt_io = WktIoHandler(wkt_file)
+        else:
+            self.wkt_io = None
+
         self.log.debug(self.psup_archive)
 
     def _add_collections_to_catalog(self, catalog: pystac.Catalog) -> pystac.Catalog:
         try:
             feature_collection = self.create_feature_collection()
+            if self.wkt_io is not None:
+                feature_collection = apply_proj(
+                    feature_collection,
+                    self.wkt_io.pick_sphere_projection_by_body_and_kind(
+                        "Mars", "sphere"
+                    ),
+                )
             catalog.add_child(feature_collection)
             self.log.debug(f"Collection {feature_collection.id} successfully created!")
             self.log.debug(feature_collection.to_dict())
@@ -158,6 +172,13 @@ class CatalogCreator(BaseProcessor):
             # OMEGA mineral maps
             self.log.info("Creating OMEGA mineral maps collection")
             omega_mmaps_collection = self.create_omega_mineral_maps_collection()
+            if self.wkt_io is not None:
+                omega_mmaps_collection = apply_proj(
+                    omega_mmaps_collection,
+                    self.wkt_io.pick_sphere_projection_by_body_and_kind(
+                        "Mars", "sphere"
+                    ),
+                )
             catalog.add_child(omega_mmaps_collection)
             self.log.debug(
                 f"Collection {omega_mmaps_collection.id} successfully created!"
@@ -168,6 +189,15 @@ class CatalogCreator(BaseProcessor):
             self.log.info("Creating OMEGA Data cubes collection")
             omega_data_cubes_builder = OmegaDataCubes(self.psup_archive, log=self.log)
             omega_data_cubes_collection = omega_data_cubes_builder.create_collection()
+
+            if self.wkt_io is not None:
+                omega_data_cubes_collection = apply_proj(
+                    omega_data_cubes_collection,
+                    self.wkt_io.pick_sphere_projection_by_body_and_kind(
+                        "Mars", "sphere"
+                    ),
+                )
+
             catalog.add_child(omega_data_cubes_collection)
             self.log.debug(
                 f"Collection {omega_data_cubes_collection.id} successfully created!"
@@ -179,6 +209,13 @@ class CatalogCreator(BaseProcessor):
             self.log.debug(self.psup_archive)
             omega_c_channel_builder = OmegaCChannelProj(self.psup_archive, log=self.log)
             omega_c_channel_collection = omega_c_channel_builder.create_collection()
+            if self.wkt_io is not None:
+                omega_c_channel_collection = apply_proj(
+                    omega_c_channel_collection,
+                    self.wkt_io.pick_sphere_projection_by_body_and_kind(
+                        "Mars", "sphere"
+                    ),
+                )
             catalog.add_child(omega_c_channel_collection)
             self.log.debug(
                 f"Collection {omega_c_channel_collection.id} successfully created!"
