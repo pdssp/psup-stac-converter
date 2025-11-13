@@ -34,7 +34,7 @@ omega_mineral_maps = {
         raster_lng_description="""This data product is a global NIR 1-micrometer albedo map of Mars based on reflectance data acquired by the Mars Express OMEGA hyperspectral camera from January 2004 to August 2010""",
         raster_keywords=["albedo", "global"],
         thumbnail=HttpUrl(
-            "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/albedo_r1080_equ_map_reduce.png/sitools/upload/download-thumb.png"
+            "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/albedo_r1080_equ_map_reduce.png"
         ),
         publication=Publication(
             citation="""
@@ -50,7 +50,7 @@ omega_mineral_maps = {
         raster_lng_description="""This data product is a global ferric oxide spectral parameter map of Mars based on reflectance data acquired by the Mars Express OMEGA hyperspectral camera from January 2004 to August 2010. This ferric oxide spectral parameter (DB530) is based on the strength of the 0.53 micrometer ferric absorption edge.""",
         raster_keywords=["ferric oxides", "global"],
         thumbnail=HttpUrl(
-            "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/ferric_bd530_equ_map_reduce.png/sitools/upload/download-thumb.png"
+            "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/ferric_bd530_equ_map_reduce.png"
         ),
         publication=Publication(
             citation="""
@@ -66,7 +66,7 @@ omega_mineral_maps = {
         raster_lng_description="""This data product is a global nanophase ferric oxide (dust) spectral parameter map of Mars based on reflectance data acquired by the Mars Express OMEGA hyperspectral camera from January 2004 to August 2010. This nanophase ferric oxide spectral parameter (NNPHS) is based on the absorption feature centered at 0.86 micrometer.""",
         raster_keywords=["nanophase ferric oxides", "global"],
         thumbnail=HttpUrl(
-            "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/ferric_nnphs_equ_map_reduce.png/sitools/upload/download-thumb.png"
+            "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/ferric_nnphs_equ_map_reduce.png"
         ),
         publication=Publication(
             citation="""
@@ -82,7 +82,7 @@ omega_mineral_maps = {
         raster_lng_description="""This data product is a global olivine spectral parameter map of Mars based on reflectance data acquired by the Mars Express OMEGA hyperspectral camera from January 2004 to August 2010. This olivine spectral parameter (OSP1) detects Mg-rich and/or small grain size and/or low abundance olivine.""",
         raster_keywords=["olivine", "global"],
         thumbnail=HttpUrl(
-            "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/olivine_osp1_equ_map_reduce.png/sitools/upload/download-thumb.png"
+            "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/olivine_osp1_equ_map_reduce.png"
         ),
         publication=Publication(
             citation="""
@@ -98,7 +98,7 @@ omega_mineral_maps = {
         raster_lng_description="""This data product is a global olivine spectral parameter map of Mars based on reflectance data acquired by the Mars Express OMEGA hyperspectral camera from January 2004 to August 2010. This olivine spectral parameter (OSP2) is sensitive to olivine with high iron content and/or large grain size and/or high abundance.""",
         raster_keywords=["olivine", "global"],
         thumbnail=HttpUrl(
-            "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/olivine_osp2_equ_map_reduce.png/sitools/upload/download-thumb.png"
+            "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/olivine_osp2_equ_map_reduce.png"
         ),
         publication=Publication(
             citation="""
@@ -114,7 +114,7 @@ omega_mineral_maps = {
         raster_lng_description="""This data product is a global olivine spectral parameter map of Mars based on reflectance data acquired by the Mars Express OMEGA hyperspectral camera from January 2004 to August 2010. This olivine spectral parameter (OSP3) determines the full band depth at 1.36 micrometer relative to a continuum. It preferentially detects olivine with a large Fe content and/or with large grain size and/or with high abundance.""",
         raster_keywords=["olivine", "global"],
         thumbnail=HttpUrl(
-            "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/olivine_osp3_equ_map_reduce.png/sitools/upload/download-thumb.png"
+            "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/olivine_osp3_equ_map_reduce.png"
         ),
         publication=Publication(
             citation="""
@@ -130,7 +130,7 @@ omega_mineral_maps = {
         raster_lng_description="""This data product is a global pyroxene spectral parameter map of Mars based on reflectance data acquired by the Mars Express OMEGA hyperspectral camera from January 2004 to August 2010. This pyroxene spectral parameter (BD2000) is based on its 2 micrometer absorption band due to both high-calcium and low-calcium pyroxene.""",
         raster_keywords=["pyroxene", "global"],
         thumbnail=HttpUrl(
-            "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/pyroxene_bd2000_equ_map_reduce.png/sitools/upload/download-thumb.png"
+            "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/pyroxene_bd2000_equ_map_reduce.png"
         ),
         publication=Publication(
             citation="""
@@ -146,7 +146,7 @@ omega_mineral_maps = {
         raster_lng_description="""60 ppd global map of Solar Albedo from OMEGA data fileld with TES 20 ppd solar albedo global maps (Putzig and Mellon, 2007b) (21600x10800 pixels). This map is 100% filled. Variable name is "albedo". "latitude" and "longitude" indicate the coordinates of the centers of the pixels. Reference : Vincendon et al., Icarus, 2015""",
         raster_keywords=["albedo", "filled", "global"],
         thumbnail=HttpUrl(
-            "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/albedo_filled_reduce.png/sitools/upload/download-thumb.png"
+            "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/albedo_filled_reduce.png"
         ),
         publication=Publication(
             citation="""
@@ -162,7 +162,7 @@ omega_mineral_maps = {
         raster_lng_description="""60 ppd global map of Solar Albedo from OMEGA data only (21600 x 10800 pixels). This map is filled at 94.79% (rest are NaN). Variable name is "albedo". "latitude" and "longitude" indicate the coordinates of the centers of the pixels. Reference : Vincendon et al., Icarus, 2015.""",
         raster_keywords=["albedo", "unfilled", "global"],
         thumbnail=HttpUrl(
-            "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/albedo_unfilled_reduce.png/sitools/upload/download-thumb.png"
+            "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/albedo_unfilled_reduce.png"
         ),
         publication=Publication(
             citation="""
@@ -178,7 +178,7 @@ omega_mineral_maps = {
         raster_lng_description="""40 ppd global maps of surface emissivity at 5.03 mic. Holes are set to NaN.""",
         raster_keywords=["emissivity", "5mic", "global"],
         thumbnail=HttpUrl(
-            "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/emissivite_5.03mic_OMEGA0_reduce.png/sitools/upload/download-thumb.png"
+            "http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/emissivite_5.03mic_OMEGA0_reduce.png"
         ),
         publication=Publication(
             citation="""

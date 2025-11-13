@@ -2,9 +2,12 @@ import json
 from pathlib import Path
 from typing import Literal
 
+import matplotlib.pyplot as plt
+import numpy as np
 import rasterio
 from astropy.io import fits
 from attr import asdict
+from PIL import Image
 from rasterio.transform import from_gcps
 from rich.console import Console
 
@@ -118,3 +121,34 @@ def fits_header_to_dict(
             fits_obj[header_key] = header_val
 
     return fits_obj
+
+
+def convert_arr_to_thumbnail(
+    data: np.ndarray,
+    resize_dims: tuple[int, int],
+    mode: Literal["L", "RGB", "RGBA"] = "L",
+    cmap: str | None = None,
+) -> Image.Image:
+    """
+    Converts a 2D or 3D NumPy array into a resized PNG-style image.
+    Applies a matplotlib colormap if provided.
+    """
+    data = np.asarray(data, dtype=float)
+
+    data = (data - np.nanmin(data)) / (np.nanmax(data) - np.nanmin(data) + 1e-8)
+
+    if cmap is not None:
+        cm = plt.get_cmap(cmap)
+        result = cm(data)[..., :4]  # includes alpha
+        result = (result * 255).astype(np.uint8)
+        if mode == "RGB":
+            result = result[..., :3]
+    else:
+        result = (data * 255).astype(np.uint8)
+        if mode in ["RGB", "RGBA"]:
+            result = np.stack([result] * (3 if mode == "RGB" else 4), axis=-1)
+
+    img = Image.fromarray(result, mode=mode)
+    img = img.resize(resize_dims, Image.Resampling.LANCZOS)
+
+    return img

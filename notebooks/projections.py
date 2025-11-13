@@ -25,6 +25,16 @@ def _(WktIoHandler):
 
 @app.cell
 def _():
+    from stac_validator import stac_validator
+
+    stac = stac_validator.StacValidate("./data/processed/catalog.json", extensions=True)
+    stac.run()
+    stac.message
+    return
+
+
+@app.cell
+def _():
     return
 
 

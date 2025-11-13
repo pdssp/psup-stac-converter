@@ -8,13 +8,14 @@ app = marimo.App(width="medium")
 def _():
     import marimo as mo
     import pystac
+    from pathlib import Path
 
-    return mo, pystac
+    return Path, mo, pystac
 
 
 @app.cell
-def _(pystac):
-    catalog = pystac.Catalog.from_file("./data/processed/catalog.json")
+def _(Path, pystac):
+    catalog = pystac.Catalog.from_file(Path.home() / "data-folder/catalog/catalog.json")
     catalog.describe()
     return (catalog,)
 

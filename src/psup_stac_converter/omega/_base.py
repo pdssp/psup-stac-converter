@@ -25,6 +25,7 @@ from psup_stac_converter.exceptions import (
 from psup_stac_converter.extensions import apply_sci, apply_ssys
 from psup_stac_converter.informations.data_providers import providers as data_providers
 from psup_stac_converter.settings import create_logger
+from psup_stac_converter.utils.file_utils import convert_arr_to_thumbnail
 from psup_stac_converter.utils.io import PsupIoHandler
 from psup_stac_converter.utils.models import (
     CubedataVariable,
@@ -123,6 +124,10 @@ class OmegaDataReader:
         self.nc_metadata_folder = (
             psup_io_handler.output_folder / f"{self.metadata_folder_prefix}nc"
         )
+        self.thumbnail_folder = (
+            psup_io_handler.output_folder / f"{self.metadata_folder_prefix}_thumbnail"
+        )
+        self.thumbnail_dims = (256, 256)
         self.log.debug(f".sav metadata folder: {self.sav_metadata_folder}")
         self.log.debug(f".nc metadata folder: {self.nc_metadata_folder}")
         if not self.sav_metadata_folder.exists():
@@ -454,6 +459,38 @@ class OmegaDataReader:
         except OmegaCubeDataMissingError:
             self.log.warning(f"IDL.sav not found for {orbit_cube_idx}. Skipping.")
 
+        thumbnail_location = (
+            self.thumbnail_folder
+            / f"{orbit_cube_idx}_{self.thumbnail_dims[0]}x{self.thumbnail_dims[1]}.png"
+        )
+
+        # Normally the thumbnail should be generated
+        # but if not, the file is open
+        if not thumbnail_location.exists():
+            nc_data = self.open_file(orbit_cube_idx, "nc")
+            thumbnail_strategy = "mean"
+
+            # define thumbnail strategy
+            # By default, takes the reflectance cube
+            self.make_thumbnail(
+                orbit_cube_idx=orbit_cube_idx,
+                data=getattr(nc_data.Reflectance, thumbnail_strategy)(
+                    "wavelength"
+                ).values,
+                dims=self.thumbnail_dims,
+            )
+
+            nc_data.close()
+
+        # Thumbnail
+        thumbn_asset = pystac.Asset(
+            href=thumbnail_location.as_posix(),
+            media_type=pystac.MediaType.PNG,
+            roles=["thumbnail"],
+            description="PNG thumbnail preview for visualizations",
+        )
+        pystac_item.add_asset("thumbnail", thumbn_asset)
+
         # extensions
         pystac_item = cast(pystac.Item, apply_ssys(pystac_item))
 
@@ -476,13 +513,17 @@ class OmegaDataReader:
         return pystac_item
 
     def find_cubedata_from_ncfile(
-        self, orbit_cube_idx: str
+        self, orbit_cube_idx: str, thumbnail_strategy: str = "mean"
     ) -> dict[str, dict[str, Dimension | Variable]]:
         """From the NetCDF file, extracts the cubedata information needed for the
-        generated STAC item
+        generated STAC item.
 
         Args:
-            orbit_cube_idx (str): _description_
+            orbit_cube_idx (str): the ID of the orbit cube
+
+        Returns:
+            dict[str, dict[str, Dimension | Variable]]: A dict containing
+            "dimensions", "variables" and "extras" as main keys
         """
         dimensions = {}
         variables = {}
@@ -574,6 +615,16 @@ class OmegaDataReader:
             # Add some extras if you want
             extras = self.find_extra_nc_data(nc_data)
 
+            # define thumbnail strategy
+            # By default, takes the reflectance cube
+            self.make_thumbnail(
+                orbit_cube_idx=orbit_cube_idx,
+                data=getattr(nc_data.Reflectance, thumbnail_strategy)(
+                    "wavelength"
+                ).values,
+                dims=self.thumbnail_dims,
+            )
+
             nc_data.close()
         except OSError as ose:
             self.log.error(f"[{ose.__class__.__name__}] {ose}")
@@ -620,3 +671,29 @@ class OmegaDataReader:
                 nc_info = {}
 
         return nc_info
+
+    def make_thumbnail(
+        self,
+        orbit_cube_idx: str,
+        data: np.ndarray,
+        dims: tuple[int, int],
+        mode: Literal["L", "RGB", "RGBA"] = "RGB",
+        cmap: str = "viridis",
+        fmt: str = "png",
+    ):
+        """Creates a thumbnail for a datacube out of one of its 2D data arrays.
+
+        Args:
+            orbit_cube_idx (str): _description_
+            data (np.ndarray): _description_
+            dims (tuple[int, int]): _description_
+            mode (str, optional): _description_. Defaults to "RGB".
+            cmap (str, optional): _description_. Defaults to "viridis".
+            fmt (str, optional): _description_. Defaults to "png".
+        """
+        thumbnail = convert_arr_to_thumbnail(
+            data=data, resize_dims=dims, mode=mode, cmap=cmap
+        )
+        thumbnail.save(
+            self.thumbnail_folder / f"{orbit_cube_idx}_{dims[0]}x{dims[1]}.{fmt}"
+        )

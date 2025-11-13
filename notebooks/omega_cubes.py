@@ -887,6 +887,73 @@ def _(dt, ex_nc_ds_l2, re):
 
 
 @app.cell
+def _(ex_nc_ds_l2, plt):
+    ex_nc_ds_l2.Reflectance.mean("wavelength").plot(cmap=plt.cm.get_cmap("viridis"))
+    plt.title("Reflectance map based on wavelengh mean")
+    return
+
+
+@app.cell
+def _(Path, ex_nc_ds_l2, mo, np, plt):
+    # import numpy as np
+    from PIL import Image
+    from typing import Literal
+    from tempfile import TemporaryDirectory
+
+    def convert_to_thumbnail(
+        data: np.ndarray,
+        resize_dims: tuple[int, int],
+        mode: Literal["L", "RGB", "RGBA"] = "L",
+        cmap: str | None = None,
+    ) -> Image.Image:
+        """
+        Converts a 2D or 3D NumPy array into a resized PNG-style image.
+        Applies a matplotlib colormap if provided.
+        """
+        # --- Ensure numpy array ---
+        data = np.asarray(data, dtype=float)
+
+        # --- Normalize input data to 0-1 ---
+        data = (data - np.nanmin(data)) / (np.nanmax(data) - np.nanmin(data) + 1e-8)
+
+        # --- Apply colormap if requested ---
+        if cmap is not None:
+            cm = plt.get_cmap(cmap)
+            result = cm(data)[..., :4]  # includes alpha
+            result = (result * 255).astype(np.uint8)
+            if mode == "RGB":
+                result = result[..., :3]
+        else:
+            result = (data * 255).astype(np.uint8)
+            if mode in ["RGB", "RGBA"]:
+                result = np.stack([result] * (3 if mode == "RGB" else 4), axis=-1)
+
+        # --- Resize with high-quality interpolation ---
+        img = Image.fromarray(result, mode=mode)
+        img = img.resize(resize_dims, Image.Resampling.LANCZOS)
+
+        return img
+
+    tempdir = TemporaryDirectory()
+    resized_img = convert_to_thumbnail(
+        ex_nc_ds_l2.Reflectance.mean("wavelength").values,
+        (256, 256),
+        mode="RGB",
+        cmap="rainbow",
+    )
+
+    resized_img.save(Path(tempdir.name) / "test.png")
+    mo.image(src=Path(tempdir.name) / "test.png")
+    return
+
+
+@app.cell
+def _(ex_nc_ds_l2):
+    getattr(ex_nc_ds_l2.Reflectance, "mean")("wavelength").values
+    return
+
+
+@app.cell
 def _():
     return
 
