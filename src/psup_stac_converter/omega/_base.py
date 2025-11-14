@@ -473,8 +473,11 @@ class OmegaDataReader:
         # but if not, the file is open
         if not thumbnail_location.exists():
             try:
-                nc_data = self.open_file(orbit_cube_idx, "nc")
                 thumbnail_strategy = "mean"
+                self.log.debug(
+                    f"{thumbnail_location} doesn't exist. Creating thumbnail based on {thumbnail_strategy} strategy."
+                )
+                nc_data = self.open_file(orbit_cube_idx, "nc")
 
                 # define thumbnail strategy
                 # By default, takes the reflectance cube
@@ -708,9 +711,11 @@ class OmegaDataReader:
             cmap (str, optional): _description_. Defaults to "viridis".
             fmt (str, optional): _description_. Defaults to "png".
         """
+        self.log.debug(f"Converting cube {orbit_cube_idx} to thumbnail.")
         thumbnail = convert_arr_to_thumbnail(
             data=data, resize_dims=dims, mode=mode, cmap=cmap
         )
+        self.log.debug(f"""Saving as {orbit_cube_idx}_{dims[0]}x{dims[1]}.{fmt}""")
         thumbnail.save(
             self.thumbnail_folder / f"{orbit_cube_idx}_{dims[0]}x{dims[1]}.{fmt}"
         )
