@@ -1,17 +1,12 @@
-import ast
 import logging
 import time
-from io import StringIO
 from pathlib import Path
 from typing import cast
 
-import geopandas as gpd
 import numpy as np
 import pandas as pd
 import pystac
-from rich.console import Console
-from rich.panel import Panel
-from shapely import Polygon, bounds
+from shapely import bounds
 
 from psup_stac_converter.exceptions import FileExtensionError, FolderNotEmptyError
 from psup_stac_converter.extensions import apply_proj, apply_sci, apply_ssys
@@ -26,22 +21,6 @@ from psup_stac_converter.utils.io import IoHandler, PsupIoHandler, WktIoHandler
 
 
 class BaseProcessor:
-    @staticmethod
-    def _open_metadata_as_gpd(metadata_file: Path) -> gpd.GeoDataFrame:
-        gdf = gpd.read_file(metadata_file)
-        # Place transformations here
-        gdf["footprint"] = gdf["footprint"].apply(
-            lambda x: Polygon(ast.literal_eval(x))
-        )
-        gdf = gdf.set_geometry("footprint")
-        gdf["keywords"] = (
-            gdf["keywords"]
-            .astype(str)
-            .apply(lambda s: "[" + s.strip("{}") + "]" if s != "nan" else "[]")
-            .apply(ast.literal_eval)
-        )
-        return gdf
-
     def __init__(
         self,
         raw_data_folder: Path,
@@ -78,44 +57,6 @@ class BaseProcessor:
             )
 
         return "\n".join(fmt_str)
-
-    def _open_as_geodf(
-        self, names: list[ProcessorName] | None
-    ) -> dict[str, gpd.GeoDataFrame]:
-        dfs = {}
-        files_with_errors = {}
-
-        if names is not None:
-            md_iter = {k: v for k, v in geojson_features.items() if k in names}
-        else:
-            md_iter = geojson_features
-
-        for obj in md_iter.values():
-            try:
-                df = gpd.read_file(self.io_handler.input_folder / obj.name)
-                dfs[obj.name] = df
-                self.log.info(f"Parsed {obj.name} with success")
-            except Exception as e:
-                self.log.error(f"[{e.__class__.__name__}] {e}")
-                self.log.error(f"Couldn't parse {obj.name} as a GeoPandas dataframe!")
-                files_with_errors[obj.name] = e
-
-        self.log.warning(
-            f"""Encountered issues with the following files: {files_with_errors}"""
-        )
-        return dfs
-
-    def preview_geodf(self, names: list[ProcessorName] | None = None):
-        console = Console()
-        for k, v in self._open_as_geodf(names=names).items():
-            buffer = StringIO()
-            v.info(buf=buffer)
-            panel = Panel(buffer.getvalue(), title=k)
-            console.print(panel)
-            console.print(v.columns)
-
-    def concat_geodf(self) -> gpd.GeoDataFrame:
-        return pd.concat(self._open_as_geodf().values())
 
 
 class CatalogCreator(BaseProcessor):
@@ -156,6 +97,14 @@ class CatalogCreator(BaseProcessor):
         self.log.debug(self.psup_archive)
 
     def _add_collections_to_catalog(self, catalog: pystac.Catalog) -> pystac.Catalog:
+        """Add PSUP collections to the catalog, all on a unique thread.
+
+        Args:
+            catalog (pystac.Catalog): _description_
+
+        Returns:
+            pystac.Catalog: _description_
+        """
         try:
             feature_collection = self.create_feature_collection()
             if self.wkt_io is not None:

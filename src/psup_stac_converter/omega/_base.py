@@ -125,16 +125,20 @@ class OmegaDataReader:
             psup_io_handler.output_folder / f"{self.metadata_folder_prefix}nc"
         )
         self.thumbnail_folder = (
-            psup_io_handler.output_folder / f"{self.metadata_folder_prefix}_thumbnail"
+            psup_io_handler.output_folder / f"{self.metadata_folder_prefix}thumbnail"
         )
         self.thumbnail_dims = (256, 256)
         self.log.debug(f".sav metadata folder: {self.sav_metadata_folder}")
         self.log.debug(f".nc metadata folder: {self.nc_metadata_folder}")
+        self.log.debug(f"Folder for thumbnails: {self.thumbnail_folder}")
         if not self.sav_metadata_folder.exists():
             self.sav_metadata_folder.mkdir()
 
         if not self.nc_metadata_folder.exists():
             self.nc_metadata_folder.mkdir()
+
+        if not self.thumbnail_folder.exists():
+            self.thumbnail_folder.mkdir()
 
     @property
     def omega_data(self) -> pd.DataFrame:
@@ -459,6 +463,7 @@ class OmegaDataReader:
         except OmegaCubeDataMissingError:
             self.log.warning(f"IDL.sav not found for {orbit_cube_idx}. Skipping.")
 
+        # Add created thumbnail as an asset
         thumbnail_location = (
             self.thumbnail_folder
             / f"{orbit_cube_idx}_{self.thumbnail_dims[0]}x{self.thumbnail_dims[1]}.png"
@@ -467,29 +472,41 @@ class OmegaDataReader:
         # Normally the thumbnail should be generated
         # but if not, the file is open
         if not thumbnail_location.exists():
-            nc_data = self.open_file(orbit_cube_idx, "nc")
-            thumbnail_strategy = "mean"
+            try:
+                nc_data = self.open_file(orbit_cube_idx, "nc")
+                thumbnail_strategy = "mean"
 
-            # define thumbnail strategy
-            # By default, takes the reflectance cube
-            self.make_thumbnail(
-                orbit_cube_idx=orbit_cube_idx,
-                data=getattr(nc_data.Reflectance, thumbnail_strategy)(
-                    "wavelength"
-                ).values,
-                dims=self.thumbnail_dims,
-            )
+                # define thumbnail strategy
+                # By default, takes the reflectance cube
+                self.make_thumbnail(
+                    orbit_cube_idx=orbit_cube_idx,
+                    data=getattr(nc_data.Reflectance, thumbnail_strategy)(
+                        "wavelength"
+                    ).values,
+                    dims=self.thumbnail_dims,
+                )
 
-            nc_data.close()
-
-        # Thumbnail
-        thumbn_asset = pystac.Asset(
-            href=thumbnail_location.as_posix(),
-            media_type=pystac.MediaType.PNG,
-            roles=["thumbnail"],
-            description="PNG thumbnail preview for visualizations",
-        )
-        pystac_item.add_asset("thumbnail", thumbn_asset)
+                # Thumbnail
+                thumbn_asset = pystac.Asset(
+                    href=thumbnail_location.as_posix(),
+                    media_type=pystac.MediaType.PNG,
+                    roles=["thumbnail"],
+                    description="PNG thumbnail preview for visualizations",
+                )
+                pystac_item.add_asset("thumbnail", thumbn_asset)
+            except OSError as ose:
+                self.log.error(f"[{ose.__class__.__name__}] {ose}")
+                self.log.error(
+                    f"""Either cube {orbit_cube_idx}'s sav file is too big for the disk or
+                    the file is corrupted. Check exception for details."""
+                )
+            except ValueError as verr:
+                self.log.error(f"[{verr.__class__.__name__}] {verr}")
+            except Exception as e:
+                self.log.error(f"A problem with {orbit_cube_idx} occured")
+                self.log.error(f"[{e.__class__.__name__}] {e}")
+            finally:
+                nc_data.close()
 
         # extensions
         pystac_item = cast(pystac.Item, apply_ssys(pystac_item))
