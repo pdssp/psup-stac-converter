@@ -656,7 +656,8 @@ def _(bounds, box, example_sav_l2, json, np, to_geojson):
 
 @app.cell
 def _(xr):
-    ex_nc_ds_l2 = xr.open_dataset("./data/raw/downloads/cube_omega/D195_2.nc")
+    # ex_nc_ds_l2 = xr.open_dataset("./data/raw/downloads/cube_omega/D195_2.nc")
+    ex_nc_ds_l2 = xr.open_dataset("./data/raw/downloads/cube_omega/0228_3.nc")
     ex_nc_ds_l2
     return (ex_nc_ds_l2,)
 
@@ -900,7 +901,7 @@ def _(Path, ex_nc_ds_l2, mo, np, plt):
     from typing import Literal
     from tempfile import TemporaryDirectory
 
-    def convert_to_thumbnail(
+    def convert_arr_to_thumbnail(
         data: np.ndarray,
         resize_dims: tuple[int, int],
         mode: Literal["L", "RGB", "RGBA"] = "L",
@@ -910,13 +911,21 @@ def _(Path, ex_nc_ds_l2, mo, np, plt):
         Converts a 2D or 3D NumPy array into a resized PNG-style image.
         Applies a matplotlib colormap if provided.
         """
-        # --- Ensure numpy array ---
-        data = np.asarray(data, dtype=float)
 
-        # --- Normalize input data to 0-1 ---
-        data = (data - np.nanmin(data)) / (np.nanmax(data) - np.nanmin(data) + 1e-8)
+        # Normalizes data between 0 and 1
+        result = np.asarray(data, dtype=float)
 
-        # --- Apply colormap if requested ---
+        result_min = np.nanmin(result[~np.isneginf(result)])
+        result_max = np.nanmax(result[~np.isposinf(result)])
+        if np.isnan(result_max) or np.isnan(result_min):
+            raise ValueError(
+                f"Seems like the array's size is NaN (min={result_min}, max={result_max})"
+            )
+
+        result = (result - result_min) / (result_max - result_min + 1e-8)
+        # occult the NaNs and infs
+        result = np.nan_to_num(result, nan=0.0, posinf=255.0, neginf=0.0)
+
         if cmap is not None:
             cm = plt.get_cmap(cmap)
             result = cm(data)[..., :4]  # includes alpha
@@ -928,18 +937,17 @@ def _(Path, ex_nc_ds_l2, mo, np, plt):
             if mode in ["RGB", "RGBA"]:
                 result = np.stack([result] * (3 if mode == "RGB" else 4), axis=-1)
 
-        # --- Resize with high-quality interpolation ---
         img = Image.fromarray(result, mode=mode)
         img = img.resize(resize_dims, Image.Resampling.LANCZOS)
 
         return img
 
     tempdir = TemporaryDirectory()
-    resized_img = convert_to_thumbnail(
+    resized_img = convert_arr_to_thumbnail(
         ex_nc_ds_l2.Reflectance.mean("wavelength").values,
         (256, 256),
         mode="RGB",
-        cmap="rainbow",
+        cmap="viridis",
     )
 
     resized_img.save(Path(tempdir.name) / "test.png")
@@ -948,8 +956,8 @@ def _(Path, ex_nc_ds_l2, mo, np, plt):
 
 
 @app.cell
-def _(ex_nc_ds_l2):
-    getattr(ex_nc_ds_l2.Reflectance, "mean")("wavelength").values
+def _(ex_nc_ds_l2, plt):
+    plt.imshow(getattr(ex_nc_ds_l2.Reflectance, "mean")("wavelength").values)
     return
 
 

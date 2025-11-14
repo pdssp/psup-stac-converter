@@ -135,16 +135,16 @@ def convert_arr_to_thumbnail(
     """
 
     # Normalizes data between 0 and 1
-    data = np.asarray(data, dtype=float)
+    result = np.asarray(data, dtype=float)
 
-    data_min = np.nanmin(data)
-    data_max = np.nanmax(data)
-    if np.isnan(data_max) or np.isnan(data_min):
+    result_min = np.nanmin(result[~np.isneginf(result)])
+    result_max = np.nanmax(result[~np.isposinf(result)])
+    if np.isnan(result_max) or np.isnan(result_min):
         raise ValueError(
-            f"Seems like the array's size is NaN (min={data_min}, max={data_max})"
+            f"Seems like the array's size is NaN (min={result_min}, max={result_max})"
         )
 
-    data = (data - data_min) / (data_max - data_min + 1e-8)
+    result = (result - result_min) / (result_max - result_min + 1e-8)
 
     if cmap is not None:
         cm = plt.get_cmap(cmap)
