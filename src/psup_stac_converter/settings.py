@@ -33,6 +33,8 @@ class Settings(BaseSettings):
 
     wkt_file_path: Path = BASE_DIR / "data" / "extra" / "wkt_solar_system.csv"
 
+    n_omega_items: int | None = None
+
     model_config = SettingsConfigDict()
 
     @field_validator(

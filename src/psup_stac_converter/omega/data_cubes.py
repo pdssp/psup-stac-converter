@@ -43,7 +43,7 @@ Please note that longitudes range from -180 to 180 degrees east.
             log=log,
         )
 
-    def create_collection(self) -> pystac.Collection:
+    def create_collection(self, n_limit: int | None = None) -> pystac.Collection:
         """Creates a collection based on the OMEGA datacubes' dataset
 
         This dataset contains all the OMEGA observations acquired with the C, L and VIS channels until April 2016, 11, after filtering. Filtering processes have been implemented to remove some instrumental artefacts and observational conditions. Each OMEGA record is available as a netCDF4.nc file and an idl.sav
@@ -60,7 +60,7 @@ Please note that longitudes range from -180 to 180 degrees east.
         Returns:
             pystac.Collection: OMEGA Data Cubes' collection
         """
-        collection = super().create_collection()
+        collection = super().create_collection(n_limit=n_limit)
 
         # Change spatial extent since temporal extent is
         item_spatial_range = [

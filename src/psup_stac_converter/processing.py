@@ -6,6 +6,7 @@ from typing import cast
 import numpy as np
 import pandas as pd
 import pystac
+import pystac.errors
 from shapely import bounds
 
 from psup_stac_converter.exceptions import FileExtensionError, FolderNotEmptyError
@@ -71,6 +72,7 @@ class CatalogCreator(BaseProcessor):
         psup_data_inventory_file: Path | None = None,
         wkt_file: Path | None = None,
         log: logging.Logger | None = None,
+        n_omega_files: int | None = None,
     ):
         super().__init__(raw_data_folder, output_folder, log=log)
         if psup_data_inventory_file is None:
@@ -94,6 +96,7 @@ class CatalogCreator(BaseProcessor):
         else:
             self.wkt_io = None
 
+        self.n_omega_files = n_omega_files
         self.log.debug(self.psup_archive)
 
     def _add_collections_to_catalog(self, catalog: pystac.Catalog) -> pystac.Catalog:
@@ -137,7 +140,9 @@ class CatalogCreator(BaseProcessor):
             # OMEGA data cubes
             self.log.info("Creating OMEGA Data cubes collection")
             omega_data_cubes_builder = OmegaDataCubes(self.psup_archive, log=self.log)
-            omega_data_cubes_collection = omega_data_cubes_builder.create_collection()
+            omega_data_cubes_collection = omega_data_cubes_builder.create_collection(
+                n_limit=self.n_omega_files
+            )
 
             if self.wkt_io is not None:
                 omega_data_cubes_collection = apply_proj(
@@ -157,7 +162,9 @@ class CatalogCreator(BaseProcessor):
             self.log.info("Creating OMEGA C Channel Proj collection")
             self.log.debug(self.psup_archive)
             omega_c_channel_builder = OmegaCChannelProj(self.psup_archive, log=self.log)
-            omega_c_channel_collection = omega_c_channel_builder.create_collection()
+            omega_c_channel_collection = omega_c_channel_builder.create_collection(
+                n_limit=self.n_omega_files
+            )
             if self.wkt_io is not None:
                 omega_c_channel_collection = apply_proj(
                     omega_c_channel_collection,
@@ -237,6 +244,17 @@ class CatalogCreator(BaseProcessor):
         self.log.info(
             f"Catalog created in {exec_time // 60} minutes and {round(exec_time % 60, 2)} seconds!"
         )
+
+        self.log.info("Checking if catalog is STAC-compliant:")
+        try:
+            catalog.validate_all()
+        except pystac.errors.STACValidationError as e:
+            self.log.warning(
+                "Validation failed. Some errors were detected during validation."
+            )
+            self.log.warning(f"See stacktrace for more details: {e}")
+        else:
+            self.log.info("Your catalog is STAC-compliant!")
 
     def create_feature_collection(self) -> pystac.Collection:
         fp_bounds = np.array(

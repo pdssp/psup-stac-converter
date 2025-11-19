@@ -62,6 +62,7 @@ def create_catalog(
     psup_data_inventory_file: Path = None,
     wkt_file_path: Path = None,
     clean_prev_output: bool = False,
+    n_omega_items: int | None = None,
     **kwargs,
 ):
     catalog_creator = CatalogCreator(
@@ -70,5 +71,6 @@ def create_catalog(
         psup_data_inventory_file=psup_data_inventory_file,
         wkt_file=wkt_file_path,
         log=kwargs.get("logger"),
+        n_omega_files=n_omega_items,
     )
     return catalog_creator.create_catalog(clean_previous_output=clean_prev_output)

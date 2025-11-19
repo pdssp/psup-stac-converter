@@ -42,6 +42,15 @@ class SpecialObjectEncoder(json.JSONEncoder):
 
 
 def reformat_nc_info(nc_info: dict[str, Any]) -> dict[str, Any]:
+    """Opens previously extracted NetCDF4 datacube info for
+    catalog input
+
+    Args:
+        nc_info (dict[str, Any]): _description_
+
+    Returns:
+        dict[str, Any]: _description_
+    """
     for k, v in nc_info["variables"].items():
         nc_info["variables"][k] = Variable(properties={**v})
     for k, v in nc_info["dimensions"].items():
@@ -170,6 +179,11 @@ class OmegaDataReader:
     @property
     def n_elements(self) -> int:
         return self.omega_data_ids.size
+
+    def get_omega_data_ids(self, n_limit: int | None = None) -> pd.Index:
+        if n_limit is None:
+            return self.omega_data_ids
+        return self.omega_data_ids[:n_limit]
 
     def find_info_by_orbit_cube(
         self,
@@ -361,7 +375,7 @@ class OmegaDataReader:
             ]
         )
 
-    def create_collection(self) -> pystac.Collection:
+    def create_collection(self, n_limit: int | None = None) -> pystac.Collection:
         """Creates a STAC collection based over the OMEGA data series.
 
         Returns:
@@ -388,7 +402,10 @@ class OmegaDataReader:
         # TODO: make a pystac extension for processing
         # collection.extra_fields["processing:level"] = self.processing_level
 
-        for omega_data_idx in tqdm(self.omega_data_ids, total=self.n_elements):
+        for omega_data_idx in tqdm(
+            self.get_omega_data_ids(n_limit=n_limit),
+            total=n_limit if n_limit else self.n_elements,
+        ):
             try:
                 omega_data_item = self.create_stac_item(omega_data_idx)
                 collection.add_item(omega_data_item)
@@ -497,6 +514,7 @@ class OmegaDataReader:
                     description="PNG thumbnail preview for visualizations",
                 )
                 pystac_item.add_asset("thumbnail", thumbn_asset)
+                self.log.debug(f"Added {thumbn_asset} to item.")
             except OSError as ose:
                 self.log.error(f"[{ose.__class__.__name__}] {ose}")
                 self.log.error(
@@ -510,6 +528,16 @@ class OmegaDataReader:
                 self.log.error(f"[{e.__class__.__name__}] {e}")
             finally:
                 nc_data.close()
+        else:
+            # Thumbnail
+            thumbn_asset = pystac.Asset(
+                href=thumbnail_location.as_posix(),
+                media_type=pystac.MediaType.PNG,
+                roles=["thumbnail"],
+                description="PNG thumbnail preview for visualizations",
+            )
+            pystac_item.add_asset("thumbnail", thumbn_asset)
+            self.log.debug(f"Added {thumbn_asset} to item.")
 
         # extensions
         pystac_item = cast(pystac.Item, apply_ssys(pystac_item))
@@ -692,6 +720,8 @@ class OmegaDataReader:
 
         return nc_info
 
+    # TODO: revise startegy when this function is called
+    # You need to pick specific reflectance data for that
     def make_thumbnail(
         self,
         orbit_cube_idx: str,

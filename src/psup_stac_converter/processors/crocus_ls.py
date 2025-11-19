@@ -84,8 +84,6 @@ class CrocusLs(BaseProcessorModule):
         item_id = str(getattr(row, id_col))
         footprint = json.loads(to_geojson(row.geometry))
 
-        # TODO: Bounds of buffer
-        # TODO: change geometry to Multiplygon (doughnut style?)
         bbox = bounds(row.geometry).tolist()
         timestamp = dt.datetime(2009, 7, 10, 0, 0)
 

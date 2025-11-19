@@ -40,7 +40,7 @@ omega_mineral_maps = {
             citation="""
         Ody, A., F. Poulet, Y. Langevin, J.-P. Bibring, G. Bellucci, F. Altieri, B. Gondet, M. Vincendon, J. Carter, and N. Manaud (2012), Global maps of anhydrous minerals at the surface of Mars from OMEGA/MEx, J. Geophys. Res., 117, E00J14
         """,
-            doi="doi:10.1029/2012JE004117",
+            doi="10.1029/2012JE004117",
         ),
         created_at=dt.datetime(2012, 5, 2, 0, 0),
     ),
@@ -56,7 +56,7 @@ omega_mineral_maps = {
             citation="""
         Ody, A., F. Poulet, Y. Langevin, J.-P. Bibring, G. Bellucci, F. Altieri, B. Gondet, M. Vincendon, J. Carter, and N. Manaud (2012), Global maps of anhydrous minerals at the surface of Mars from OMEGA/MEx, J. Geophys. Res., 117, E00J14
         """,
-            doi="doi:10.1029/2012JE004117",
+            doi="10.1029/2012JE004117",
         ),
         created_at=dt.datetime(2012, 5, 2, 0, 0),
     ),
@@ -72,7 +72,7 @@ omega_mineral_maps = {
             citation="""
         Ody, A., F. Poulet, Y. Langevin, J.-P. Bibring, G. Bellucci, F. Altieri, B. Gondet, M. Vincendon, J. Carter, and N. Manaud (2012), Global maps of anhydrous minerals at the surface of Mars from OMEGA/MEx, J. Geophys. Res., 117, E00J14
         """,
-            doi="doi:10.1029/2012JE004117",
+            doi="10.1029/2012JE004117",
         ),
         created_at=dt.datetime(2012, 5, 2, 0, 0),
     ),
@@ -88,7 +88,7 @@ omega_mineral_maps = {
             citation="""
         Ody, A., F. Poulet, Y. Langevin, J.-P. Bibring, G. Bellucci, F. Altieri, B. Gondet, M. Vincendon, J. Carter, and N. Manaud (2012), Global maps of anhydrous minerals at the surface of Mars from OMEGA/MEx, J. Geophys. Res., 117, E00J14
         """,
-            doi="doi:10.1029/2012JE004117",
+            doi="10.1029/2012JE004117",
         ),
         created_at=dt.datetime(2012, 5, 2, 0, 0),
     ),
@@ -104,7 +104,7 @@ omega_mineral_maps = {
             citation="""
         Ody, A., F. Poulet, Y. Langevin, J.-P. Bibring, G. Bellucci, F. Altieri, B. Gondet, M. Vincendon, J. Carter, and N. Manaud (2012), Global maps of anhydrous minerals at the surface of Mars from OMEGA/MEx, J. Geophys. Res., 117, E00J14
         """,
-            doi="doi:10.1029/2012JE004117",
+            doi="10.1029/2012JE004117",
         ),
         created_at=dt.datetime(2012, 5, 2, 0, 0),
     ),
@@ -120,7 +120,7 @@ omega_mineral_maps = {
             citation="""
         Ody, A., F. Poulet, Y. Langevin, J.-P. Bibring, G. Bellucci, F. Altieri, B. Gondet, M. Vincendon, J. Carter, and N. Manaud (2012), Global maps of anhydrous minerals at the surface of Mars from OMEGA/MEx, J. Geophys. Res., 117, E00J14
         """,
-            doi="doi:10.1029/2012JE004117",
+            doi="10.1029/2012JE004117",
         ),
         created_at=dt.datetime(2012, 5, 2, 0, 0),
     ),
@@ -136,7 +136,7 @@ omega_mineral_maps = {
             citation="""
         Ody, A., F. Poulet, Y. Langevin, J.-P. Bibring, G. Bellucci, F. Altieri, B. Gondet, M. Vincendon, J. Carter, and N. Manaud (2012), Global maps of anhydrous minerals at the surface of Mars from OMEGA/MEx, J. Geophys. Res., 117, E00J14
         """,
-            doi="doi:10.1029/2012JE004117",
+            doi="10.1029/2012JE004117",
         ),
         created_at=dt.datetime(2012, 5, 2, 0, 0),
     ),
@@ -152,7 +152,7 @@ omega_mineral_maps = {
             citation="""
         M. Vincendon, J. Audouard, F. Altieri, A. Ody, Mars Express measurements of surface albedo changes over 2004–2010, Icarus, Volume 251, 2015, Pages 145-163, ISSN 0019-1035
         """,
-            doi="https://doi.org/10.1016/j.icarus.2014.10.029",
+            doi="0.1016/j.icarus.2014.10.029",
         ),
         created_at=dt.datetime(2014, 7, 10, 0, 0),
     ),
@@ -168,7 +168,7 @@ omega_mineral_maps = {
             citation="""
         M. Vincendon, J. Audouard, F. Altieri, A. Ody, Mars Express measurements of surface albedo changes over 2004–2010, Icarus, Volume 251, 2015, Pages 145-163, ISSN 0019-1035
         """,
-            doi="https://doi.org/10.1016/j.icarus.2014.10.029",
+            doi="10.1016/j.icarus.2014.10.029",
         ),
         created_at=dt.datetime(2014, 7, 10, 0, 0),
     ),
@@ -184,7 +184,7 @@ omega_mineral_maps = {
             citation="""
         J. Audouard, F. Poulet, M. Vincendon, J.-P. Bibring, F. Forget, Y. Langevin, B. Gondet, Mars surface thermal inertia and heterogeneities from OMEGA/MEX, Icarus, Volume 233, 2014, Pages 194-213, ISSN 0019-1035,
         """,
-            doi="https://doi.org/10.1016/j.icarus.2014.01.045",
+            doi="10.1016/j.icarus.2014.01.045",
         ),
         created_at=dt.datetime(2013, 7, 1, 0, 0),
         # Global map is 4ppd (15x15km at eq), cylindrical projection

@@ -81,6 +81,9 @@ def _(Path, pd, psup_refs):
 
     data_cubes_refs = divide_by_channel(psup_refs, "cubes_L2")
     c_channel_refs = divide_by_channel(psup_refs, "cubes_L3")
+
+    print("N° items in C channel:", c_channel_refs.index.nunique())
+    print("N° items in data cubes:", data_cubes_refs.index.nunique())
     return c_channel_refs, data_cubes_refs
 
 
@@ -888,9 +891,15 @@ def _(dt, ex_nc_ds_l2, re):
 
 
 @app.cell
+def _(ex_nc_ds_l2):
+    ex_nc_ds_l2.isel(wavelength=100)
+    return
+
+
+@app.cell
 def _(ex_nc_ds_l2, plt):
-    ex_nc_ds_l2.Reflectance.mean("wavelength").plot(cmap=plt.cm.get_cmap("viridis"))
-    plt.title("Reflectance map based on wavelengh mean")
+    ex_nc_ds_l2.Reflectance[100].plot(cmap=plt.cm.get_cmap("viridis"))
+    plt.title("Reflectance map based on 100th wavelength")
     return
 
 
@@ -924,16 +933,16 @@ def _(Path, ex_nc_ds_l2, mo, np, plt):
 
         result = (result - result_min) / (result_max - result_min + 1e-8)
         # occult the NaNs and infs
-        result = np.nan_to_num(result, nan=0.0, posinf=255.0, neginf=0.0)
+        # result = np.nan_to_num(result, nan=0., posinf=255., neginf=0.)
 
         if cmap is not None:
             cm = plt.get_cmap(cmap)
-            result = cm(data)[..., :4]  # includes alpha
+            result = cm(result)[..., :4]  # includes alpha
             result = (result * 255).astype(np.uint8)
             if mode == "RGB":
                 result = result[..., :3]
         else:
-            result = (data * 255).astype(np.uint8)
+            result = (result * 255).astype(np.uint8)
             if mode in ["RGB", "RGBA"]:
                 result = np.stack([result] * (3 if mode == "RGB" else 4), axis=-1)
 
@@ -944,9 +953,9 @@ def _(Path, ex_nc_ds_l2, mo, np, plt):
 
     tempdir = TemporaryDirectory()
     resized_img = convert_arr_to_thumbnail(
-        ex_nc_ds_l2.Reflectance.mean("wavelength").values,
+        getattr(ex_nc_ds_l2.Reflectance, "mean")("wavelength").values,
         (256, 256),
-        mode="RGB",
+        mode="RGBA",
         cmap="viridis",
     )
 

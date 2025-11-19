@@ -31,18 +31,9 @@ Both files contain the cubes of reflectance of the surface at a given longitude,
             publications=omega_c_channel,
             log=log,
         )
-        self.sav_metadata_folder = psup_io_handler.output_folder / "l3_sav"
-        self.nc_metadata_folder = psup_io_handler.output_folder / "l3_nc"
-        self.log.debug(f".sav metadata folder: {self.sav_metadata_folder}")
-        self.log.debug(f".nc metadata folder: {self.nc_metadata_folder}")
-        if not self.sav_metadata_folder.exists():
-            self.sav_metadata_folder.mkdir()
 
-        if not self.nc_metadata_folder.exists():
-            self.nc_metadata_folder.mkdir()
-
-    def create_collection(self) -> pystac.Collection:
-        collection = super().create_collection()
+    def create_collection(self, n_limit: int | None = None) -> pystac.Collection:
+        collection = super().create_collection(n_limit=n_limit)
 
         # Only the C band is needed
         collection = cast(
@@ -105,7 +96,7 @@ Both files contain the cubes of reflectance of the surface at a given longitude,
         return {}
 
     def create_stac_item(self, orbit_cube_idx) -> pystac.Item:
-        text_data: OmegaDataTextItem = cast(
+        text_data = cast(
             OmegaDataTextItem, self.open_file(orbit_cube_idx, "txt", on_disk=True)
         )
         footprint = json.loads(to_geojson(text_data.bbox))

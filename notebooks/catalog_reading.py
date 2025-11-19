@@ -9,13 +9,16 @@ def _():
     import marimo as mo
     import pystac
     from pathlib import Path
+    from pystac.extensions.datacube import DatacubeExtension
 
     return Path, mo, pystac
 
 
 @app.cell
 def _(Path, pystac):
-    catalog = pystac.Catalog.from_file(Path.home() / "data-folder/catalog/catalog.json")
+    catalog = pystac.Catalog.from_file(
+        Path.home() / "PDSSP/psup-stac-repo/catalog/catalog.json"
+    )
     catalog.describe()
     return (catalog,)
 
@@ -55,12 +58,27 @@ def _(catalog):
 
 
 @app.cell
-def _(catalog):
-    items = list(catalog.get_all_items())
+def _(catalog, pystac):
+    for _item in catalog.get_all_items():
+        try:
+            _item.validate()
+        except pystac.errors.STACValidationError as e:
+            print(f"{_item.id} is invalid")
+            print(e)
+            # print("==========================")
+            # if DatacubeExtension.has_extension(_item):
+            #     cube_item = DatacubeExtension.ext(_item)
+            #     print(cube_item.dimensions)
+            print("========================== =============================")
+        else:
+            pass
+            # print("Valid!")
+    return
 
-    print(f"Number of items: {len(items)}")
-    for item in items:
-        print(f"- {item.id}")
+
+@app.cell
+def _(catalog):
+    catalog.validate_all()
     return
 
 

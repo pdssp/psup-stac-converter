@@ -147,9 +147,12 @@ settings:
   # Folder containing anything that can be used as a side material for processing
   extra_data_path: "./data/extra"
   # Contains the scrapped results from the WKT projections
-  wkt_file_name: "wkt_solar_system.csv"
+  wkt_file_path: "wkt_solar_system.csv"
   # Contains all the scraped results by using `psup-scraper get-data-ref -O <psup-inventory-file> -f csv --clean`
   psup_inventory_file: "./data/raw/psup_refs.csv"
+  # For debug purposes, you can pass the number of OMEGA items to generate (optional)
+  n_omega_items: 10
+
 ```
 You can find an example from [`converter-params.example.yml`](./converter-params.example.yml)
 

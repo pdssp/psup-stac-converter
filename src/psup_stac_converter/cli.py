@@ -115,6 +115,12 @@ def create_stac_catalog(
             resolve_path=True,
         ),
     ] = None,
+    n_omega_items: Annotated[
+        int,
+        typer.Option(
+            "--n-omega", help="Specifies the limit of OMEGA items to generate"
+        ),
+    ] = None,
     clean_previous_output: Annotated[
         bool,
         typer.Option("--clean/--no-clean", "-c/-nc", help="Cleans the output folder"),
@@ -131,6 +137,7 @@ def create_stac_catalog(
         psup_data_inventory_file=psup_inventory_file or settings.psup_inventory_file,
         wkt_file_path=wkt_file_path or settings.wkt_file_path,
         clean_prev_output=clean_previous_output,
+        n_omega_items=n_omega_items or settings.n_omega_items,
         **{k: v for k, v in ctx.obj.items() if k not in ["settings"]},
     )
 
