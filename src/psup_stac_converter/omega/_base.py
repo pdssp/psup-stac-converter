@@ -72,6 +72,15 @@ def find_step_from_values(vals: np.ndarray) -> float | None:
     return unique_steps.item()
 
 
+def select_rgb_from_xarr(ds: xr.Dataset, attrib: str = "Reflectance") -> np.ndarray:
+    channels = [
+        ds.wavelength.size // 2 - ds.wavelength.size // 3,
+        ds.wavelength.size // 2,
+        ds.wavelength.size // 2 + ds.wavelength.size // 3,
+    ]
+    return getattr(ds.isel(wavelength=channels), attrib).values
+
+
 class OmegaDataTextItem(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -184,6 +193,11 @@ class OmegaDataReader:
         if n_limit is None:
             return self.omega_data_ids
         return self.omega_data_ids[:n_limit]
+
+    def __str__(self) -> str:
+        return (
+            f"[{self.__class__.__name__}] {self.n_elements} elements\n{self.io_handler}"
+        )
 
     def find_info_by_orbit_cube(
         self,
@@ -500,9 +514,7 @@ class OmegaDataReader:
                 # By default, takes the reflectance cube
                 self.make_thumbnail(
                     orbit_cube_idx=orbit_cube_idx,
-                    data=getattr(nc_data.Reflectance, thumbnail_strategy)(
-                        "wavelength"
-                    ).values,
+                    data=select_rgb_from_xarr(nc_data),
                     dims=self.thumbnail_dims,
                 )
 
@@ -667,9 +679,7 @@ class OmegaDataReader:
             # By default, takes the reflectance cube
             self.make_thumbnail(
                 orbit_cube_idx=orbit_cube_idx,
-                data=getattr(nc_data.Reflectance, thumbnail_strategy)(
-                    "wavelength"
-                ).values,
+                data=select_rgb_from_xarr(nc_data),
                 dims=self.thumbnail_dims,
             )
 

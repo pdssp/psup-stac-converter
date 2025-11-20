@@ -255,6 +255,8 @@ class CatalogCreator(BaseProcessor):
             self.log.warning(f"See stacktrace for more details: {e}")
         else:
             self.log.info("Your catalog is STAC-compliant!")
+        finally:
+            return catalog
 
     def create_feature_collection(self) -> pystac.Collection:
         fp_bounds = np.array(

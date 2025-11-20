@@ -659,8 +659,8 @@ def _(bounds, box, example_sav_l2, json, np, to_geojson):
 
 @app.cell
 def _(xr):
-    # ex_nc_ds_l2 = xr.open_dataset("./data/raw/downloads/cube_omega/D195_2.nc")
-    ex_nc_ds_l2 = xr.open_dataset("./data/raw/downloads/cube_omega/0228_3.nc")
+    ex_nc_ds_l2 = xr.open_dataset("./data/raw/downloads/cube_omega/D195_2.nc")
+    # ex_nc_ds_l2 = xr.open_dataset("./data/raw/downloads/cube_omega/0228_3.nc")
     ex_nc_ds_l2
     return (ex_nc_ds_l2,)
 
@@ -891,8 +891,22 @@ def _(dt, ex_nc_ds_l2, re):
 
 
 @app.cell
-def _(ex_nc_ds_l2):
-    ex_nc_ds_l2.isel(wavelength=100)
+def _(ex_nc_ds_l2, mo):
+    wl_slider_l2 = mo.ui.slider(
+        start=0,
+        stop=ex_nc_ds_l2.sizes["wavelength"] - 1,
+        label="Wavelength number",
+        value=0,
+    )
+    wl_slider_l2
+    return (wl_slider_l2,)
+
+
+@app.cell
+def _(ex_nc_ds_l2, plt, wl_slider_l2):
+    ex_nc_ds_l2.isel(wavelength=wl_slider_l2.value).Reflectance.plot(
+        cmap=plt.cm.get_cmap("rainbow")
+    )
     return
 
 
