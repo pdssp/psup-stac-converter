@@ -19,7 +19,7 @@ geojson_features = {
         name="hyd_global_290615.json",
         **{
             "description": "Hydrated mineral sites",
-            "footprint": Polygon(((-180, -90), (180, 90), (180, 90), (180, -90))),
+            "footprint": Polygon(((-180, -90), (-180, 90), (180, 90), (180, -90))),
             "keywords": [],
             "publications": Publication(
                 citation="Carter, J., F. Poulet, J.-P. Bibring, N. Mangold, and S. Murchie (2013), Hydrous minerals on Mars as seen by the CRISM and OMEGA imaging spectrometers: Updated global view, J. Geophys. Res. Planets, 118, 831–858",
@@ -67,7 +67,7 @@ geojson_features = {
         name="crocus_ls150-310.json",
         **{
             "description": "Seasonal South polar cap limits",
-            "footprint": Polygon(((-180, -50), (-90, -50), (0, -50), (90, -50))),
+            "footprint": Polygon(((-180, -90), (180, -90), (180, -50), (-180, -50))),
             "keywords": [
                 "polar  cap",
                 "seasonal",
@@ -106,7 +106,7 @@ geojson_features = {
         name="costard_craters.json",
         **{
             "description": "Lobate impact craters",
-            "footprint": Polygon(((-180, -90), (180, 90), (180, 90), (180, -90))),
+            "footprint": Polygon(((-180, -90), (-180, 90), (180, 90), (180, -90))),
             "keywords": ["global", "craters", "ejecta", "lithosphere"],
             "publications": Publication(
                 citation="F.M Costard (1989), The spatial distribution of volatiles in the Martian hydrolithosphere, Earth Moon Planet, Volume 45, Pages 265-290.",

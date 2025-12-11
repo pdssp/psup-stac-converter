@@ -137,8 +137,10 @@ def _(np, xr):
         d_wl = ds.wavelength.values[1:] - ds.wavelength.values[:-1]
         c_break, l_break = np.where(d_wl < 0)[0]
         sel_c = select_rgb_img(ds.isel(wavelength=range(0, c_break + 1)))
-        sel_l = select_rgb_img(ds.isel(wavelength=range(c_break, l_break + 1)))
-        sel_vis = select_rgb_img(ds.isel(wavelength=range(l_break, ds.wavelength.size)))
+        sel_l = select_rgb_img(ds.isel(wavelength=range(c_break + 1, l_break + 1)))
+        sel_vis = select_rgb_img(
+            ds.isel(wavelength=range(l_break + 1, ds.wavelength.size))
+        )
         return (sel_vis, sel_c, sel_l)
 
     return select_for_data_cubes, select_rgb_img
@@ -213,6 +215,11 @@ def _(
     else:
         print("Press button to download dataset!")
     return (omega_c_chan_ds,)
+
+
+@app.cell
+def _():
+    return
 
 
 @app.cell
@@ -506,6 +513,17 @@ def _(
         print("No dataset loaded. Press the download button first.")
 
     plt.show()
+    return (img_omega,)
+
+
+@app.cell
+def _(img_omega):
+    from skimage import measure
+
+    omega_l3_contours = measure.find_contours(img_omega[1].Reflectance.values[0])
+
+    for _contour in omega_l3_contours:
+        print(_contour)
     return
 
 
