@@ -22,6 +22,7 @@ dependencies = [
     "pystac>=1.14.0",
     "pyyaml>=6.0.2",
     "rasterio>=1.4.3",
+    "scikit-image>=0.25.2",
     "scrapy>=2.13.3",
     "spectral>=0.24",
     "tqdm>=4.67.1",

@@ -3,7 +3,9 @@ import logging
 from typing import Any, cast
 
 import pystac
-from shapely import bounds, to_geojson
+import xarray as xr
+from shapely import MultiPolygon, Polygon, bounds, remove_repeated_points, to_geojson
+from skimage import measure
 
 from psup_stac_converter.extensions import apply_eo
 from psup_stac_converter.informations.instruments import omega_bands
@@ -95,11 +97,12 @@ Both files contain the cubes of reflectance of the surface at a given longitude,
 
         return {}
 
-    def create_stac_item(self, orbit_cube_idx) -> pystac.Item:
+    def create_stac_item(self, orbit_cube_idx: str) -> pystac.Item:
         text_data = cast(
             OmegaDataTextItem, self.open_file(orbit_cube_idx, "txt", on_disk=True)
         )
-        footprint = json.loads(to_geojson(text_data.bbox))
+        # TODO: need some contour function for footprint
+        footprint = json.loads(to_geojson(self.get_contour_data(orbit_cube_idx)))
         bbox = bounds(text_data.bbox).tolist()
 
         pystac_item = super().create_stac_item(
@@ -150,3 +153,45 @@ Both files contain the cubes of reflectance of the surface at a given longitude,
         self.log.debug(f"Item created: {pystac_item.to_dict()}")
 
         return pystac_item
+
+    def get_contour_data(self, orbit_cube_idx: str) -> Polygon | MultiPolygon:
+        """Returns contour of a OMEGA L3 image
+
+        Args:
+            orbit_cube_idx (str): _description_
+
+        Returns:
+            Polygon | MultiPolygon: _description_
+        """
+        nc_data = cast(
+            xr.Dataset,
+            self.open_file(
+                orbit_cube_idx=orbit_cube_idx, file_extension="nc", on_disk=False
+            ),
+        )
+
+        img_contours = measure.find_contours(
+            nc_data.Reflectance.notnull().mean(axis=0).values > 0
+        )
+
+        polygons = [
+            remove_repeated_points(
+                Polygon(
+                    [
+                        (
+                            nc_data.longitude[round(_x)].item(),
+                            nc_data.latitude[round(_y)].item(),
+                        )
+                        for _x, _y in zip(_contour[:, 1], _contour[:, 0])
+                    ]
+                )
+            )
+            for _contour in img_contours
+        ]
+
+        nc_data.close()
+
+        if len(polygons) == 0:
+            return polygons[0]
+
+        return MultiPolygon(polygons)

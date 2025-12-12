@@ -18,15 +18,20 @@ def _():
     import matplotlib.pyplot as plt
     import numpy as np
 
+    from shapely import Polygon, MultiPolygon, remove_repeated_points
+
     return (
+        MultiPolygon,
         OmegaCChannelProj,
         OmegaDataCubes,
         OmegaDataReader,
         Path,
+        Polygon,
         PsupIoHandler,
         mo,
         np,
         plt,
+        remove_repeated_points,
         xr,
         yaml,
     )
@@ -518,12 +523,79 @@ def _(
 
 @app.cell
 def _(img_omega):
+    img_omega[1].Reflectance.where(img_omega[1].Reflectance.isnull(), 1).where(
+        img_omega[1].Reflectance.notnull(), 0
+    ).plot.imshow()
+    return
+
+
+@app.cell
+def _(img_omega, omega_ds, plt):
     from skimage import measure
 
-    omega_l3_contours = measure.find_contours(img_omega[1].Reflectance.values[0])
+    omega_l3_contours = measure.find_contours(
+        ~img_omega[1].Reflectance.notnull().values[0]
+        # & (img_omega[1].Reflectance.values[0] > 0.8)
+    )
+
+    omega_l3_contours = measure.find_contours(
+        omega_ds[1].Reflectance.notnull().mean(axis=0).values > 0
+    )
 
     for _contour in omega_l3_contours:
-        print(_contour)
+        print(_contour.shape)
+        plt.plot(_contour[:, 1], _contour[:, 0], linewidth=2)
+
+    plt.show()
+    return (omega_l3_contours,)
+
+
+@app.cell
+def _(Polygon, img_omega, omega_l3_contours, remove_repeated_points):
+    for _contour in omega_l3_contours:
+        print(
+            list(
+                remove_repeated_points(
+                    Polygon(
+                        [
+                            (
+                                img_omega[1].longitude[round(_x)].item(),
+                                img_omega[1].latitude[round(_y)].item(),
+                            )
+                            for _x, _y in zip(_contour[:, 1], _contour[:, 0])
+                        ]
+                    )
+                )
+                for _contour in omega_l3_contours
+            )
+        )
+    return
+
+
+@app.cell
+def _(
+    MultiPolygon,
+    Polygon,
+    img_omega,
+    omega_l3_contours,
+    remove_repeated_points,
+):
+    MultiPolygon(
+        [
+            remove_repeated_points(
+                Polygon(
+                    [
+                        (
+                            img_omega[1].longitude[round(_x)].item(),
+                            img_omega[1].latitude[round(_y)].item(),
+                        )
+                        for _x, _y in zip(_contour[:, 1], _contour[:, 0])
+                    ]
+                )
+            )
+            for _contour in omega_l3_contours
+        ]
+    )
     return
 
 

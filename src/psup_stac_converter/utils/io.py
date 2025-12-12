@@ -2,11 +2,9 @@ import datetime as dt
 import logging
 import re
 from pathlib import Path
-from typing import Any, Iterator, Literal
+from typing import Iterator, Literal
 
 import pandas as pd
-import scipy.io as sio
-import xarray as xr
 from pydantic import BaseModel, HttpUrl
 from rich.console import Console
 from rich.tree import Tree
@@ -210,38 +208,6 @@ class PsupIoHandler(IoHandler):
             pd.DataFrame: _description_
         """
         return self.psup_archive.get_omega_data(data_type=data_type)
-
-    def open_sav_dataset(self, file_href: str) -> dict[str, Any]:
-        """Opens an IDL .sav file
-
-        Args:
-            file_href (str): _description_
-
-        Returns:
-            dict[str, Any]: _description_
-        """
-        sav_ds = None
-
-        with self.psup_archive.open_resource(file_href) as sav_file:
-            sav_ds = sio.readsav(sav_file.name)
-
-        return sav_ds
-
-    def open_nc_dataset(self, file_href: str) -> Any:
-        """Opens NetCDF4 dataset
-
-        Args:
-            file_href (str): _description_
-
-        Returns:
-            Any: _description_
-        """
-        nc_dataset = None
-
-        with self.psup_archive.open_resource(file_href) as nc_file:
-            nc_dataset = xr.open_dataset(nc_file.name)
-
-        return nc_dataset
 
 
 class WktIoHandler:
