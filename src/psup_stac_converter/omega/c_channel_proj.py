@@ -191,7 +191,7 @@ Both files contain the cubes of reflectance of the surface at a given longitude,
 
         nc_data.close()
 
-        if len(polygons) == 0:
+        if len(polygons) == 1:
             return polygons[0]
 
         return MultiPolygon(polygons)
