@@ -2,6 +2,7 @@ import datetime as dt
 import json
 from typing import NamedTuple
 
+import pandas as pd
 import pystac
 from pydantic.alias_generators import to_snake
 from shapely import bounds, to_geojson
@@ -38,7 +39,7 @@ class LcpFlahaut(BaseProcessorModule):
         timestamp = dt.datetime(2012, 8, 6)
 
         chemical_details = (
-            row.other_dete.split(",") if row.other_dete is not None else []
+            row.other_dete.split(",") if pd.notnull(row.other_dete) else []
         )
 
         properties = {
@@ -65,7 +66,7 @@ class LcpFlahaut(BaseProcessorModule):
         )
         item.add_asset("crism_url", crism_asset)
 
-        if row.associated is not None:
+        if pd.notnull(row.associated):
             hirise_asset = pystac.Asset(
                 href=f"https://www.uahirise.org/{row.associated}",
                 media_type=pystac.MediaType.HTML,

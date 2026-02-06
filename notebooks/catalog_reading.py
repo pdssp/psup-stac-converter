@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.15.5"
+__generated_with = "0.19.6"
 app = marimo.App(width="medium")
 
 
@@ -25,8 +25,7 @@ def _(Path, pystac):
 
 @app.cell
 def _(catalog, mo, pystac):
-    mo.md(
-        f"""
+    mo.md(f"""
     **ID:** `{catalog.id}`
 
     **Title:** {catalog.title or "N/A"}"
@@ -35,8 +34,7 @@ def _(catalog, mo, pystac):
 
     ----
     Created with STAC v{pystac.get_stac_version()}
-    """
-    )
+    """)
     return
 
 

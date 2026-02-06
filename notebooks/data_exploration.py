@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.16.5"
+__generated_with = "0.19.8"
 app = marimo.App(width="medium")
 
 
@@ -24,7 +24,9 @@ def _():
 
 @app.cell
 def _(mo):
-    mo.md(r"""# PSUP data""")
+    mo.md(r"""
+    # PSUP data
+    """)
     return
 
 
@@ -235,7 +237,9 @@ def _(filtered_psup_refs):
 
 @app.cell
 def _(mo):
-    mo.md(r"""# Mars features""")
+    mo.md(r"""
+    # Mars features
+    """)
     return
 
 
@@ -381,13 +385,11 @@ def _(trans_costar_craters):
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     # Southern pole CO2 amount on the Crocus line
 
     $L_s \in [150, 310]$
-    """
-    )
+    """)
     return
 
 
@@ -421,7 +423,7 @@ def _(Path, open_gdf_file):
 
 
 @app.cell
-def _(detection_crater, gpd):
+def _(detection_crater, gpd, pd):
     crater_type = {"Non visible": "non-visible", "1": "visible", "0": "unknown"}
 
     class DetectionCraterUtils:
@@ -435,7 +437,7 @@ def _(detection_crater, gpd):
 
         @staticmethod
         def clean_crater_qual(crater_qual_name: str | None):
-            if crater_qual_name is None:
+            if crater_qual_name is None or pd.isna(crater_qual_name):
                 return "unknown"
 
             return crater_type[crater_qual_name]
@@ -479,6 +481,14 @@ def _(Path, open_gdf_file):
 
     lcp_flathaut = open_gdf_file(lcp_flathaut_file)
     lcp_flathaut
+    return (lcp_flathaut,)
+
+
+@app.cell
+def _(lcp_flathaut, pd):
+    lcp_flathaut.other_dete.apply(
+        lambda chem: chem.split(",") if pd.notnull(chem) else []
+    )
     return
 
 
@@ -502,7 +512,9 @@ def _(Path, open_gdf_file):
 
 @app.cell
 def _(mo):
-    mo.md(r"""# MOLA data""")
+    mo.md(r"""
+    # MOLA data
+    """)
     return
 
 
@@ -603,13 +615,11 @@ def _(Literal, Path, bidx, json, mo, mola_folder, namespace, rc):
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     # Fernando's photometry analysis
 
     The data is an archive.
-    """
-    )
+    """)
     return
 
 

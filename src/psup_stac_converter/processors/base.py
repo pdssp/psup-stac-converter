@@ -1,7 +1,11 @@
+import logging
+
 import geopandas as gpd
 import pandas as pd
 import pystac
 from shapely import Geometry
+
+from psup_stac_converter.settings import create_logger
 
 
 class BaseProcessorModule:
@@ -14,12 +18,17 @@ class BaseProcessorModule:
         footprint: Geometry,
         description: str,
         keywords: list[str],
+        log: logging.Logger | None = None,
     ):
         self.name = name
         self.data = data
         self.footprint = footprint
         self.description = description
         self.keywords = keywords
+        if log is None:
+            self.log = create_logger(__name__)
+        else:
+            self.log = log
 
     def create_catalog(self) -> pystac.Catalog:
         """Creates catalog using parameters"""

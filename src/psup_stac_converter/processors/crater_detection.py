@@ -2,6 +2,7 @@ import datetime as dt
 import json
 from typing import NamedTuple
 
+import pandas as pd
 import pystac
 from shapely import bounds, to_geojson
 
@@ -93,14 +94,16 @@ class CraterDetection(BaseProcessorModule):
 
     @staticmethod
     def clean_crater_qual(crater_qual_name: str | None):
-        if crater_qual_name is None:
+        if pd.isnull(crater_qual_name):
             return "unknown"
 
         return crater_type[crater_qual_name]
 
     def transform_data(self):
         transformed_data = super().transform_data()
+
         transformed_data.columns = [col.lower() for col in transformed_data.columns]
+
         transformed_data = transformed_data.rename(columns={"diameter__": "diameter"})
 
         transformed_data["ejecta"] = transformed_data["ejecta"].apply(
