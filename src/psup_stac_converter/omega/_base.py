@@ -559,7 +559,18 @@ class OmegaDataReader:
         cubedata = self.retrieve_nc_info_from_saved_state(orbit_cube_idx=orbit_cube_idx)
         self.log.debug(f"Loading: {cubedata}")
         dc_ext = DatacubeExtension.ext(pystac_item, add_if_missing=True)
-        dc_ext.apply(dimensions=cubedata["dimensions"], variables=cubedata["variables"])
+
+        # This operation prevents the key from finding itself attached to "Variables" and "Dimensions"
+        dc_dimensions: dict[str, Dimension] = {
+            k: Dimension.from_dict(v.to_dict()[k])
+            for k, v in cubedata["dimensions"].items()
+        }
+        dc_variables: dict[str, Variable] = {
+            k: Variable.from_dict(v.to_dict()[k])
+            for k, v in cubedata["variables"].items()
+        }
+
+        dc_ext.apply(dimensions=dc_dimensions, variables=dc_variables)
 
         for extra_name, extra_value in cubedata["extras"].items():
             pystac_item.assets["nc"].extra_fields[extra_name] = extra_value

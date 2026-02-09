@@ -16,10 +16,6 @@ type StacInstance = pystac.Catalog | pystac.Collection | pystac.Item
 def apply_ssys(stac_instance: StacInstance, mars_local_time: str = "") -> StacInstance:
     """Applies Solary Stsem extension over a Stac instance object
 
-    Note:
-        ssys v1.1.0 disallows Nonetypes. If the date has to be fixed somehow,
-        pass an empty string.
-
     Args:
         stac_instance (StacInstance): _description_
         mars_local_time (str, optional): _description_. Defaults to "".

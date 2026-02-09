@@ -12,7 +12,7 @@ from pystac.utils import StringEnum, get_required
 #: :class:`~pystac.ItemAssetDefinition`
 T = TypeVar("T", pystac.Item, pystac.Asset, pystac.ItemAssetDefinition)
 
-SCHEMA_URI: str = "https://stac-extensions.github.io/ssys/v1.1.0/schema.json"
+SCHEMA_URI: str = "https://stac-extensions.github.io/ssys/v1.1.1/schema.json"
 # SCHEMA_URI: str = "https://raw.githubusercontent.com/stac-extensions/ssys/refs/heads/main/json-schema/schema.json"
 PREFIX: str = "ssys:"
 
