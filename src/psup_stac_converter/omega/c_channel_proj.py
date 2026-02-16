@@ -24,7 +24,7 @@ class OmegaCChannelProj(OmegaDataReader):
             processing_level="L3",
             dim_names=("longitude", "latitude", "wavelength"),
             metadata_folder_prefix="l3_",
-            collection_id="urn:pdssp:ias:collection:omega_c_channel_proj",
+            collection_id="omega_c_channel_proj",
             collection_description="""These data cubes have been specifically selected and filtered for studies of the surface mineralogy between 1 and 2.5 µm.
 
 They contain all the OMEGA observations acquired with the C channel after filtering. Filtering processes have been implemented to remove some instrumental artefacts and observational conditions. Each OMEGA record is available as a `netCDF4.nc` file and an `idl.sav`.

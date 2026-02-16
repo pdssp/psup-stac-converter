@@ -402,6 +402,7 @@ class OmegaDataReader:
         )
 
         collection = pystac.Collection(
+            title=f"OMEGA data cubes ({self.processing_level})",
             id=self.collection_id,
             extent=collection_extent,
             license=self.license_name,

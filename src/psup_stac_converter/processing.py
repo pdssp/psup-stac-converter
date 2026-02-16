@@ -215,7 +215,7 @@ class CatalogCreator(BaseProcessor):
 
         # Create root catalog for Mars items
         catalog = pystac.Catalog(
-            id="urn:pdssp:ias:body:mars",
+            id="mars",
             description="""This test STAC catalog contains Mars data collections and sub-catalogs currently hosted and distributed by\n[PSUP](http://psup.ias.u-psud.fr/sitools/client-user/index.html?project=PLISonMars) (Planetary SUrface Portal).\n\n![Mars](https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Mars_%28white_background%29.jpg/120px-Mars_%28white_background%29.jpg)\n""",
         )
 
@@ -285,7 +285,8 @@ class CatalogCreator(BaseProcessor):
         )
 
         master_collection = pystac.Collection(
-            id="urn:pdssp:ias:collection:features_datasets",
+            id="features_datasets",
+            title="Mars vectorial features",
             extent=collection_extent,
             description="This collection holds locations data for hydrated mineral terrains, Central peaks hydrated phases between Isidis\nand Hellas, Central peaks mineralogy south Valles Marineris, Valles Marineris low Calcium-Pyroxene, Seasonal South\npolar cap limits, Scalloped depressions and Lobate impact craters. This dataset contains vector catalogs\nand their associated metadatas. All catalogs are provided in GeoJSON file format.\n",
             keywords=[

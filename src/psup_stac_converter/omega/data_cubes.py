@@ -26,7 +26,7 @@ class OmegaDataCubes(OmegaDataReader):
             processing_level="L2",
             dim_names=("pixel_x", "pixel_y", "wavelength"),
             metadata_folder_prefix="l2_",
-            collection_id="urn:pdssp:ias:collection:omega_data_cubes",
+            collection_id="omega_data_cubes",
             collection_description="""
 This dataset contains all the OMEGA observations acquired with the C, L and VIS channels until April 2016, 11, after filtering. Filtering processes have been implemented to remove some instrumental artefacts and observational conditions. Each OMEGA record is available as a `netCDF4.nc` file and an `idl.sav`
 
