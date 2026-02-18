@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.15.5"
+__generated_with = "0.19.8"
 app = marimo.App(width="medium")
 
 
@@ -153,7 +153,9 @@ def _(np, xr):
 
 @app.cell
 def _(mo):
-    mo.md(r"""# OMEGA C Channel Data""")
+    mo.md(r"""
+    # OMEGA C Channel Data
+    """)
     return
 
 
@@ -242,7 +244,9 @@ def _(omega_c_chan_ds, plt, select_rgb_img):
 
 @app.cell
 def _(mo):
-    mo.md(r"""# OMEGA Data cubes""")
+    mo.md(r"""
+    # OMEGA Data cubes
+    """)
     return
 
 
@@ -381,7 +385,9 @@ def _(np, omega_dc_ds):
 
 @app.cell
 def _(mo):
-    mo.md(r"""# Comparison between L2 and L3 products""")
+    mo.md(r"""
+    # Comparison between L2 and L3 products
+    """)
     return
 
 
@@ -595,6 +601,79 @@ def _(
             )
             for _contour in omega_l3_contours
         ]
+    )
+    return
+
+
+@app.cell
+def _(
+    common_omega_idx,
+    common_omega_idx_slider,
+    img_omega,
+    omega_c_channel_builder,
+):
+    omega_c_channel_builder.make_thumbnail(
+        common_omega_idx[common_omega_idx_slider.value],
+        data=img_omega[1].Reflectance.values,
+        dims=(258, 258),
+    )
+    return
+
+
+@app.cell
+def _(np, plt):
+    from typing import Literal
+    from PIL import Image
+
+    def convert_arr_to_thumbnail(
+        data: np.ndarray,
+        resize_dims: tuple[int, int],
+        mode: Literal["L", "RGB", "RGBA"] = "L",
+        cmap: str | None = None,
+    ) -> Image.Image:
+        """
+        Converts a 2D or 3D NumPy array into a resized PNG-style image.
+        Applies a matplotlib colormap if provided.
+        """
+
+        # Normalizes data between 0 and 1
+        result = np.asarray(data, dtype=float)
+
+        result_min = np.nanmin(result[~np.isneginf(result)])
+        result_max = np.nanmax(result[~np.isposinf(result)])
+        if np.isnan(result_max) or np.isnan(result_min):
+            raise ValueError(
+                f"Seems like the array's size is NaN (min={result_min}, max={result_max})"
+            )
+
+        result = (result - result_min) / (result_max - result_min + 1e-8)
+
+        if cmap is not None:
+            cm = plt.get_cmap(cmap)
+            result = cm(result)[..., :4]  # includes alpha
+            result = (result * 255).astype(np.uint8)
+            if mode == "RGB":
+                result = result[..., :3]
+        else:
+            result = (result * 255).astype(np.uint8)
+            if mode in ["RGB", "RGBA"]:
+                result = np.stack([result] * (3 if mode == "RGB" else 4), axis=-1)
+
+        img = Image.fromarray(result[0], mode=mode)
+        img = img.resize(resize_dims, Image.Resampling.LANCZOS)
+
+        return img
+
+    return (convert_arr_to_thumbnail,)
+
+
+@app.cell
+def _(convert_arr_to_thumbnail, img_omega):
+    convert_arr_to_thumbnail(
+        img_omega[1].Reflectance.values,
+        resize_dims=(258, 258),
+        mode="RGB",
+        cmap="viridis",
     )
     return
 

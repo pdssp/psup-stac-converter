@@ -151,7 +151,7 @@ def convert_arr_to_thumbnail(
         result = cm(result)[..., :4]  # includes alpha
         result = (result * 255).astype(np.uint8)
         if mode == "RGB":
-            result = result[..., :3]
+            result = result[..., :3][0]
     else:
         result = (result * 255).astype(np.uint8)
         if mode in ["RGB", "RGBA"]:
