@@ -1,8 +1,9 @@
 import datetime as dt
 from typing import Literal, Optional
 
+import pandas as pd
 from geojson_pydantic import Feature
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_serializer, field_validator
 
 
 class CubedataDimensionBase(BaseModel):
@@ -21,6 +22,12 @@ class CubedataDimensionBase(BaseModel):
     step: Optional[int | float | str | float | None]
     reference_system: Optional[str | int]
     unit: Optional[str] = None
+
+    @field_serializer("extent", "values", mode="plain")
+    def ser_number(
+        self, value: list[str | int | float | None]
+    ) -> list[str | int | float | None]:
+        return [element if pd.notnull(element) else None for element in value]
 
 
 class CubedataVariable(BaseModel):
@@ -53,6 +60,12 @@ class CubedataVariable(BaseModel):
     extent: Optional[list[str | int | float | None]] = None
     values: Optional[list[str | int | float]] = None
     unit: Optional[str] = None
+
+    @field_serializer("extent", mode="plain")
+    def ser_number(
+        self, value: list[str | int | float | None]
+    ) -> list[str | int | float | None]:
+        return [element if pd.notnull(element) else None for element in value]
 
 
 class HorizontalSpatialRasterDimension(CubedataDimensionBase):
