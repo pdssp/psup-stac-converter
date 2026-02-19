@@ -182,6 +182,7 @@ class PsupIoHandler(IoHandler):
         return full_path, full_path.exists()
 
     def find_or_download(self, file_name: str) -> Path:
+        """Looks for existing file name, downloads it if not found"""
         fp_on_disk, exists = self.find_by_file(file_name=file_name)
         if not exists:
             self.save_file(file_name)

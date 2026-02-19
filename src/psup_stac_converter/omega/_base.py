@@ -277,6 +277,7 @@ class OmegaDataReader:
         sav_ds = None
         oc_info = self.find_info_by_orbit_cube(orbit_cube_idx, file_extension="sav")
 
+        self.log.debug(f"finding info related to {orbit_cube_idx}. On disk? {on_disk}")
         if on_disk:
             fp = self.io_handler.find_or_download(oc_info["file_name"].item())
             sav_ds = sio.readsav(fp)
@@ -509,7 +510,7 @@ class OmegaDataReader:
                 self.log.debug(
                     f"{thumbnail_location} doesn't exist. Creating thumbnail based on {thumbnail_strategy} strategy."
                 )
-                nc_data = self.open_file(orbit_cube_idx, "nc")
+                nc_data = self.open_file(orbit_cube_idx, "nc", on_disk=False)
 
                 # define thumbnail strategy
                 # By default, takes the reflectance cube
