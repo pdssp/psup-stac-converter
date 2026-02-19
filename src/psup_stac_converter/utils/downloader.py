@@ -287,7 +287,7 @@ class PsupArchive:
                 log.debug(f"A total of {total_bytes} bytes will be downloaded")
 
                 with (
-                    tempfile.NamedTemporaryFile() as tmp_f,
+                    tempfile.NamedTemporaryFile(delete_on_close=False) as tmp_f,
                     tqdm(
                         total=total_bytes,
                         unit="B",
@@ -296,17 +296,21 @@ class PsupArchive:
                         unit_divisor=1024,
                     ) as pbar,
                 ):
-                    num_bytes_downloaded = response.num_bytes_downloaded
-                    for chunk in response.iter_bytes():
-                        tmp_f.write(chunk)
-                        pbar.update(
-                            response.num_bytes_downloaded - num_bytes_downloaded
-                        )
+                    try:
                         num_bytes_downloaded = response.num_bytes_downloaded
-                    log.info(f"Saved {file_href} temporarily")
-                    yield tmp_f
-                    log.debug(f"{tmp_f.name} ready to use")
-                log.debug(f"{file_href} disposed")
+                        for chunk in response.iter_bytes():
+                            tmp_f.write(chunk)
+                            pbar.update(
+                                response.num_bytes_downloaded - num_bytes_downloaded
+                            )
+                            num_bytes_downloaded = response.num_bytes_downloaded
+                        tmp_f.close()
+                        log.info(f"Saved {file_href} temporarily on {tmp_f.name}")
+                        yield tmp_f
+                        log.debug(f"{tmp_f.name} ready to use")
+                    finally:
+                        Path(tmp_f.name).unlink()
+                        log.debug(f"{file_href} disposed ({tmp_f.name})")
 
     def save_slice_on_disk(
         self,

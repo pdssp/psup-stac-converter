@@ -187,13 +187,21 @@ Please note that longitudes range from -180 to 180 degrees east.
 
         return extras
 
-    def create_stac_item(self, orbit_cube_idx: str) -> pystac.Item:
+    def retrieve_sav_info_from_saved_state(
+        self, orbit_cube_idx: str, **kwargs
+    ) -> dict[str, Any]:
         sav_md_state = self.sav_metadata_folder / f"sav_{orbit_cube_idx}.json"
         self.log.debug(f"Opening {sav_md_state}")
         if sav_md_state.exists():
             with open(sav_md_state, "r", encoding="utf-8") as sav_md:
                 sav_info = json.load(sav_md)
                 self.log.debug(f"sav_info loaded with {sav_info}")
+            if not sav_info:
+                self.log.warning(
+                    f"Cube {orbit_cube_idx} happens to not have info. Redownloading..."
+                )
+                sav_md_state.unlink()
+                return self.retrieve_sav_info_from_saved_state(orbit_cube_idx, **kwargs)
         else:
             self.log.debug(
                 f"{sav_md_state} not found. Creating it from # {orbit_cube_idx}"
@@ -202,12 +210,18 @@ Please note that longitudes range from -180 to 180 degrees east.
                 sav_info = self.extract_sav_info(orbit_cube_idx)
                 with open(sav_md_state, "w", encoding="utf-8") as sav_md:
                     json.dump(sav_info, sav_md)
-                self.log.debug(f"{sav_md_state} with {sav_info} created!")
+                    self.log.debug(f"{sav_md_state} with {sav_info} created!")
             except Exception as e:
                 self.log.warning(
                     f"Couldn't save .sav information for # {orbit_cube_idx} because of the following: {e}"
                 )
                 sav_info = {}
+        return sav_info
+
+    def create_stac_item(self, orbit_cube_idx: str) -> pystac.Item:
+        # TODO: regroup that in a single function
+
+        sav_info = self.retrieve_sav_info_from_saved_state(orbit_cube_idx)
 
         # This one is given by the data description
         default_end_datetime = dt.datetime(2016, 4, 11, 0, 0)

@@ -559,27 +559,29 @@ class OmegaDataReader:
         self.log.debug("Applying DatacubeExtension")
         cubedata = self.retrieve_nc_info_from_saved_state(orbit_cube_idx=orbit_cube_idx)
         self.log.debug(f"Loading: {cubedata}")
-        dc_ext = DatacubeExtension.ext(pystac_item, add_if_missing=True)
+        if cubedata:
+            dc_ext = DatacubeExtension.ext(pystac_item, add_if_missing=True)
 
-        # This operation prevents the key from finding itself attached to "Variables" and "Dimensions"
-        dc_dimensions: dict[str, Dimension] = {
-            k: Dimension.from_dict(v.to_dict()[k])
-            for k, v in cubedata["dimensions"].items()
-        }
-        dc_variables: dict[str, Variable] = {
-            k: Variable.from_dict(v.to_dict()[k])
-            for k, v in cubedata["variables"].items()
-        }
+            # This operation prevents the key from finding itself attached to "Variables" and "Dimensions"
+            dc_dimensions: dict[str, Dimension] = {
+                k: Dimension.from_dict(v.to_dict()[k])
+                for k, v in cubedata["dimensions"].items()
+            }
+            dc_variables: dict[str, Variable] = {
+                k: Variable.from_dict(v.to_dict()[k])
+                for k, v in cubedata["variables"].items()
+            }
 
-        dc_ext.apply(dimensions=dc_dimensions, variables=dc_variables)
+            dc_ext.apply(dimensions=dc_dimensions, variables=dc_variables)
 
-        for extra_name, extra_value in cubedata["extras"].items():
-            pystac_item.assets["nc"].extra_fields[extra_name] = extra_value
+            for extra_name, extra_value in cubedata["extras"].items():
+                pystac_item.assets["nc"].extra_fields[extra_name] = extra_value
+        else:
+            self.log.warning(f"Cubedata for {orbit_cube_idx} appears to be empty.")
 
         # common metadata
         pystac_item.common_metadata.mission = "mex"
         pystac_item.common_metadata.instruments = ["omega"]
-
         self.log.debug(f"Created item from base method {pystac_item}")
 
         return pystac_item
@@ -725,6 +727,12 @@ class OmegaDataReader:
                 nc_info = json.load(nc_md)
                 nc_info = reformat_nc_info(nc_info)
                 self.log.debug(f"nc_info loaded with {nc_info}")
+            if not nc_info:
+                nc_md_state.unlink()
+                return self.retrieve_nc_info_from_saved_state(
+                    orbit_cube_idx=orbit_cube_idx
+                )
+
         else:
             self.log.debug(
                 f"{nc_md_state} not found. Creating it from # {orbit_cube_idx}"
@@ -736,14 +744,12 @@ class OmegaDataReader:
                 self.log.debug(f"{nc_md_state} with {nc_info} created!")
             except Exception as e:
                 self.log.warning(
-                    f"Couldn't save .sav information for # {orbit_cube_idx} because of the following: {e}"
+                    f"Couldn't save .nc information for # {orbit_cube_idx} because of the following: {e}"
                 )
                 nc_info = {}
 
         return nc_info
 
-    # TODO: revise startegy when this function is called
-    # You need to pick specific reflectance data for that
     def make_thumbnail(
         self,
         orbit_cube_idx: str,

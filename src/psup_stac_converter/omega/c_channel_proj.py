@@ -97,11 +97,46 @@ Both files contain the cubes of reflectance of the surface at a given longitude,
 
         return {}
 
+    def retrieve_sav_info_from_saved_state(
+        self, orbit_cube_idx: str, **kwargs
+    ) -> dict[str, Any]:
+        sav_md_state = self.sav_metadata_folder / f"sav_{orbit_cube_idx}.json"
+        if sav_md_state.exists():
+            self.log.debug(f"{sav_md_state} found! Opening...")
+            with open(
+                sav_md_state,
+                "r",
+                encoding="utf-8",
+            ) as sav_md:
+                sav_info = json.load(sav_md)
+                self.log.debug(f"sav_info loaded with {sav_info}")
+            if not sav_info:
+                self.log.warning(
+                    f"Cube {orbit_cube_idx} happens to not have info. Redownloading..."
+                )
+                sav_md_state.unlink()
+                return self.retrieve_sav_info_from_saved_state(orbit_cube_idx, **kwargs)
+        else:
+            self.log.debug(
+                f"{sav_md_state} Not found. Creating from # {orbit_cube_idx}"
+            )
+            try:
+                sav_info = self.extract_sav_metadata(orbit_cube_idx, **kwargs)
+                with open(sav_md_state, "w", encoding="utf-8") as sav_md:
+                    json.dump(sav_info, sav_md)
+                    self.log.debug(f"{sav_md_state} with {sav_info} created!")
+            except Exception as e:
+                self.log.warning(
+                    f"Couldn't save .sav information for # {orbit_cube_idx} because of the following: {e}"
+                )
+                sav_info = {}
+        return sav_info
+
     def create_stac_item(self, orbit_cube_idx: str) -> pystac.Item:
         text_data = cast(
             OmegaDataTextItem, self.open_file(orbit_cube_idx, "txt", on_disk=True)
         )
-        # TODO: need some contour function for footprint
+
         footprint = json.loads(to_geojson(self.get_contour_data(orbit_cube_idx)))
         bbox = bounds(text_data.bbox).tolist()
 
@@ -121,33 +156,9 @@ Both files contain the cubes of reflectance of the surface at a given longitude,
             },
         )
 
-        sav_md_state = self.sav_metadata_folder / f"sav_{orbit_cube_idx}.json"
-        if sav_md_state.exists():
-            self.log.debug(f"{sav_md_state} found! Opening...")
-            with open(
-                sav_md_state,
-                "r",
-                encoding="utf-8",
-            ) as sav_md:
-                sav_info = json.load(sav_md)
-                self.log.debug(f"sav_info loaded with {sav_info}")
-        else:
-            self.log.debug(
-                f"{sav_md_state} Not found. Creating from # {orbit_cube_idx}"
-            )
-            try:
-                sav_info = self.extract_sav_metadata(
-                    orbit_cube_idx,
-                    sav_size=pystac_item.assets["sav"].extra_fields["size"],
-                )
-                with open(sav_md_state, "w", encoding="utf-8") as sav_md:
-                    json.dump(sav_info, sav_md)
-                    self.log.debug(f"{sav_md_state} with {sav_info} created!")
-            except Exception as e:
-                self.log.warning(
-                    f"Couldn't save .sav information for # {orbit_cube_idx} because of the following: {e}"
-                )
-                sav_info = {}
+        sav_info = self.retrieve_sav_info_from_saved_state(
+            orbit_cube_idx, sav_size=pystac_item.assets["sav"].extra_fields["size"]
+        )
 
         pystac_item.assets["sav"].extra_fields["map_dimensions"] = sav_info.get("dims")
         self.log.debug(f"Item created: {pystac_item.to_dict()}")
