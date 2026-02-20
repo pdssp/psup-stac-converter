@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import pystac
 import pystac.errors
+from httpx import ReadTimeout
 from shapely import bounds
 
 from psup_stac_converter.exceptions import FileExtensionError, FolderNotEmptyError
@@ -182,10 +183,16 @@ class CatalogCreator(BaseProcessor):
             self.log.warning(
                 "Stopped collection generation. Use the same command (ie. Ctrl+C) to shut down the process."
             )
+        except ReadTimeout as read_err:
+            self.log.error(f"[{read_err.__class__.__name__}] {read_err}")
+            self.log.error(
+                "No response from server. Either retry at a later time or contact support."
+            )
 
         except Exception as e:
             self.log.error("There was a problem during collection generation!")
             self.log.error(f"[{e.__class__.__name__}] {e}")
+
         finally:
             return catalog
 
