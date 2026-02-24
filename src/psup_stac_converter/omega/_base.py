@@ -757,7 +757,7 @@ class OmegaDataReader:
         data: np.ndarray,
         dims: tuple[int, int],
         mode: Literal["L", "RGB", "RGBA"] = "RGB",
-        cmap: str = "viridis",
+        cmap: str | None = None,  # left at none for composite
         fmt: str = "png",
     ):
         """Creates a thumbnail for a datacube out of one of its 2D data arrays.
@@ -767,7 +767,7 @@ class OmegaDataReader:
             data (np.ndarray): _description_
             dims (tuple[int, int]): _description_
             mode (str, optional): _description_. Defaults to "RGB".
-            cmap (str, optional): _description_. Defaults to "viridis".
+            cmap (str, optional): _description_. Defaults to None.
             fmt (str, optional): _description_. Defaults to "png".
         """
         self.log.debug(f"Converting cube {orbit_cube_idx} to thumbnail.")
