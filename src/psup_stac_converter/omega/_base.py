@@ -1,6 +1,7 @@
 import datetime as dt
 import json
 import logging
+from pathlib import Path
 from typing import Any, Literal, cast
 from zoneinfo import ZoneInfo
 
@@ -518,6 +519,7 @@ class OmegaDataReader:
                     orbit_cube_idx=orbit_cube_idx,
                     data=select_rgb_from_xarr(nc_data),
                     dims=self.thumbnail_dims,
+                    thumbnail_location=thumbnail_location,
                 )
 
                 # Thumbnail
@@ -759,6 +761,7 @@ class OmegaDataReader:
         mode: Literal["L", "RGB", "RGBA"] = "RGB",
         cmap: str | None = None,  # left at none for composite
         fmt: str = "png",
+        thumbnail_location: Path | None = None,
     ):
         """Creates a thumbnail for a datacube out of one of its 2D data arrays.
 
@@ -774,7 +777,14 @@ class OmegaDataReader:
         thumbnail = convert_arr_to_thumbnail(
             data=data, resize_dims=dims, mode=mode, cmap=cmap
         )
-        self.log.debug(f"""Saving as {orbit_cube_idx}_{dims[0]}x{dims[1]}.{fmt}""")
-        thumbnail.save(
-            self.thumbnail_folder / f"{orbit_cube_idx}_{dims[0]}x{dims[1]}.{fmt}"
-        )
+
+        if thumbnail_location is None:
+            thumbnail_location = (
+                self.thumbnail_folder / f"{orbit_cube_idx}_{dims[0]}x{dims[1]}.{fmt}"
+            )
+            self.log.debug(
+                f"`thumbnail_location` not defined. Saving at {thumbnail_location.resolve()}"
+            )
+
+        self.log.debug(f"""Saving as {thumbnail_location.resolve()}""")
+        thumbnail.save(thumbnail_location)
