@@ -1,9 +1,14 @@
 {
-    "python.testing.pytestArgs": [
-        "tests"
-    ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
+    "python.testing.pytestArgs": [
+        "-v",
+        "--cov-config=.coveragerc",
+        "--cov=psup_stac_converter",
+        "--cov-report=xml",
+        "--cov-report=term-missing",
+        "test/"
+    ],
     "yaml.schemas": {
         "https://squidfunk.github.io/mkdocs-material/schema.json": "mkdocs.yml"
     },

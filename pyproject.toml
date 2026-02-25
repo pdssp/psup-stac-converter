@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 authors = [
-    { name = "Shadi Boomi", email = "shadi.boomi@universite-paris-saclay.fr" }
+    { name = "Shadi Boomi", email = "shadi.boomi@universite-paris-saclay.fr" },
 ]
 requires-python = ">=3.13"
 dependencies = [
@@ -42,7 +42,9 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "pre-commit>=4.3.0",
-    # "pytest>=8.4.2",
+    "pytest>=9.0.2",
+    "pytest-cov>=7.0.0",
+    "pytest-xdist>=3.8.0",
     "ruff>=0.13.0",
 ]
 docs = [
@@ -58,3 +60,16 @@ notebook = [
 
 [tool.uv.build-backend]
 module-name = ["psup_stac_converter", "psup_scraper"]
+
+
+[tool.pytest]
+minversion = "9.0"
+addopts = [
+    "-ra",
+    "-q",
+    "--maxfail=1",
+    "--cov-config=.coveragerc",
+    "--cov=psup_stac_converter",
+    "--cov-report=term-missing",
+]
+testpaths = ["test"]

@@ -154,10 +154,14 @@ def convert_arr_to_thumbnail(
             result = result[..., :3]
     else:
         result = (result * 255).astype(np.uint8)
-        if mode in ["RGB", "RGBA"]:
+        # Turn a 1-band image into a RGB or RGBA image
+        if mode in ["RGB", "RGBA"] and result.ndim == 2:
             result = np.stack([result] * (3 if mode == "RGB" else 4), axis=-1)
+        elif result.ndim == 3 and result.shape[-1] == 3:
+            if mode == "RGBA":
+                alpha = np.full((*result.shape[:2], 1), 255, dtype=result.dtype)
+                result = np.concatenate([result, alpha], axis=-1)
 
-    result = np.squeeze(result)
     img = Image.fromarray(result, mode=mode)
     img = img.resize(resize_dims, Image.Resampling.LANCZOS)
 

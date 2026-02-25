@@ -16,3 +16,8 @@ converter-params.yml
 
 # MkDocs' build
 site/
+
+# Coverage
+.coverage
+psup_coverage
+coverage.xml
