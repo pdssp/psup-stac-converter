@@ -151,12 +151,13 @@ def convert_arr_to_thumbnail(
         result = cm(result)[..., :4]  # includes alpha
         result = (result * 255).astype(np.uint8)
         if mode == "RGB":
-            result = result[..., :3][0]
+            result = result[..., :3]
     else:
         result = (result * 255).astype(np.uint8)
         if mode in ["RGB", "RGBA"]:
             result = np.stack([result] * (3 if mode == "RGB" else 4), axis=-1)
 
+    result = np.squeeze(result)
     img = Image.fromarray(result, mode=mode)
     img = img.resize(resize_dims, Image.Resampling.LANCZOS)
 
