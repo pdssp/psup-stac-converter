@@ -16,8 +16,18 @@ def sample_3d_rgb():
 
 
 @pytest.fixture
+def sample_3d_rgb_channel_first():
+    return np.random.rand(3, 64, 64)
+
+
+@pytest.fixture
 def sample_1d_with_channels():
     return np.random.rand(32, 3)  # 1D w/ channel
+
+
+@pytest.fixture
+def sample_1d_with_channel_first_pos():
+    return np.random.rand(3, 32)  # 1D w/ channel
 
 
 @pytest.fixture
@@ -55,8 +65,24 @@ def test_3d_rgb_to_rgb(sample_3d_rgb):
     assert img.size == (32, 32)
 
 
+def test_3d_rgb_to_rgb_channel_ooo(sample_3d_rgb_channel_first):
+    img = convert_arr_to_thumbnail(sample_3d_rgb_channel_first, (32, 32), mode="RGB")
+    assert isinstance(img, Image.Image)
+    assert img.mode == "RGB"
+    assert img.size == (32, 32)
+
+
 def test_1d_with_channels_to_rgb(sample_1d_with_channels):
     img = convert_arr_to_thumbnail(sample_1d_with_channels, (320, 10), mode="RGB")
+    assert isinstance(img, Image.Image)
+    assert img.mode == "RGB"
+    assert img.size == (320, 10)
+
+
+def test_1d_with_channels_to_rgb_ooo(sample_1d_with_channel_first_pos):
+    img = convert_arr_to_thumbnail(
+        sample_1d_with_channel_first_pos, (320, 10), mode="RGB"
+    )
     assert isinstance(img, Image.Image)
     assert img.mode == "RGB"
     assert img.size == (320, 10)

@@ -146,6 +146,15 @@ def convert_arr_to_thumbnail(
 
     result = (result - result_min) / (result_max - result_min + 1e-8)
 
+    # Detect channel-first and convert to channel-last
+    # Must be H, W, C in this order
+    if (
+        result.ndim == 3
+        and result.shape[0] in (3, 4)
+        and result.shape[-1] not in (3, 4)
+    ):
+        result = np.transpose(result, (1, 2, 0))
+
     if cmap is not None:
         cm = plt.get_cmap(cmap)
         result = cm(result)[..., :4]  # includes alpha
