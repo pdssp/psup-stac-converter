@@ -1,0 +1,1590 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../../psup-raw-data/">
+      
+      
+        <link rel="next" href="../psup-scraper/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Catalog Processor - PSUP STAC Converter</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="https://unpkg.com/katex@0/dist/katex.min.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#psup-converter-units" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="PSUP STAC Converter" class="md-header__button md-logo" aria-label="PSUP STAC Converter" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PSUP STAC Converter
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Catalog Processor
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/pdssp/psup-stac-converter" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    psup-stac-converter
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="PSUP STAC Converter" class="md-nav__button md-logo" aria-label="PSUP STAC Converter" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PSUP STAC Converter
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/pdssp/psup-stac-converter" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    psup-stac-converter
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    References
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../stac-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spatio-Temporal Asset Catalog (STAC)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../psup-raw-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PSUP raw data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Code Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Catalog Processor
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Catalog Processor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#psup_stac_converter.processing.CatalogCreator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Main catalog
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#psup_stac_converter.processing.CatalogCreator.create_catalog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        create_catalog
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#psup_stac_converter.omega.mineral_maps.omega_maps_collection_generator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OMEGA mineral maps
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../psup-scraper/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spiders (scraping)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#psup_stac_converter.processing.CatalogCreator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Main catalog
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#psup_stac_converter.processing.CatalogCreator.create_catalog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        create_catalog
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#psup_stac_converter.omega.mineral_maps.omega_maps_collection_generator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OMEGA mineral maps
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="psup-converter-units">PSUP Converter units</h1>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<a id="psup_stac_converter.processing.CatalogCreator"></a>
+    <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="psup_stac_converter.processing.BaseProcessor">BaseProcessor</span></code></p>
+
+
+
+        <p>The entrypoint class that translates PSUP data information into
+a STAC catalog, using the appropriate collections and items.</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/psup_stac_converter/processing.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">CatalogCreator</span><span class="p">(</span><span class="n">BaseProcessor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The entrypoint class that translates PSUP data information into</span>
+<span class="sd">    a STAC catalog, using the appropriate collections and items.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">raw_data_folder</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+        <span class="n">output_folder</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+        <span class="n">psup_data_inventory_file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">wkt_file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">log</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">n_omega_files</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">raw_data_folder</span><span class="p">,</span> <span class="n">output_folder</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">log</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">psup_data_inventory_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">psup_data_inventory_file</span> <span class="o">=</span> <span class="n">Settings</span><span class="p">()</span><span class="o">.</span><span class="n">psup_inventory_file</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">psup_data_inventory_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span><span class="si">{</span><span class="n">psup_data_inventory_file</span><span class="si">}</span><span class="s2"> does not exist.</span>
+<span class="s2">                You can generate one with</span>
+<span class="s2">                `psup-scraper get-data-ref -O </span><span class="si">{</span><span class="n">psup_data_inventory_file</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span><span class="si">}</span><span class="s2"> -f csv --clean` if needed&quot;&quot;&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">psup_data_inventory_file</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;csv&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">FileExtensionError</span><span class="p">([</span><span class="s2">&quot;csv&quot;</span><span class="p">],</span> <span class="n">psup_data_inventory_file</span><span class="o">.</span><span class="n">suffix</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">psup_archive</span> <span class="o">=</span> <span class="n">PsupIoHandler</span><span class="p">(</span>
+            <span class="n">psup_data_inventory_file</span><span class="p">,</span> <span class="n">output_folder</span><span class="o">=</span><span class="n">raw_data_folder</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">wkt_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wkt_io</span> <span class="o">=</span> <span class="n">WktIoHandler</span><span class="p">(</span><span class="n">wkt_file</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wkt_io</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_omega_files</span> <span class="o">=</span> <span class="n">n_omega_files</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">psup_archive</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_collections_to_catalog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">catalog</span><span class="p">:</span> <span class="n">pystac</span><span class="o">.</span><span class="n">Catalog</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pystac</span><span class="o">.</span><span class="n">Catalog</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add PSUP collections to the catalog, all on a unique thread.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            catalog (pystac.Catalog): _description_</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pystac.Catalog: _description_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">feature_collection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_feature_collection</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wkt_io</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">feature_collection</span> <span class="o">=</span> <span class="n">apply_proj</span><span class="p">(</span>
+                    <span class="n">feature_collection</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">wkt_io</span><span class="o">.</span><span class="n">pick_sphere_projection_by_body_and_kind</span><span class="p">(</span>
+                        <span class="s2">&quot;Mars&quot;</span><span class="p">,</span> <span class="s2">&quot;sphere&quot;</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+            <span class="n">catalog</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">feature_collection</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Collection </span><span class="si">{</span><span class="n">feature_collection</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> successfully created!&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">feature_collection</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+
+            <span class="c1"># OMEGA mineral maps</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Creating OMEGA mineral maps collection&quot;</span><span class="p">)</span>
+            <span class="n">omega_mmaps_collection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_omega_mineral_maps_collection</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wkt_io</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">omega_mmaps_collection</span> <span class="o">=</span> <span class="n">apply_proj</span><span class="p">(</span>
+                    <span class="n">omega_mmaps_collection</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">wkt_io</span><span class="o">.</span><span class="n">pick_sphere_projection_by_body_and_kind</span><span class="p">(</span>
+                        <span class="s2">&quot;Mars&quot;</span><span class="p">,</span> <span class="s2">&quot;sphere&quot;</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+            <span class="n">catalog</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">omega_mmaps_collection</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Collection </span><span class="si">{</span><span class="n">omega_mmaps_collection</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> successfully created!&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">omega_mmaps_collection</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+
+            <span class="c1"># OMEGA data cubes</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Creating OMEGA Data cubes collection&quot;</span><span class="p">)</span>
+            <span class="n">omega_data_cubes_builder</span> <span class="o">=</span> <span class="n">OmegaDataCubes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">psup_archive</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">)</span>
+            <span class="n">omega_data_cubes_collection</span> <span class="o">=</span> <span class="n">omega_data_cubes_builder</span><span class="o">.</span><span class="n">create_collection</span><span class="p">(</span>
+                <span class="n">n_limit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_omega_files</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wkt_io</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">omega_data_cubes_collection</span> <span class="o">=</span> <span class="n">apply_proj</span><span class="p">(</span>
+                    <span class="n">omega_data_cubes_collection</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">wkt_io</span><span class="o">.</span><span class="n">pick_sphere_projection_by_body_and_kind</span><span class="p">(</span>
+                        <span class="s2">&quot;Mars&quot;</span><span class="p">,</span> <span class="s2">&quot;sphere&quot;</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+
+            <span class="n">catalog</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">omega_data_cubes_collection</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Collection </span><span class="si">{</span><span class="n">omega_data_cubes_collection</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> successfully created!&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">omega_data_cubes_collection</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+
+            <span class="c1"># OMEGA C channel proj</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Creating OMEGA C Channel Proj collection&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">psup_archive</span><span class="p">)</span>
+            <span class="n">omega_c_channel_builder</span> <span class="o">=</span> <span class="n">OmegaCChannelProj</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">psup_archive</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">)</span>
+            <span class="n">omega_c_channel_collection</span> <span class="o">=</span> <span class="n">omega_c_channel_builder</span><span class="o">.</span><span class="n">create_collection</span><span class="p">(</span>
+                <span class="n">n_limit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_omega_files</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wkt_io</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">omega_c_channel_collection</span> <span class="o">=</span> <span class="n">apply_proj</span><span class="p">(</span>
+                    <span class="n">omega_c_channel_collection</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">wkt_io</span><span class="o">.</span><span class="n">pick_sphere_projection_by_body_and_kind</span><span class="p">(</span>
+                        <span class="s2">&quot;Mars&quot;</span><span class="p">,</span> <span class="s2">&quot;sphere&quot;</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+            <span class="n">catalog</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">omega_c_channel_collection</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Collection </span><span class="si">{</span><span class="n">omega_c_channel_collection</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> successfully created!&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">omega_c_channel_collection</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+
+        <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Stopped collection generation. Use the same command (ie. Ctrl+C) to shut down the process.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">ReadTimeout</span> <span class="k">as</span> <span class="n">read_err</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">read_err</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">read_err</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;No response from server. Either retry at a later time or contact support.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;There was a problem during collection generation!&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">catalog</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_catalog</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">self_contained</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">clean_previous_output</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pystac</span><span class="o">.</span><span class="n">Catalog</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a catalog over the entire feature selection</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            self_contained (bool, optional): _description_. Defaults to True.</span>
+<span class="sd">            clean_previous_output (bool, optional): _description_. Defaults to False.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            FolderNotEmptyError: _description_</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pystac.Catalog: _description_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">io_handler</span><span class="o">.</span><span class="n">is_output_folder_empty</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">clean_previous_output</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">FolderNotEmptyError</span><span class="p">(</span>
+                <span class="s2">&quot;The output folder is not empty. Please clean it first or set clean_previous_output` to True&quot;</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">io_handler</span><span class="o">.</span><span class="n">is_output_folder_empty</span><span class="p">()</span> <span class="ow">and</span> <span class="n">clean_previous_output</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">io_handler</span><span class="o">.</span><span class="n">clean_output_folder</span><span class="p">()</span>
+
+        <span class="c1"># Create root catalog for Mars items</span>
+        <span class="n">catalog</span> <span class="o">=</span> <span class="n">pystac</span><span class="o">.</span><span class="n">Catalog</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;mars&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;This test STAC catalog contains Mars data collections and sub-catalogs currently hosted and distributed by</span><span class="se">\n</span><span class="s2">[PSUP](http://psup.ias.u-psud.fr/sitools/client-user/index.html?project=PLISonMars) (Planetary SUrface Portal).</span><span class="se">\n\n</span><span class="s2">![Mars](https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Mars_%28white_background%29.jpg/120px-Mars_%28white_background%29.jpg)</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">catalog</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">pystac</span><span class="o">.</span><span class="n">Catalog</span><span class="p">,</span> <span class="n">apply_ssys</span><span class="p">(</span><span class="n">catalog</span><span class="p">))</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">catalog</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_collections_to_catalog</span><span class="p">(</span><span class="n">catalog</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Process interrupted by user! Catalog is incomplete.&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;A problem occured when generating the catalog: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="c1"># Save catalog (ie. in the STAC folder)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Normalizing hrefs to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">io_handler</span><span class="o">.</span><span class="n">output_folder</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">catalog</span><span class="o">.</span><span class="n">normalize_hrefs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">io_handler</span><span class="o">.</span><span class="n">output_folder</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;&quot;&quot;Saving catalog as </span><span class="si">{</span><span class="s2">&quot;self-contained&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">self_contained</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;absolute published&quot;</span><span class="si">}</span><span class="s2">&quot;&quot;&quot;</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">self_contained</span><span class="p">:</span>
+                <span class="n">catalog</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">catalog_type</span><span class="o">=</span><span class="n">pystac</span><span class="o">.</span><span class="n">CatalogType</span><span class="o">.</span><span class="n">SELF_CONTAINED</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">catalog</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">catalog_type</span><span class="o">=</span><span class="n">pystac</span><span class="o">.</span><span class="n">CatalogType</span><span class="o">.</span><span class="n">ABSOLUTE_PUBLISHED</span><span class="p">)</span>
+
+        <span class="n">exec_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Catalog created in </span><span class="si">{</span><span class="n">exec_time</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="mi">60</span><span class="si">}</span><span class="s2"> minutes and </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">exec_time</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">60</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2"> seconds!&quot;</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Checking if catalog is STAC-compliant:&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">catalog</span><span class="o">.</span><span class="n">validate_all</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">pystac</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">STACValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Validation failed. Some errors were detected during validation.&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;See stacktrace for more details: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Your catalog is STAC-compliant!&quot;</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">catalog</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_feature_collection</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pystac</span><span class="o">.</span><span class="n">Collection</span><span class="p">:</span>
+        <span class="n">fp_bounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">bounds</span><span class="p">(</span><span class="n">desc</span><span class="o">.</span><span class="n">footprint</span><span class="p">)</span> <span class="k">for</span> <span class="n">desc</span> <span class="ow">in</span> <span class="n">geojson_features</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+        <span class="p">)</span>
+        <span class="n">total_bounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">fp_bounds</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]),</span>  <span class="c1"># minx</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">fp_bounds</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]),</span>  <span class="c1"># miny</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">fp_bounds</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]),</span>  <span class="c1"># maxx</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">fp_bounds</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]),</span>  <span class="c1"># maxy</span>
+            <span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="n">spatial_extent</span> <span class="o">=</span> <span class="n">pystac</span><span class="o">.</span><span class="n">SpatialExtent</span><span class="p">(</span><span class="n">bboxes</span><span class="o">=</span><span class="p">[</span><span class="n">total_bounds</span><span class="p">])</span>
+        <span class="n">temporal_extent</span> <span class="o">=</span> <span class="n">pystac</span><span class="o">.</span><span class="n">TemporalExtent</span><span class="p">(</span>
+            <span class="n">intervals</span><span class="o">=</span><span class="p">[</span>
+                <span class="p">[</span>
+                    <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="o">.</span><span class="n">min</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">(),</span>
+                    <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="o">.</span><span class="n">max</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">(),</span>
+                <span class="p">]</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">collection_extent</span> <span class="o">=</span> <span class="n">pystac</span><span class="o">.</span><span class="n">Extent</span><span class="p">(</span>
+            <span class="n">spatial</span><span class="o">=</span><span class="n">spatial_extent</span><span class="p">,</span> <span class="n">temporal</span><span class="o">=</span><span class="n">temporal_extent</span>
+        <span class="p">)</span>
+
+        <span class="n">master_collection</span> <span class="o">=</span> <span class="n">pystac</span><span class="o">.</span><span class="n">Collection</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;features_datasets&quot;</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Mars vectorial features&quot;</span><span class="p">,</span>
+            <span class="n">extent</span><span class="o">=</span><span class="n">collection_extent</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;This collection holds locations data for hydrated mineral terrains, Central peaks hydrated phases between Isidis</span><span class="se">\n</span><span class="s2">and Hellas, Central peaks mineralogy south Valles Marineris, Valles Marineris low Calcium-Pyroxene, Seasonal South</span><span class="se">\n</span><span class="s2">polar cap limits, Scalloped depressions and Lobate impact craters. This dataset contains vector catalogs</span><span class="se">\n</span><span class="s2">and their associated metadatas. All catalogs are provided in GeoJSON file format.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">keywords</span><span class="o">=</span><span class="p">[</span>
+                <span class="s2">&quot;polar cap&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;seasonal&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;south&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;CO2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;crocus line&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;inner crocus line&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;outer crocus line&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;snowdrop distance&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;northern plains&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;periglacial&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;thermokarst&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ground ice&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;global&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;craters&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ejecta&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lithosphere&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;mineralogy&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="n">license</span><span class="o">=</span><span class="s2">&quot;CC-BY-4.0&quot;</span><span class="p">,</span>
+            <span class="n">providers</span><span class="o">=</span><span class="n">providers</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Apply extensions here</span>
+        <span class="n">master_collection</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">pystac</span><span class="o">.</span><span class="n">Collection</span><span class="p">,</span> <span class="n">apply_ssys</span><span class="p">(</span><span class="n">master_collection</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">feature_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">possible_names</span><span class="p">:</span>
+            <span class="n">file_location</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">psup_archive</span><span class="o">.</span><span class="n">find_or_download</span><span class="p">(</span><span class="n">feature_name</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="n">feature_name</span><span class="si">}</span><span class="s2"> at </span><span class="si">{</span><span class="n">file_location</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing </span><span class="si">{</span><span class="n">feature_name</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+            <span class="n">processor</span> <span class="o">=</span> <span class="n">select_processor</span><span class="p">(</span>
+                <span class="n">cast</span><span class="p">(</span><span class="n">ProcessorName</span><span class="p">,</span> <span class="n">feature_name</span><span class="p">),</span>
+                <span class="n">catalog_folder</span><span class="o">=</span><span class="n">file_location</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">subcollection</span> <span class="o">=</span> <span class="n">processor</span><span class="o">.</span><span class="n">create_collection</span><span class="p">()</span>
+            <span class="c1"># Apply extensions here</span>
+            <span class="n">subcollection</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
+                <span class="n">pystac</span><span class="o">.</span><span class="n">Collection</span><span class="p">,</span>
+                <span class="n">apply_sci</span><span class="p">(</span>
+                    <span class="n">subcollection</span><span class="p">,</span>
+                    <span class="n">publications</span><span class="o">=</span><span class="n">geojson_features</span><span class="p">[</span><span class="n">feature_name</span><span class="p">]</span><span class="o">.</span><span class="n">publications</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+            <span class="n">master_collection</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">subcollection</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">master_collection</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_omega_mineral_maps_collection</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pystac</span><span class="o">.</span><span class="n">Collection</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">omega_maps_collection_generator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">psup_archive</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="psup_stac_converter.processing.CatalogCreator.create_catalog" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">create_catalog</span><span class="p">(</span><span class="n">self_contained</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">clean_previous_output</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Creates a catalog over the entire feature selection</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+            <b><code>self_contained</code></b>
+              (<code><span title="bool">bool</span></code>, default:
+                  <code>True</code>
+)
+          –
+          <div class="doc-md-description">
+            <p><em>description</em>. Defaults to True.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>clean_previous_output</code></b>
+              (<code><span title="bool">bool</span></code>, default:
+                  <code>False</code>
+)
+          –
+          <div class="doc-md-description">
+            <p><em>description</em>. Defaults to False.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><span title="psup_stac_converter.exceptions.FolderNotEmptyError">FolderNotEmptyError</span></code>
+            –
+          <div class="doc-md-description">
+            <p><em>description</em></p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><span title="pystac.Catalog">Catalog</span></code>
+          –
+          <div class="doc-md-description">
+            <p>pystac.Catalog: <em>description</em></p>
+          </div>
+        </li>
+    </ul>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/psup_stac_converter/processing.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_catalog</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span> <span class="n">self_contained</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">clean_previous_output</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pystac</span><span class="o">.</span><span class="n">Catalog</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates a catalog over the entire feature selection</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        self_contained (bool, optional): _description_. Defaults to True.</span>
+<span class="sd">        clean_previous_output (bool, optional): _description_. Defaults to False.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        FolderNotEmptyError: _description_</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pystac.Catalog: _description_</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">io_handler</span><span class="o">.</span><span class="n">is_output_folder_empty</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">clean_previous_output</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">FolderNotEmptyError</span><span class="p">(</span>
+            <span class="s2">&quot;The output folder is not empty. Please clean it first or set clean_previous_output` to True&quot;</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">io_handler</span><span class="o">.</span><span class="n">is_output_folder_empty</span><span class="p">()</span> <span class="ow">and</span> <span class="n">clean_previous_output</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">io_handler</span><span class="o">.</span><span class="n">clean_output_folder</span><span class="p">()</span>
+
+    <span class="c1"># Create root catalog for Mars items</span>
+    <span class="n">catalog</span> <span class="o">=</span> <span class="n">pystac</span><span class="o">.</span><span class="n">Catalog</span><span class="p">(</span>
+        <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;mars&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;This test STAC catalog contains Mars data collections and sub-catalogs currently hosted and distributed by</span><span class="se">\n</span><span class="s2">[PSUP](http://psup.ias.u-psud.fr/sitools/client-user/index.html?project=PLISonMars) (Planetary SUrface Portal).</span><span class="se">\n\n</span><span class="s2">![Mars](https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Mars_%28white_background%29.jpg/120px-Mars_%28white_background%29.jpg)</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">catalog</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">pystac</span><span class="o">.</span><span class="n">Catalog</span><span class="p">,</span> <span class="n">apply_ssys</span><span class="p">(</span><span class="n">catalog</span><span class="p">))</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">catalog</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_collections_to_catalog</span><span class="p">(</span><span class="n">catalog</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Process interrupted by user! Catalog is incomplete.&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;A problem occured when generating the catalog: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="c1"># Save catalog (ie. in the STAC folder)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Normalizing hrefs to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">io_handler</span><span class="o">.</span><span class="n">output_folder</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">catalog</span><span class="o">.</span><span class="n">normalize_hrefs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">io_handler</span><span class="o">.</span><span class="n">output_folder</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;Saving catalog as </span><span class="si">{</span><span class="s2">&quot;self-contained&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">self_contained</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;absolute published&quot;</span><span class="si">}</span><span class="s2">&quot;&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">self_contained</span><span class="p">:</span>
+            <span class="n">catalog</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">catalog_type</span><span class="o">=</span><span class="n">pystac</span><span class="o">.</span><span class="n">CatalogType</span><span class="o">.</span><span class="n">SELF_CONTAINED</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">catalog</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">catalog_type</span><span class="o">=</span><span class="n">pystac</span><span class="o">.</span><span class="n">CatalogType</span><span class="o">.</span><span class="n">ABSOLUTE_PUBLISHED</span><span class="p">)</span>
+
+    <span class="n">exec_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Catalog created in </span><span class="si">{</span><span class="n">exec_time</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="mi">60</span><span class="si">}</span><span class="s2"> minutes and </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">exec_time</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">60</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2"> seconds!&quot;</span>
+    <span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Checking if catalog is STAC-compliant:&quot;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">catalog</span><span class="o">.</span><span class="n">validate_all</span><span class="p">()</span>
+    <span class="k">except</span> <span class="n">pystac</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">STACValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;Validation failed. Some errors were detected during validation.&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;See stacktrace for more details: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Your catalog is STAC-compliant!&quot;</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">catalog</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<a id="psup_stac_converter.omega.mineral_maps.omega_maps_collection_generator"></a>
+    <div class="doc doc-contents first">
+
+        <p>Generates a STAC collection of the OMEGA mineral maps dataset.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+            <b><code>psup_archive</code></b>
+              (<code><span title="psup_stac_converter.utils.io.PsupIoHandler">PsupIoHandler</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>The handler for I/O operations related to</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><span title="pystac.Collection">Collection</span></code>
+          –
+          <div class="doc-md-description">
+            <p>pystac.Collection: A STAC collection representing each item of the OMEGA</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+              <code><span title="pystac.Collection">Collection</span></code>
+          –
+          <div class="doc-md-description">
+            <p>mineral maps.</p>
+          </div>
+        </li>
+    </ul>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/psup_stac_converter/omega/mineral_maps.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">omega_maps_collection_generator</span><span class="p">(</span><span class="n">psup_archive</span><span class="p">:</span> <span class="n">PsupIoHandler</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pystac</span><span class="o">.</span><span class="n">Collection</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates a STAC collection of the OMEGA mineral maps dataset.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        psup_archive (PsupIoHandler): The handler for I/O operations related to</span>
+<span class="sd">        PSUP&#39;s raw data. It&#39;s mostly used to operate on the outside.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pystac.Collection: A STAC collection representing each item of the OMEGA</span>
+<span class="sd">        mineral maps.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">collection_extent</span> <span class="o">=</span> <span class="n">pystac</span><span class="o">.</span><span class="n">Extent</span><span class="p">(</span>
+        <span class="n">spatial</span><span class="o">=</span><span class="n">_spatial_extent</span><span class="p">(),</span> <span class="n">temporal</span><span class="o">=</span><span class="n">_temporal_extent</span><span class="p">()</span>
+    <span class="p">)</span>
+
+    <span class="n">master_collection</span> <span class="o">=</span> <span class="n">pystac</span><span class="o">.</span><span class="n">Collection</span><span class="p">(</span>
+        <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;omega_mineral_maps&quot;</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;OMEGA mineral maps dataset&quot;</span><span class="p">,</span>
+        <span class="n">extent</span><span class="o">=</span><span class="n">collection_extent</span><span class="p">,</span>
+        <span class="n">license</span><span class="o">=</span><span class="s2">&quot;CC-BY-4.0&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;PSUP OMEGA mineral maps are OMEGA-based NIR albedo, Ferric BD530, Ferric Nanophase, Olivine SP1, SP2, SP3, Pyroxene and Emissivity at 5.03µm. OMEGA is the VISNIR imaging spectrometer onboard ESA/Mars-Express spacecraft operating around Mars from January 2004. All maps are provided in FITS file format via the &quot;download&quot; column.</span>
+
+<span class="s2">This Dataset is also available as a VO TAP service (ivo://idoc/psup/omega_maps/q/epn_core).&quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="n">providers</span><span class="o">=</span><span class="n">providers</span><span class="p">,</span>
+        <span class="n">keywords</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">kw</span>
+                    <span class="k">for</span> <span class="n">omega_map_item</span> <span class="ow">in</span> <span class="n">omega_mineral_maps</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+                    <span class="k">for</span> <span class="n">kw</span> <span class="ow">in</span> <span class="n">omega_map_item</span><span class="o">.</span><span class="n">raster_keywords</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Apply extensions here</span>
+    <span class="n">master_collection</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">pystac</span><span class="o">.</span><span class="n">Collection</span><span class="p">,</span> <span class="n">apply_ssys</span><span class="p">(</span><span class="n">master_collection</span><span class="p">))</span>
+    <span class="n">master_collection</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
+        <span class="n">pystac</span><span class="o">.</span><span class="n">Collection</span><span class="p">,</span>
+        <span class="n">apply_sci</span><span class="p">(</span><span class="n">master_collection</span><span class="p">,</span> <span class="n">publications</span><span class="o">=</span><span class="n">omega_map_publications</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="c1"># iterate on the maps</span>
+    <span class="k">for</span> <span class="n">omega_map_item</span> <span class="ow">in</span> <span class="n">omega_mineral_maps</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">omega_item</span> <span class="o">=</span> <span class="n">_create_pystac_item</span><span class="p">(</span><span class="n">omega_map_item</span><span class="p">,</span> <span class="n">psup_archive</span><span class="o">=</span><span class="n">psup_archive</span><span class="p">)</span>
+        <span class="n">master_collection</span><span class="o">.</span><span class="n">add_item</span><span class="p">(</span><span class="n">omega_item</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">master_collection</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../../js/katex.js"></script>
+      
+        <script src="https://unpkg.com/katex@0/dist/katex.min.js"></script>
+      
+        <script src="https://unpkg.com/katex@0/dist/contrib/auto-render.min.js"></script>
+      
+    
+  </body>
+</html>

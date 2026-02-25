@@ -1,0 +1,955 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      
+        <link rel="next" href="references/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>PSUP STAC Converter</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="https://unpkg.com/katex@0/dist/katex.min.css">
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#psup-processor" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="." title="PSUP STAC Converter" class="md-header__button md-logo" aria-label="PSUP STAC Converter" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PSUP STAC Converter
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Home
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/pdssp/psup-stac-converter" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    psup-stac-converter
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="." title="PSUP STAC Converter" class="md-nav__button md-logo" aria-label="PSUP STAC Converter" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PSUP STAC Converter
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/pdssp/psup-stac-converter" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    psup-stac-converter
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="." class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#dataset-description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dataset description
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dataset description">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#omega-mineral-maps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OMEGA mineral maps
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#feature-catalogs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Feature catalogs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#omega-c-channel-proj-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OMEGA C Channel Proj dataset
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#omega-data-cubes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OMEGA data cubes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Features
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#config-file-yaml-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Config file (YAML) example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#classical-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Classical usage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#other-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other commands
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="references/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    References
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="stac-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spatio-Temporal Asset Catalog (STAC)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="psup-raw-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PSUP raw data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Code Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="code/psup-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Catalog Processor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="code/psup-scraper/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spiders (scraping)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#dataset-description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dataset description
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dataset description">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#omega-mineral-maps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OMEGA mineral maps
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#feature-catalogs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Feature catalogs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#omega-c-channel-proj-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OMEGA C Channel Proj dataset
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#omega-data-cubes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OMEGA data cubes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Features
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#config-file-yaml-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Config file (YAML) example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#classical-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Classical usage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#other-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other commands
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="psup-processor">PSUP processor</h1>
+<p>Processes PSUP catalogs and converts them to STAC.</p>
+<h2 id="dataset-description">Dataset description</h2>
+<p>This dataset is composed of several categories of value-added ​data (maps, radiometrically corrected data) from space missions in which the OSU are involved. These products are global and local maps of the surface properties (chemical and mineralogical composition, physical properties, ...) and geomorphological landforms (lobate impact craters, scalloped depressions, ...).</p>
+<h3 id="omega-mineral-maps">OMEGA mineral maps</h3>
+<p>PSUP OMEGA mineral maps are OMEGA-based NIR albedo, Ferric BD530, Ferric Nanophase, Olivine SP1, SP2, SP3, Pyroxene and Emissivity at 5.03µm. OMEGA is the VISNIR imaging spectrometer onboard ESA/Mars-Express spacecraft operating around Mars from January 2004. All maps are provided in FITS file format.</p>
+<h3 id="feature-catalogs">Feature catalogs</h3>
+<p>PSUP Catalogs are Hydrated mineral terrains, Central peaks hydrated phases between Isidis and Hellas, Central peaks mineralogy south Valles Marineris, Valles Marineris low Calcium-Pyroxene, Seasonal South polar cap limits, Scalloped depressions and Lobate impact craters. This dataset contains vector catalogs and their associated metadatas. All catalogs are provided in JSON file format via the "download" column.</p>
+<h3 id="omega-c-channel-proj-dataset">OMEGA C Channel Proj dataset</h3>
+<p>These data cubes have been specifically selected and filtered for studies of the surface mineralogy between 1 and 2.5 µm.</p>
+<p>They contain all the OMEGA observations acquired with the C channel after filtering. Filtering processes have been implemented to remove some instrumental artefacts and observational conditions. Each OMEGA record is available as a <code>netCDF4.nc</code> file and an <code>idl.sav</code>.</p>
+<p>Both files contain the cubes of reflectance of the surface at a given longitude, latitude and wavelength <span class="arithmatex">\(\lambda\)</span>. The reflectance is defined by the “reflectance factor” <span class="arithmatex">\(I(\lambda)/(F \cos(i))\)</span> where <span class="arithmatex">\(i\)</span> is the solar incidence angle with <span class="arithmatex">\(\lambda\)</span> from 0.97 to 2.55 µm (second dimension of the cube with 120 wavelengths). The spectra are corrected for atmospheric and aerosol contributions according to the method described in <a href="https://www.sciencedirect.com/science/article/abs/pii/S0019103514005764">Vincendon et al. (Icarus, 251, 2015)</a>. It therefore corresponds to albedo for a lambertian surface. The first dimension of the cube refers to the length of scan. It can be 32, 64, or 128 pixels. It gives the first spatial dimension. The third dimension refers to the rank of the scan. It is the second spatial dimension.</p>
+<h3 id="omega-data-cubes">OMEGA data cubes</h3>
+<p>This dataset contains all the OMEGA observations acquired with the C, L and VIS channels until April 2016, 11, after filtering. Filtering processes have been implemented to remove some instrumental artefacts and observational conditions. Each OMEGA record is available as a <code>netCDF4.nc</code> file and an <code>idl.sav</code>file.</p>
+<p>Both files contain the cubes of reflectance of the surface at a given longitude, latitude and wavelength <span class="arithmatex">\(\lambda\)</span>. The surface reflectance is defined as <span class="arithmatex">\(I/F/\cos(i)\)</span> where:</p>
+<ul>
+<li>channel C=[0.93-2.73 µm]; L=[2.55-5.10 µm]; Visible=[0.38-1.05 µm];</li>
+<li>atmospheric attenuation is corrected (1-5 µm);</li>
+<li>airborne dust scattering is corrected (0.4-2.5 µm and for 5 µm emissivity estimations);</li>
+<li>thermal contribution is removed (&gt; 3 µm); L channel data and VIS channel are co-registered with C channel when available.</li>
+</ul>
+<p><em>Please note that longitudes range from -180 to 180 degrees east.</em></p>
+<p>The availability of value-added data allows their display and scientific analysis in a 3D directly on the visualization interface "Mars Visu".</p>
+<p><img alt="mars_visu_img" src="../img/mars_visu_example.png" />)</p>
+<h2 id="features">Features</h2>
+<p>This project is divided in two parts: a scraper crawling through the inventory and compiling a feed result about each file, from its relative location to its size (in B), and a converter that goes through the required items and turns them into a STAC catalog.</p>
+<p>The scraper uses <a href="https://www.scrapy.org/">scrapy</a> as a library and can extract information on the dataset, as well as WKT projections on <a href="https://voparis-vespa-crs.obspm.fr/web/">VESPA</a> for several bodies of the solar system.</p>
+<p>The converter mostly uses the <a href="https://pystac.readthedocs.io/en/stable/">pystac</a> library to generate the catalog, the respective collections and their items and assets. The generated catalog will respect the original PSUP dataset organization, and present at least four collections as children items:</p>
+<ul>
+<li>Mars' features dataset</li>
+<li>OMEGA mineral maps</li>
+<li>OMEGA C Channel</li>
+<li>OMEGA data cubes</li>
+</ul>
+<p>The data can range from small text and JSON files to ~10GB multidimensional arrays of data. As such, the converter uses a toolset of libraries depending of the case:</p>
+<ul>
+<li><a href="https://geopandas.org/en/stable/index.html">Geopandas</a> for GeoJSON</li>
+<li><a href="https://docs.xarray.dev/en/stable/index.html">Xarray</a> for multidimensional arrays like NetCDF files</li>
+<li><a href="https://www.astropy.org/">Astropy</a> for FITS maps</li>
+<li><a href="https://docs.scipy.org/doc/scipy/reference/io.html">Scipy</a> for IDL data</li>
+<li><a href="https://docs.pydantic.dev/latest/">Pydantic</a>, for data items</li>
+<li>etc...</li>
+</ul>
+<p>Data exploration files can be found in <code>./notebooks</code>, where each notebook uses the <a href="https://marimo.io/">marimo</a> library.</p>
+<h2 id="installation">Installation</h2>
+<p>This project uses <a href="https://docs.astral.sh/uv/">uv</a> as a dependency manager. First, you'll need to install uv following the instructions on the website, according to your OS. Once uv is working, you can enter the following command to install all the dependencies:</p>
+<p><div class="highlight"><pre><span></span><code><span class="c1"># Install it without the dependencies</span>
+$<span class="w"> </span>uv<span class="w"> </span>sync<span class="w"> </span>--locked<span class="w"> </span>--no-default-groups
+</code></pre></div>
+If everything worked, you can now try the CLI commands for both the scraper and the converter:</p>
+<p><strong>For the converter:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>psup-stac<span class="w"> </span>--help
+
+<span class="go"> Usage: psup-stac [OPTIONS] COMMAND [ARGS]...</span>
+
+<span class="go"> Utility package to convert PSUP data to STAC format</span>
+
+<span class="go">╭─ Options ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮</span>
+<span class="go">│ --from-config         -c      FILE  Path to a config file (YAML) to load defaults from                                                                                                     │</span>
+<span class="go">│ --install-completion                Install completion for the current shell.                                                                                                              │</span>
+<span class="go">│ --show-completion                   Show completion for the current shell, to copy it or customize the installation.                                                                       │</span>
+<span class="go">│ --help                              Show this message and exit.                                                                                                                            │</span>
+<span class="go">╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯</span>
+<span class="go">╭─ Commands ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮</span>
+<span class="go">│ create-stac-catalog    Converts raw input into a STAC catalog. The user must have a scraped CSV file as a feed to rely on, an input folder to store downloaded raw products, and an output │</span>
+<span class="go">│                        folder to put the catalog in.                                                                                                                                       │</span>
+<span class="go">│ describe-folders       Shows the target folders from config                                                                                                                                │</span>
+<span class="go">│ show-wkt-projections   Displays the available WKT projections of the solar system from a WKT CSV file                                                                                      │</span>
+<span class="go">│ describe-tif           Displays the metadata from a rasterized image                                                                                                                       │</span>
+<span class="go">╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯</span>
+</code></pre></div>
+<p><strong>For the scraper:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>psup-scraper<span class="w"> </span>--help
+
+<span class="go"> Usage: psup-scraper [OPTIONS] COMMAND [ARGS]...</span>
+
+<span class="go"> Retrieves metadata available on PSUP (psup.ias.u-psud.fr/sitools/datastorage/user/storage)</span>
+
+<span class="go">╭─ Options ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮</span>
+<span class="go">│ --install-completion          Install completion for the current shell.                                                                                                                    │</span>
+<span class="go">│ --show-completion             Show completion for the current shell, to copy it or customize the installation.                                                                             │</span>
+<span class="go">│ --help                        Show this message and exit.                                                                                                                                  │</span>
+<span class="go">╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯</span>
+<span class="go">╭─ Commands ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮</span>
+<span class="go">│ scraper-settings   Show the current scrapy settings (editable in ./src/psup_scraper/settings.py)                                                                                           │</span>
+<span class="go">│ get-data-ref       Crawls the data tree to obtain the references, from files, to links, to their actual size in B                                                                          │</span>
+<span class="go">│ check-data         Shows a representation of the scraped result in the std console.                                                                                                        │</span>
+<span class="go">│ get-wkt-proj       Retrieves VESPA&#39;s projections under a CSV file                                                                                                                          │</span>
+<span class="go">╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯</span>
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Without <code>uv</code></p>
+<p>You can avoid using <code>uv run</code> for simplicity, but you'll need to activate the virtual environment first.</p>
+</div>
+<h2 id="config-file-yaml-example">Config file (YAML) example</h2>
+<p>The CLI accepts a config file via <code>--from-config</code> / <code>-c</code>. The settings loader expects keys similar to:</p>
+<p><div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># The level of logging</span>
+<span class="w">  </span><span class="nt">log_level</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;DEBUG&quot;</span>
+<span class="w">  </span><span class="c1"># Logging formatter</span>
+<span class="w">  </span><span class="nt">log_format</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;%(asctime)s</span><span class="nv"> </span><span class="s">[%(levelname)s]</span><span class="nv"> </span><span class="s">%(message)s&quot;</span>
+<span class="w">  </span><span class="c1"># Where the user keeps their data</span>
+<span class="w">  </span><span class="nt">data_path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;./data&quot;</span>
+<span class="w">  </span><span class="c1"># Where the raw data can be downloaded</span>
+<span class="w">  </span><span class="c1"># Used mostly for relatively lightweight files whose metadata can be extracted and stored &quot;on the fly&quot;</span>
+<span class="w">  </span><span class="nt">raw_data_path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;./data/raw&quot;</span>
+<span class="w">  </span><span class="c1"># Where the catalog should lie</span>
+<span class="w">  </span><span class="nt">output_data_path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;./data/processed&quot;</span>
+<span class="w">  </span><span class="c1"># Folder containing anything that can be used as a side material for processing</span>
+<span class="w">  </span><span class="nt">extra_data_path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;./data/extra&quot;</span>
+<span class="w">  </span><span class="c1"># Contains the scrapped results from the WKT projections</span>
+<span class="w">  </span><span class="nt">wkt_file_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;wkt_solar_system.csv&quot;</span>
+<span class="w">  </span><span class="c1"># Contains all the scraped results by using `psup-scraper get-data-ref -O &lt;psup-inventory-file&gt; -f csv --clean`</span>
+<span class="w">  </span><span class="nt">psup_inventory_file</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;./data/raw/psup_refs.csv&quot;</span>
+</code></pre></div>
+You can find an example from <a href="./converter-params.example.yml"><code>converter-params.example.yml</code></a></p>
+<p>If you want to use the default configuration, you can simply clone this file and rename it <code>converter-params.yml</code>. If you're using a data directory different from the one by default, make sure it's not committed to version control, particularily in feature addition.</p>
+<p>Once you're satisfied with your configuration, place the config path when running:</p>
+<div class="highlight"><pre><span></span><code>psup-stac<span class="w"> </span>--from-config<span class="w"> </span>converter-params.yml<span class="w"> </span>&lt;command&gt;
+</code></pre></div>
+<h2 id="classical-usage">Classical usage</h2>
+<p>This tool aims at catalog creation based on the indicated resources, either contained in the code or in the scraped data. Therefore, it will need an inventory file of some sorts. The quickest way to create an inventory is to generate a CSV feed using the scraper.</p>
+<blockquote>
+<p>[!CAUTION]
+The converter as for now can only handle CSV format.</p>
+</blockquote>
+<p>To generate your feed, simply use the following command. Note that the output file's path must be the same as indicated in your <code>converter-params.yml</code>file. This is important if you need consistency between the two applications:</p>
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>psup-scraper<span class="w"> </span>get-data-ref<span class="w"> </span>-O<span class="w"> </span>&lt;psup-inventory-file-path-csv&gt;<span class="w"> </span>-f<span class="w"> </span>csv<span class="w"> </span>--clean
+</code></pre></div>
+<p>Once the inventory is created, you can start the conversion process in one go using the following command:</p>
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>psup-stac<span class="w"> </span>--from-config<span class="w"> </span>converter-params.yml<span class="w">  </span>create-stac-catalog<span class="w"> </span>--clean
+</code></pre></div>
+<p>If you don't want to use a configuration file, you can pass the arguments in the CLI like so:</p>
+<p><div class="highlight"><pre><span></span><code><span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>psups-stac<span class="w"> </span>create-stac-catalog<span class="w"> </span>-I<span class="w"> </span>&lt;path-to-raw-data&gt;<span class="w"> </span>-O<span class="w"> </span>&lt;path-to-catalog-results&gt;<span class="w"> </span>-l<span class="w"> </span>&lt;psup-inventory-file-path-csv&gt;<span class="w"> </span>--clean
+</code></pre></div>
+Wait for your catalog to be generated. If something goes wrong in the process, you can restart it by launching the previous command.</p>
+<h2 id="other-commands">Other commands</h2>
+<p><strong>Show input and output folder structure</strong></p>
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>psup-stac<span class="w"> </span>describe-folders<span class="w"> </span>-I<span class="w"> </span>&lt;path-to-raw-data&gt;<span class="w"> </span>-O<span class="w"> </span>&lt;path-to-catalog-results&gt;
+</code></pre></div>
+<p><strong>Show WKT Solar System projections</strong></p>
+<p><div class="highlight"><pre><span></span><code><span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>psup-stac<span class="w"> </span>show-wkt-projections<span class="w"> </span>&lt;path-to-wkt-file-csv&gt;
+</code></pre></div>
+You can also generate this file using the following command:</p>
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>psup-scraper<span class="w"> </span>get-wkt-proj<span class="w"> </span>-O<span class="w"> </span>&lt;wkt-data-path-csv&gt;<span class="w"> </span>-f<span class="w"> </span>csv<span class="w"> </span>--clean
+</code></pre></div>
+<h2 id="references">References</h2>
+<p>See <a href="references/">References</a> for more information.</p>
+<hr />
+<p><a href="http://psup.ias.u-psud.fr/sitools/client-user/index.html?project=PLISonMars">PSUP Catalog</a></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": [], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="js/katex.js"></script>
+      
+        <script src="https://unpkg.com/katex@0/dist/katex.min.js"></script>
+      
+        <script src="https://unpkg.com/katex@0/dist/contrib/auto-render.min.js"></script>
+      
+    
+  </body>
+</html>
