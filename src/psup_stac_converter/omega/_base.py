@@ -1,12 +1,14 @@
 import datetime as dt
 import json
 import logging
+import os
 from pathlib import Path
 from typing import Any, Literal, cast
 from zoneinfo import ZoneInfo
 
 import numpy as np
 import pandas as pd
+import psutil
 import pystac
 import scipy.io as sio
 import xarray as xr
@@ -427,6 +429,12 @@ class OmegaDataReader:
                 omega_data_item = self.create_stac_item(omega_data_idx)
                 collection.add_item(omega_data_item)
                 self.log.debug(f"Created item for cube # {omega_data_item}")
+
+                process = psutil.Process(os.getpid())
+
+                self.log.warning(
+                    f"Process memory: {process.memory_info().rss / 1024**2}MB"
+                )
             except Exception as e:
                 self.log.error(
                     f"An unexpected error occured: [{e.__class__.__name__}] {e}"
@@ -487,7 +495,7 @@ class OmegaDataReader:
             )
             sav_asset = pystac.Asset(
                 href=sav_info["href"].item(),
-                media_type=pystac.MediaType.GEOTIFF,
+                media_type="application/octet-stream",
                 roles=["data"],
                 description="IDL .sav data",
                 extra_fields={"size": sav_info["h_total_size"].item()},

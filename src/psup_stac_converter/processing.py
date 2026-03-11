@@ -1,10 +1,13 @@
 import logging
+import os
 import time
+import tracemalloc
 from pathlib import Path
 from typing import cast
 
 import numpy as np
 import pandas as pd
+import psutil
 import pystac
 import pystac.errors
 from httpx import ReadTimeout
@@ -20,6 +23,8 @@ from psup_stac_converter.omega.mineral_maps import omega_maps_collection_generat
 from psup_stac_converter.processors.selection import ProcessorName, select_processor
 from psup_stac_converter.settings import Settings, create_logger
 from psup_stac_converter.utils.io import IoHandler, PsupIoHandler, WktIoHandler
+
+process = psutil.Process(os.getpid())
 
 
 class BaseProcessor:
@@ -122,6 +127,14 @@ class CatalogCreator(BaseProcessor):
             self.log.debug(f"Collection {feature_collection.id} successfully created!")
             self.log.debug(feature_collection.to_dict())
 
+            self.log.warning(f"Process memory: {process.memory_info().rss / 1024**2}MB")
+
+            snapshot = tracemalloc.take_snapshot()
+            top_snapshot = snapshot.statistics("lineno")
+
+            for stat in top_snapshot[:10]:
+                self.log.debug(stat)
+
             # OMEGA mineral maps
             self.log.info("Creating OMEGA mineral maps collection")
             omega_mmaps_collection = self.create_omega_mineral_maps_collection()
@@ -137,6 +150,13 @@ class CatalogCreator(BaseProcessor):
                 f"Collection {omega_mmaps_collection.id} successfully created!"
             )
             self.log.debug(omega_mmaps_collection.to_dict())
+            self.log.warning(f"Process memory: {process.memory_info().rss / 1024**2}MB")
+
+            snapshot = tracemalloc.take_snapshot()
+            top_snapshot = snapshot.statistics("lineno")
+
+            for stat in top_snapshot[:10]:
+                self.log.debug(stat)
 
             # OMEGA data cubes
             self.log.info("Creating OMEGA Data cubes collection")
@@ -158,6 +178,13 @@ class CatalogCreator(BaseProcessor):
                 f"Collection {omega_data_cubes_collection.id} successfully created!"
             )
             self.log.debug(omega_data_cubes_collection.to_dict())
+            self.log.warning(f"Process memory: {process.memory_info().rss / 1024**2}MB")
+
+            snapshot = tracemalloc.take_snapshot()
+            top_snapshot = snapshot.statistics("lineno")
+
+            for stat in top_snapshot[:10]:
+                self.log.debug(stat)
 
             # OMEGA C channel proj
             self.log.info("Creating OMEGA C Channel Proj collection")
@@ -178,6 +205,13 @@ class CatalogCreator(BaseProcessor):
                 f"Collection {omega_c_channel_collection.id} successfully created!"
             )
             self.log.debug(omega_c_channel_collection.to_dict())
+            self.log.warning(f"Process memory: {process.memory_info().rss / 1024**2}MB")
+
+            snapshot = tracemalloc.take_snapshot()
+            top_snapshot = snapshot.statistics("lineno")
+
+            for stat in top_snapshot[:10]:
+                self.log.debug(stat)
 
         except KeyboardInterrupt:
             self.log.warning(

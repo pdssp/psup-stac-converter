@@ -1,4 +1,5 @@
 import re
+import tracemalloc
 from pathlib import Path
 
 import pandas as pd
@@ -10,6 +11,8 @@ from psup_stac_converter.processing import CatalogCreator
 from psup_stac_converter.utils.io import IoHandler
 
 console = Console()
+
+tracemalloc.start()
 
 
 def describe_target_folders(
