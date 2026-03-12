@@ -110,24 +110,33 @@ class CatalogCreator(BaseProcessor):
         self.log.debug(self.psup_archive)
 
     def _add_collections_to_catalog(
-        self,
-        catalog: pystac.Catalog,
-        add_feature_dataset: bool = True,
-        add_omega_l2: bool = True,
-        add_omega_mineral_maps: bool = True,
-        add_omega_l3: bool = True,
+        self, catalog: pystac.Catalog, collections_to_add: list[str] | None = None
     ) -> pystac.Catalog:
         """Add PSUP collections to the catalog, all on a unique thread.
 
         Args:
             catalog (pystac.Catalog): _description_
+            collections_to_add (list[str], optional): If the value is None, takes all the collections by default.
+                Can only be the following values so far:
+                    - "features_datasets"
+                    - "omega_mineral_maps"
+                    - "omega_data_cubes"
+                    - "omega_c_channel_proj"
 
         Returns:
             pystac.Catalog: _description_
         """
+        if collections_to_add is None:
+            collections_to_add = [
+                "features_datasets",
+                "omega_mineral_maps",
+                "omega_data_cubes",
+                "omega_c_channel_proj",
+            ]
+
         try:
             # Feature collection
-            if add_feature_dataset:
+            if "features_datasets" in collections_to_add:
                 feature_collection = self.create_feature_collection()
                 if self.wkt_io is not None:
                     feature_collection = apply_proj(
@@ -147,7 +156,7 @@ class CatalogCreator(BaseProcessor):
                 self.log.info("Skipping feature dataset")
 
             # OMEGA mineral maps
-            if add_omega_mineral_maps:
+            if "omega_mineral_maps" in collections_to_add:
                 self.log.info("Creating OMEGA mineral maps collection")
                 omega_mmaps_collection = self.create_omega_mineral_maps_collection()
                 if self.wkt_io is not None:
@@ -168,7 +177,7 @@ class CatalogCreator(BaseProcessor):
                 self.log.info("Skipping OMEGA mineral maps")
 
             # OMEGA data cubes
-            if add_omega_l2:
+            if "omega_data_cubes" in collections_to_add:
                 self.log.info("Creating OMEGA Data cubes collection")
                 omega_data_cubes_builder = OmegaDataCubes(
                     self.psup_archive, log=self.log
@@ -197,7 +206,7 @@ class CatalogCreator(BaseProcessor):
             else:
                 self.log.info("Skipping OMEGA L2 cubes")
 
-            if add_omega_l3:
+            if "omega_c_channel_proj" in collections_to_add:
                 # OMEGA C channel proj
                 self.log.info("Creating OMEGA C Channel Proj collection")
                 self.log.debug(self.psup_archive)
@@ -237,7 +246,7 @@ class CatalogCreator(BaseProcessor):
         except OutOfMemoryError as oom_err:
             self.log.error(f"[{oom_err.__class__.__name__}] {oom_err}")
             self.log.error(
-                "Process' memory consumption ran over the expected threshold!"
+                "The process' memory consumption ran over the expected threshold!"
             )
 
         except Exception as e:
@@ -263,7 +272,6 @@ class CatalogCreator(BaseProcessor):
         Returns:
             pystac.Catalog: _description_
         """
-        start_time = time.time()
 
         # The output folder is expected to ahve a catalog.json instance + the user doesn't want to clean the catalog up
         if not self.io_handler.is_output_folder_empty() and not clean_previous_output:
@@ -281,42 +289,9 @@ class CatalogCreator(BaseProcessor):
 
         catalog = cast(pystac.Catalog, apply_ssys(catalog))
 
-        try:
-            catalog = self._add_collections_to_catalog(catalog)
-        except KeyboardInterrupt:
-            self.log.warning("Process interrupted by user! Catalog is incomplete.")
-        except Exception as e:
-            self.log.error(f"A problem occured when generating the catalog: {e}")
-        finally:
-            # Save catalog (ie. in the STAC folder)
-            self.log.info(f"Normalizing hrefs to {self.io_handler.output_folder}")
-            catalog.normalize_hrefs(self.io_handler.output_folder.as_posix())
-
-            self.log.info(
-                f"""Saving catalog as {"self-contained" if self_contained else "absolute published"}"""
-            )
-            if self_contained:
-                catalog.save(catalog_type=pystac.CatalogType.SELF_CONTAINED)
-            else:
-                catalog.save(catalog_type=pystac.CatalogType.ABSOLUTE_PUBLISHED)
-
-        exec_time = time.time() - start_time
-        self.log.info(
-            f"Catalog created in {exec_time // 60} minutes and {round(exec_time % 60, 2)} seconds!"
+        return self._add_collections_wrapper(
+            catalog=catalog, self_contained=self_contained
         )
-
-        self.log.info("Checking if catalog is STAC-compliant:")
-        try:
-            catalog.validate_all()
-        except pystac.errors.STACValidationError as e:
-            self.log.warning(
-                "Validation failed. Some errors were detected during validation."
-            )
-            self.log.warning(f"See stacktrace for more details: {e}")
-        else:
-            self.log.info("Your catalog is STAC-compliant!")
-        finally:
-            return catalog
 
     def create_feature_collection(self) -> pystac.Collection:
         fp_bounds = np.array(
@@ -401,7 +376,7 @@ class CatalogCreator(BaseProcessor):
     def create_omega_mineral_maps_collection(self) -> pystac.Collection:
         return omega_maps_collection_generator(self.psup_archive)
 
-    def edit_catalog(self, action: str, self_contained: bool = True):
+    def edit_catalog(self, action: str, self_contained: bool = True) -> pystac.Catalog:
         if self.io_handler.is_output_folder_empty():
             raise FolderEmptyError("The output folder is empty.")
         if (
@@ -422,46 +397,68 @@ class CatalogCreator(BaseProcessor):
         self.log.info(f"Collections: {', '.join(collection_ids)}")
 
         if action == "add_missing":
-            start_time = time.time()
-            try:
-                catalog = self._add_collections_to_catalog(
-                    catalog,
-                    add_feature_dataset="features_datasets" not in collection_ids,
-                    add_omega_mineral_maps="omega_mineral_maps" not in collection_ids,
-                    add_omega_l2="omega_data_cubes" not in collection_ids,
-                    add_omega_l3="omega_c_channel_proj" not in collection_ids,
-                )
-            except KeyboardInterrupt:
-                self.log.warning("Process interrupted by user! Catalog is incomplete.")
-            except Exception as e:
-                self.log.error(f"A problem occured when generating the catalog: {e}")
-            finally:
-                # Save catalog (ie. in the STAC folder)
-                self.log.info(f"Normalizing hrefs to {self.io_handler.output_folder}")
-                catalog.normalize_hrefs(self.io_handler.output_folder.as_posix())
-
-                self.log.info(
-                    f"""Saving catalog as {"self-contained" if self_contained else "absolute published"}"""
-                )
-                if self_contained:
-                    catalog.save(catalog_type=pystac.CatalogType.SELF_CONTAINED)
-                else:
-                    catalog.save(catalog_type=pystac.CatalogType.ABSOLUTE_PUBLISHED)
-
-            exec_time = time.time() - start_time
-            self.log.info(
-                f"Catalog created in {exec_time // 60} minutes and {round(exec_time % 60, 2)} seconds!"
+            missing_collections = [
+                collection_id
+                for collection_id in [
+                    "features_datasets",
+                    "omega_mineral_maps",
+                    "omega_data_cubes",
+                    "omega_c_channel_proj",
+                ]
+                if collection_id not in collection_ids
+            ]
+            return self._add_collections_wrapper(
+                catalog=catalog,
+                self_contained=self_contained,
+                collections_to_add=missing_collections,
             )
 
-            self.log.info("Checking if catalog is STAC-compliant:")
-            try:
-                catalog.validate_all()
-            except pystac.errors.STACValidationError as e:
-                self.log.warning(
-                    "Validation failed. Some errors were detected during validation."
-                )
-                self.log.warning(f"See stacktrace for more details: {e}")
+        return catalog
+
+    def _add_collections_wrapper(
+        self,
+        catalog: pystac.Catalog,
+        collections_to_add: list[str] | None = None,
+        self_contained: bool = True,
+    ) -> pystac.Catalog:
+        """Wrapper for collection adder that handles the different behaviors from create and edit, as well as
+        the execution time and possible exceptions."""
+        start_time = time.time()
+        try:
+            catalog = self._add_collections_to_catalog(
+                catalog, collections_to_add=collections_to_add
+            )
+        except KeyboardInterrupt:
+            self.log.warning("Process interrupted by user! Catalog is incomplete.")
+        except Exception as e:
+            self.log.error(f"A problem occured when generating the catalog: {e}")
+        finally:
+            # Save catalog (ie. in the STAC folder)
+            self.log.info(f"Normalizing hrefs to {self.io_handler.output_folder}")
+            catalog.normalize_hrefs(self.io_handler.output_folder.as_posix())
+
+            self.log.info(
+                f"""Saving catalog as {"self-contained" if self_contained else "absolute published"}"""
+            )
+            if self_contained:
+                catalog.save(catalog_type=pystac.CatalogType.SELF_CONTAINED)
             else:
-                self.log.info("Your catalog is STAC-compliant!")
-            finally:
-                return catalog
+                catalog.save(catalog_type=pystac.CatalogType.ABSOLUTE_PUBLISHED)
+
+        exec_time = time.time() - start_time
+        self.log.info(
+            f"Catalog created in {exec_time // 60} minutes and {round(exec_time % 60, 2)} seconds!"
+        )
+
+        self.log.info("Checking if catalog is STAC-compliant:")
+        try:
+            catalog.validate_all()
+        except pystac.errors.STACValidationError as e:
+            self.log.warning(
+                "Validation failed. Some errors were detected during validation."
+            )
+            self.log.warning(f"See stacktrace for more details: {e}")
+        else:
+            self.log.info("Your catalog is STAC-compliant!")
+        finally:
+            return catalog

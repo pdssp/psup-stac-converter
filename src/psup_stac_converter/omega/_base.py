@@ -434,6 +434,7 @@ class OmegaDataReader:
             except OutOfMemoryError as oom_e:
                 self.log.error("System hitting OOM error soon! (code 137)!")
                 self.log.error(f"Details: {oom_e}")
+                raise
             except Exception as e:
                 self.log.error(
                     f"An unexpected error occured: [{e.__class__.__name__}] {e}"
