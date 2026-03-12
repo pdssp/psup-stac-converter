@@ -45,9 +45,9 @@ class MemoryManager:
         else:
             self.log = log
 
-        self.log.debug(f"[MemoryMonitor] Total RAM   : {self.total_mb:.1f} MB")
+        self.log.debug(f"Total RAM : {self.total_mb:.1f} MB")
         self.log.debug(
-            f"[MemoryMonitor] Threshold   : {self.threshold_pct}%  →  {self.threshold_mb:.1f} MB"
+            f"Threshold : {self.threshold_pct}%  ->  {self.threshold_mb:.1f} MB"
         )
 
     @property

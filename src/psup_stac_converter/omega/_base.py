@@ -289,6 +289,7 @@ class OmegaDataReader:
             ) as sav_file:
                 sav_ds = sio.readsav(sav_file.name)
 
+        self.io_handler.check_memory()
         return sav_ds
 
     def open_nc_dataset(self, orbit_cube_idx: str, on_disk: bool = True) -> xr.Dataset:
@@ -313,6 +314,7 @@ class OmegaDataReader:
                 oc_info["href"].item()
             ) as nc_file:
                 nc_dataset = xr.open_dataset(nc_file.name)
+        self.io_handler.check_memory()
 
         return nc_dataset
 
@@ -345,14 +347,11 @@ class OmegaDataReader:
             with self.io_handler.psup_archive.open_resource(
                 oc_info["href"].item()
             ) as txt_file:
-                with self.io_handler.psup_archive.open_resource(
-                    oc_info["href"].item()
-                ) as txt_file:
-                    raw_txt = txt_file.read()
-                    if isinstance(raw_txt, (bytes, bytearray)):
-                        textinfo = raw_txt.decode("utf-8", errors="replace")
-                    else:
-                        textinfo = str(raw_txt)
+                raw_txt = txt_file.read()
+                if isinstance(raw_txt, (bytes, bytearray)):
+                    textinfo = raw_txt.decode("utf-8", errors="replace")
+                else:
+                    textinfo = str(raw_txt)
 
             if raw:
                 return textinfo
@@ -366,6 +365,7 @@ class OmegaDataReader:
 
             text_obj[to_snake(k.strip())] = v.strip()
 
+        self.io_handler.check_memory()
         return OmegaDataTextItem.model_validate_json(json.dumps(text_obj))
 
     def find_spatial_extent(self) -> pystac.SpatialExtent:
