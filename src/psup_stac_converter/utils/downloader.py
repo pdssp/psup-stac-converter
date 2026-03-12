@@ -1,3 +1,5 @@
+import logging
+import os
 import re
 import tempfile
 import zipfile
@@ -8,10 +10,11 @@ from urllib.parse import urlparse
 
 import httpx
 import pandas as pd
+import psutil
 from httpx_retries import Retry, RetryTransport
 from tqdm.rich import tqdm
 
-from psup_stac_converter.exceptions import ValueNotAcceptedError
+from psup_stac_converter.exceptions import OutOfMemoryError, ValueNotAcceptedError
 from psup_stac_converter.settings import create_logger
 
 log = create_logger(__name__)
@@ -25,7 +28,59 @@ def sizeof_fmt(num: int, suffix: str = "B") -> str:
     return f"{num:.1f} Ei{suffix}"
 
 
+class MemoryManager:
+    """
+    Watches over the memory resources
+    """
+
+    def __init__(self, threshold_pct: float = 70.0, log: logging.Logger | None = None):
+        if not (0 < threshold_pct < 100):
+            raise ValueError("threshold_pct must be between 0 and 100")
+        self.threshold_pct = threshold_pct
+        self.total_mb = psutil.virtual_memory().total / (1024**2)
+        self.threshold_mb = self.total_mb * (threshold_pct / 100)
+        self._process = psutil.Process(os.getpid())
+        if log is None:
+            self.log = create_logger(__name__)
+        else:
+            self.log = log
+
+        self.log.debug(f"[MemoryMonitor] Total RAM   : {self.total_mb:.1f} MB")
+        self.log.debug(
+            f"[MemoryMonitor] Threshold   : {self.threshold_pct}%  →  {self.threshold_mb:.1f} MB"
+        )
+
+    @property
+    def used_mb(self) -> float:
+        """Current RSS memory used by this process in MB."""
+        return self._process.memory_info().rss / (1024**2)
+
+    @property
+    def system_used_pct(self) -> float:
+        """Overall system memory usage percentage."""
+        return psutil.virtual_memory().percent
+
+    def check(self) -> dict:
+        """
+        Check memory usage. Raises OutOfMemoryError if threshold exceeded.
+        Returns a snapshot dict otherwise.
+        """
+        used = self.used_mb
+        if used >= self.threshold_mb:
+            raise OutOfMemoryError(used, self.total_mb, self.threshold_pct)
+        return {
+            "used_mb": round(used, 2),
+            "total_mb": round(self.total_mb, 2),
+            "used_pct": round((used / self.total_mb) * 100, 2),
+            "threshold_mb": round(self.threshold_mb, 2),
+            "threshold_pct": self.threshold_pct,
+            "system_used_pct": round(self.system_used_pct, 2),
+        }
+
+
 class Downloader:
+    """This class is more used as a blueprint"""
+
     def _analyze_file_path(self):
         parsed_url = urlparse(self.file_name)
         if not parsed_url.netloc:

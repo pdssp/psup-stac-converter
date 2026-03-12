@@ -1,7 +1,6 @@
 import logging
 import os
 import time
-import tracemalloc
 from pathlib import Path
 from typing import cast
 
@@ -13,7 +12,12 @@ import pystac.errors
 from httpx import ReadTimeout
 from shapely import bounds
 
-from psup_stac_converter.exceptions import FileExtensionError, FolderNotEmptyError
+from psup_stac_converter.exceptions import (
+    FileExtensionError,
+    FolderEmptyError,
+    FolderNotEmptyError,
+    OutOfMemoryError,
+)
 from psup_stac_converter.extensions import apply_proj, apply_sci, apply_ssys
 from psup_stac_converter.informations.data_providers import providers
 from psup_stac_converter.informations.geojson_features import geojson_features
@@ -105,7 +109,14 @@ class CatalogCreator(BaseProcessor):
         self.n_omega_files = n_omega_files
         self.log.debug(self.psup_archive)
 
-    def _add_collections_to_catalog(self, catalog: pystac.Catalog) -> pystac.Catalog:
+    def _add_collections_to_catalog(
+        self,
+        catalog: pystac.Catalog,
+        add_feature_dataset: bool = True,
+        add_omega_l2: bool = True,
+        add_omega_mineral_maps: bool = True,
+        add_omega_l3: bool = True,
+    ) -> pystac.Catalog:
         """Add PSUP collections to the catalog, all on a unique thread.
 
         Args:
@@ -115,103 +126,103 @@ class CatalogCreator(BaseProcessor):
             pystac.Catalog: _description_
         """
         try:
-            feature_collection = self.create_feature_collection()
-            if self.wkt_io is not None:
-                feature_collection = apply_proj(
-                    feature_collection,
-                    self.wkt_io.pick_sphere_projection_by_body_and_kind(
-                        "Mars", "sphere"
-                    ),
+            # Feature collection
+            if add_feature_dataset:
+                feature_collection = self.create_feature_collection()
+                if self.wkt_io is not None:
+                    feature_collection = apply_proj(
+                        feature_collection,
+                        self.wkt_io.pick_sphere_projection_by_body_and_kind(
+                            "Mars", "sphere"
+                        ),
+                    )
+                catalog.add_child(feature_collection)
+                self.log.debug(
+                    f"Collection {feature_collection.id} successfully created!"
                 )
-            catalog.add_child(feature_collection)
-            self.log.debug(f"Collection {feature_collection.id} successfully created!")
-            self.log.debug(feature_collection.to_dict())
-
-            self.log.warning(f"Process memory: {process.memory_info().rss / 1024**2}MB")
-
-            snapshot = tracemalloc.take_snapshot()
-            top_snapshot = snapshot.statistics("lineno")
-
-            for stat in top_snapshot[:10]:
-                self.log.debug(stat)
+                self.log.debug(feature_collection.to_dict())
+                memory_snapshot = self.psup_archive.check_memory()
+                self.log.debug(str(memory_snapshot))
+            else:
+                self.log.info("Skipping feature dataset")
 
             # OMEGA mineral maps
-            self.log.info("Creating OMEGA mineral maps collection")
-            omega_mmaps_collection = self.create_omega_mineral_maps_collection()
-            if self.wkt_io is not None:
-                omega_mmaps_collection = apply_proj(
-                    omega_mmaps_collection,
-                    self.wkt_io.pick_sphere_projection_by_body_and_kind(
-                        "Mars", "sphere"
-                    ),
+            if add_omega_mineral_maps:
+                self.log.info("Creating OMEGA mineral maps collection")
+                omega_mmaps_collection = self.create_omega_mineral_maps_collection()
+                if self.wkt_io is not None:
+                    omega_mmaps_collection = apply_proj(
+                        omega_mmaps_collection,
+                        self.wkt_io.pick_sphere_projection_by_body_and_kind(
+                            "Mars", "sphere"
+                        ),
+                    )
+                catalog.add_child(omega_mmaps_collection)
+                self.log.debug(
+                    f"Collection {omega_mmaps_collection.id} successfully created!"
                 )
-            catalog.add_child(omega_mmaps_collection)
-            self.log.debug(
-                f"Collection {omega_mmaps_collection.id} successfully created!"
-            )
-            self.log.debug(omega_mmaps_collection.to_dict())
-            self.log.warning(f"Process memory: {process.memory_info().rss / 1024**2}MB")
-
-            snapshot = tracemalloc.take_snapshot()
-            top_snapshot = snapshot.statistics("lineno")
-
-            for stat in top_snapshot[:10]:
-                self.log.debug(stat)
+                self.log.debug(omega_mmaps_collection.to_dict())
+                memory_snapshot = self.psup_archive.check_memory()
+                self.log.debug(str(memory_snapshot))
+            else:
+                self.log.info("Skipping OMEGA mineral maps")
 
             # OMEGA data cubes
-            self.log.info("Creating OMEGA Data cubes collection")
-            omega_data_cubes_builder = OmegaDataCubes(self.psup_archive, log=self.log)
-            omega_data_cubes_collection = omega_data_cubes_builder.create_collection(
-                n_limit=self.n_omega_files
-            )
-
-            if self.wkt_io is not None:
-                omega_data_cubes_collection = apply_proj(
-                    omega_data_cubes_collection,
-                    self.wkt_io.pick_sphere_projection_by_body_and_kind(
-                        "Mars", "sphere"
-                    ),
+            if add_omega_l2:
+                self.log.info("Creating OMEGA Data cubes collection")
+                omega_data_cubes_builder = OmegaDataCubes(
+                    self.psup_archive, log=self.log
+                )
+                omega_data_cubes_collection = (
+                    omega_data_cubes_builder.create_collection(
+                        n_limit=self.n_omega_files
+                    )
                 )
 
-            catalog.add_child(omega_data_cubes_collection)
-            self.log.debug(
-                f"Collection {omega_data_cubes_collection.id} successfully created!"
-            )
-            self.log.debug(omega_data_cubes_collection.to_dict())
-            self.log.warning(f"Process memory: {process.memory_info().rss / 1024**2}MB")
+                if self.wkt_io is not None:
+                    omega_data_cubes_collection = apply_proj(
+                        omega_data_cubes_collection,
+                        self.wkt_io.pick_sphere_projection_by_body_and_kind(
+                            "Mars", "sphere"
+                        ),
+                    )
 
-            snapshot = tracemalloc.take_snapshot()
-            top_snapshot = snapshot.statistics("lineno")
-
-            for stat in top_snapshot[:10]:
-                self.log.debug(stat)
-
-            # OMEGA C channel proj
-            self.log.info("Creating OMEGA C Channel Proj collection")
-            self.log.debug(self.psup_archive)
-            omega_c_channel_builder = OmegaCChannelProj(self.psup_archive, log=self.log)
-            omega_c_channel_collection = omega_c_channel_builder.create_collection(
-                n_limit=self.n_omega_files
-            )
-            if self.wkt_io is not None:
-                omega_c_channel_collection = apply_proj(
-                    omega_c_channel_collection,
-                    self.wkt_io.pick_sphere_projection_by_body_and_kind(
-                        "Mars", "sphere"
-                    ),
+                catalog.add_child(omega_data_cubes_collection)
+                self.log.debug(
+                    f"Collection {omega_data_cubes_collection.id} successfully created!"
                 )
-            catalog.add_child(omega_c_channel_collection)
-            self.log.debug(
-                f"Collection {omega_c_channel_collection.id} successfully created!"
-            )
-            self.log.debug(omega_c_channel_collection.to_dict())
-            self.log.warning(f"Process memory: {process.memory_info().rss / 1024**2}MB")
+                self.log.debug(omega_data_cubes_collection.to_dict())
+                memory_snapshot = self.psup_archive.check_memory()
+                self.log.debug(str(memory_snapshot))
+            else:
+                self.log.info("Skipping OMEGA L2 cubes")
 
-            snapshot = tracemalloc.take_snapshot()
-            top_snapshot = snapshot.statistics("lineno")
-
-            for stat in top_snapshot[:10]:
-                self.log.debug(stat)
+            if add_omega_l3:
+                # OMEGA C channel proj
+                self.log.info("Creating OMEGA C Channel Proj collection")
+                self.log.debug(self.psup_archive)
+                omega_c_channel_builder = OmegaCChannelProj(
+                    self.psup_archive, log=self.log
+                )
+                omega_c_channel_collection = omega_c_channel_builder.create_collection(
+                    n_limit=self.n_omega_files
+                )
+                if self.wkt_io is not None:
+                    omega_c_channel_collection = apply_proj(
+                        omega_c_channel_collection,
+                        self.wkt_io.pick_sphere_projection_by_body_and_kind(
+                            "Mars", "sphere"
+                        ),
+                    )
+                catalog.add_child(omega_c_channel_collection)
+                self.log.debug(
+                    f"Collection {omega_c_channel_collection.id} successfully created!"
+                )
+                self.log.debug(omega_c_channel_collection.to_dict())
+                memory_snapshot = self.psup_archive.check_memory()
+                self.log.debug(str(memory_snapshot))
+            else:
+                self.log.info("Skipping OMEGA L3 cubes")
 
         except KeyboardInterrupt:
             self.log.warning(
@@ -221,6 +232,12 @@ class CatalogCreator(BaseProcessor):
             self.log.error(f"[{read_err.__class__.__name__}] {read_err}")
             self.log.error(
                 "No response from server. Either retry at a later time or contact support."
+            )
+
+        except OutOfMemoryError as oom_err:
+            self.log.error(f"[{oom_err.__class__.__name__}] {oom_err}")
+            self.log.error(
+                "Process' memory consumption ran over the expected threshold!"
             )
 
         except Exception as e:
@@ -233,7 +250,8 @@ class CatalogCreator(BaseProcessor):
     def create_catalog(
         self, self_contained: bool = True, clean_previous_output: bool = False
     ) -> pystac.Catalog:
-        """Creates a catalog over the entire feature selection
+        """Creates a catalog over the entire feature selection. The function's goal is to create a brand new
+        catalog in a target folder, preferably over the existing one if `clean_previous_output` is set to
 
         Args:
             self_contained (bool, optional): _description_. Defaults to True.
@@ -247,9 +265,10 @@ class CatalogCreator(BaseProcessor):
         """
         start_time = time.time()
 
+        # The output folder is expected to ahve a catalog.json instance + the user doesn't want to clean the catalog up
         if not self.io_handler.is_output_folder_empty() and not clean_previous_output:
             raise FolderNotEmptyError(
-                "The output folder is not empty. Please clean it first or set clean_previous_output` to True"
+                "The output folder is not empty. Please clean it first or set `clean_previous_output` to False"
             )
         elif not self.io_handler.is_output_folder_empty() and clean_previous_output:
             self.io_handler.clean_output_folder()
@@ -381,3 +400,68 @@ class CatalogCreator(BaseProcessor):
 
     def create_omega_mineral_maps_collection(self) -> pystac.Collection:
         return omega_maps_collection_generator(self.psup_archive)
+
+    def edit_catalog(self, action: str, self_contained: bool = True):
+        if self.io_handler.is_output_folder_empty():
+            raise FolderEmptyError("The output folder is empty.")
+        if (
+            not self.io_handler.is_output_folder_empty()
+            and not (self.io_handler.output_folder / "catalog.json").exists()
+        ):
+            raise FileNotFoundError(
+                "Output folder isn't empty but `catalog.json` is nowhere to be found."
+            )
+
+        catalog = pystac.Catalog.from_file(
+            self.io_handler.output_folder / "catalog.json"
+        )
+        self.log.info(f'Successfully loaded catalog {catalog.id}: "{catalog.title}"')
+        collections = catalog.get_collections()
+        collection_ids = [collection.id for collection in collections]
+        self.log.info(f"Found {len(list(collections))} collections in this catalog.")
+        self.log.info(f"Collections: {', '.join(collection_ids)}")
+
+        if action == "add_missing":
+            start_time = time.time()
+            try:
+                catalog = self._add_collections_to_catalog(
+                    catalog,
+                    add_feature_dataset="features_datasets" not in collection_ids,
+                    add_omega_mineral_maps="omega_mineral_maps" not in collection_ids,
+                    add_omega_l2="omega_data_cubes" not in collection_ids,
+                    add_omega_l3="omega_c_channel_proj" not in collection_ids,
+                )
+            except KeyboardInterrupt:
+                self.log.warning("Process interrupted by user! Catalog is incomplete.")
+            except Exception as e:
+                self.log.error(f"A problem occured when generating the catalog: {e}")
+            finally:
+                # Save catalog (ie. in the STAC folder)
+                self.log.info(f"Normalizing hrefs to {self.io_handler.output_folder}")
+                catalog.normalize_hrefs(self.io_handler.output_folder.as_posix())
+
+                self.log.info(
+                    f"""Saving catalog as {"self-contained" if self_contained else "absolute published"}"""
+                )
+                if self_contained:
+                    catalog.save(catalog_type=pystac.CatalogType.SELF_CONTAINED)
+                else:
+                    catalog.save(catalog_type=pystac.CatalogType.ABSOLUTE_PUBLISHED)
+
+            exec_time = time.time() - start_time
+            self.log.info(
+                f"Catalog created in {exec_time // 60} minutes and {round(exec_time % 60, 2)} seconds!"
+            )
+
+            self.log.info("Checking if catalog is STAC-compliant:")
+            try:
+                catalog.validate_all()
+            except pystac.errors.STACValidationError as e:
+                self.log.warning(
+                    "Validation failed. Some errors were detected during validation."
+                )
+                self.log.warning(f"See stacktrace for more details: {e}")
+            else:
+                self.log.info("Your catalog is STAC-compliant!")
+            finally:
+                return catalog

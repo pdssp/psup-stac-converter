@@ -1,3 +1,6 @@
+import datetime as dt
+
+
 class OmegaCubeDataMissingError(Exception):
     """When data or partial data from the OMEGA cube dataset is missing"""
 
@@ -47,6 +50,12 @@ class FolderNotEmptyError(Exception):
     pass
 
 
+class FolderEmptyError(Exception):
+    """Raises when the target folder is empty"""
+
+    pass
+
+
 class PropertySetterError(Exception):
     """Raises when the user attempts to modify attributes"""
 
@@ -55,3 +64,30 @@ class PropertySetterError(Exception):
 
 class StacItemCreationError(Exception):
     """Raises when the user can't go through with an item's creation"""
+
+
+class OutOfMemoryError(Exception):
+    """Raised when process memory usage exceeds the configured threshold."""
+
+    def __init__(self, used_mb: float, total_mb: float, threshold_pct: float):
+        self.used_mb = used_mb
+        self.total_mb = total_mb
+        self.threshold_pct = threshold_pct
+        self.used_pct = (used_mb / total_mb) * 100
+        self.timestamp = dt.datetime.now().isoformat()
+        super().__init__(
+            f"Memory threshold exceeded: "
+            f"{self.used_pct:.1f}% used ({self.used_mb:.1f} MB / {self.total_mb:.1f} MB) "
+            f"— threshold was {self.threshold_pct:.1f}%"
+        )
+
+    def to_dict(self) -> dict:
+        return {
+            "error": "OutOfMemoryError",
+            "message": str(self),
+            "used_mb": round(self.used_mb, 2),
+            "total_mb": round(self.total_mb, 2),
+            "used_pct": round(self.used_pct, 2),
+            "threshold_pct": self.threshold_pct,
+            "timestamp": self.timestamp,
+        }

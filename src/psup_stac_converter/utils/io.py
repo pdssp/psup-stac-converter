@@ -2,7 +2,7 @@ import datetime as dt
 import logging
 import re
 from pathlib import Path
-from typing import Iterator, Literal
+from typing import Any, Iterator, Literal
 
 import pandas as pd
 from pydantic import BaseModel, HttpUrl
@@ -11,7 +11,7 @@ from rich.tree import Tree
 
 from psup_stac_converter.exceptions import FolderNotEmptyError, ValueNotAcceptedError
 from psup_stac_converter.settings import Settings, create_logger
-from psup_stac_converter.utils.downloader import Downloader, PsupArchive
+from psup_stac_converter.utils.downloader import Downloader, MemoryManager, PsupArchive
 from psup_stac_converter.utils.formatting import walk_directory
 
 console = Console()
@@ -107,6 +107,7 @@ class IoHandler:
         console.print(tree)
 
     def download_data(self, file_path: str):
+        """Note: this is not used anywhere for now"""
         if not self.is_input_folder_empty():
             raise FolderNotEmptyError("The input folder is not empty!")
         downloader = Downloader(file_path)
@@ -135,9 +136,19 @@ class IoHandler:
 
 
 class PsupIoHandler(IoHandler):
-    def __init__(self, archive_file: Path, input_folder=None, output_folder=None):
+    def __init__(
+        self,
+        archive_file: Path,
+        input_folder=None,
+        output_folder=None,
+        memory_manager: MemoryManager | None = None,
+    ):
         super().__init__(input_folder, output_folder)
         self.psup_archive = PsupArchive(archive_file)
+        if memory_manager is None:
+            self.memory_manager = MemoryManager(log=self.log)
+        else:
+            self.memory_manager = memory_manager
 
     def save_all(self, auto_valid: bool = False, raise_on_exists: bool = False):
         self.psup_archive.save_all_on_disk(
@@ -209,6 +220,9 @@ class PsupIoHandler(IoHandler):
             pd.DataFrame: _description_
         """
         return self.psup_archive.get_omega_data(data_type=data_type)
+
+    def check_memory(self) -> dict[str, Any] | None:
+        self.memory_manager.check()
 
 
 class WktIoHandler:
