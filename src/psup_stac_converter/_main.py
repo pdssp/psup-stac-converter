@@ -77,3 +77,22 @@ def create_catalog(
         n_omega_files=n_omega_items,
     )
     return catalog_creator.create_catalog(clean_previous_output=clean_prev_output)
+
+
+def complete_catalog(
+    raw_data_folder: Path,
+    output_folder: Path,
+    psup_data_inventory_file: Path = None,
+    wkt_file_path: Path = None,
+    n_omega_items: int | None = None,
+    **kwargs,
+):
+    catalog_creator = CatalogCreator(
+        raw_data_folder=raw_data_folder,
+        output_folder=output_folder,
+        psup_data_inventory_file=psup_data_inventory_file,
+        wkt_file=wkt_file_path,
+        log=kwargs.get("logger"),
+        n_omega_files=n_omega_items,
+    )
+    return catalog_creator.edit_catalog(action="add_missing")

@@ -143,6 +143,87 @@ def create_stac_catalog(
 
 
 @app.command()
+def complete_stac_catalog(
+    ctx: typer.Context,
+    raw_data_folder: Annotated[
+        Path,
+        typer.Option(
+            "--input",
+            "-I",
+            help="Where the raw data lies",
+            exists=True,
+            file_okay=False,
+            dir_okay=True,
+            writable=False,
+            readable=True,
+            resolve_path=True,
+        ),
+    ] = None,
+    output_folder: Annotated[
+        Path,
+        typer.Option(
+            "--output",
+            "-O",
+            help="Where the processed catalog is",
+            exists=True,
+            file_okay=False,
+            dir_okay=True,
+            writable=False,
+            readable=True,
+            resolve_path=True,
+        ),
+    ] = None,
+    psup_inventory_file: Annotated[
+        Path,
+        typer.Option(
+            "--inventory",
+            "-l",
+            help="File containing information on the hosted PSUP data",
+            exists=True,
+            file_okay=True,
+            dir_okay=False,
+            writable=False,
+            readable=True,
+            resolve_path=True,
+        ),
+    ] = None,
+    wkt_file_path: Annotated[
+        Path,
+        typer.Option(
+            "--proj",
+            "-p",
+            help="File containing details on Solar System projections",
+            exists=True,
+            file_okay=True,
+            dir_okay=False,
+            writable=False,
+            readable=True,
+            resolve_path=True,
+        ),
+    ] = None,
+    n_omega_items: Annotated[
+        int,
+        typer.Option(
+            "--n-omega", help="Specifies the limit of OMEGA items to generate"
+        ),
+    ] = None,
+):
+    """Converts raw input into a STAC catalog. The user must have a scraped CSV file as
+    a feed to rely on, an input folder to store downloaded raw products, and an output
+    folder to put the catalog in."""
+    settings = ctx.obj.get("settings")
+
+    F.complete_catalog(
+        raw_data_folder=raw_data_folder or settings.raw_data_path,
+        output_folder=output_folder or settings.output_data_path,
+        psup_data_inventory_file=psup_inventory_file or settings.psup_inventory_file,
+        wkt_file_path=wkt_file_path or settings.wkt_file_path,
+        n_omega_items=n_omega_items or settings.n_omega_items,
+        **{k: v for k, v in ctx.obj.items() if k not in ["settings"]},
+    )
+
+
+@app.command()
 def describe_folders(
     ctx: typer.Context,
     input_folder: Annotated[
