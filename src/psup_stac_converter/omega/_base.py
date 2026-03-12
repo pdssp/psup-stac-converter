@@ -431,6 +431,7 @@ class OmegaDataReader:
 
                 mem_snapshot = self.io_handler.check_memory()
                 self.log.debug(str(mem_snapshot))
+            # If the memory available is shrinking, stop everything and save
             except OutOfMemoryError as oom_e:
                 self.log.error("System hitting OOM error soon! (code 137)!")
                 self.log.error(f"Details: {oom_e}")

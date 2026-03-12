@@ -376,7 +376,12 @@ class CatalogCreator(BaseProcessor):
     def create_omega_mineral_maps_collection(self) -> pystac.Collection:
         return omega_maps_collection_generator(self.psup_archive)
 
-    def edit_catalog(self, action: str, self_contained: bool = True) -> pystac.Catalog:
+    def edit_catalog(
+        self,
+        action: str,
+        self_contained: bool = True,
+        collections_to_create: list[str] | None = None,
+    ) -> pystac.Catalog:
         if self.io_handler.is_output_folder_empty():
             raise FolderEmptyError("The output folder is empty.")
         if (
@@ -407,10 +412,25 @@ class CatalogCreator(BaseProcessor):
                 ]
                 if collection_id not in collection_ids
             ]
+
+            if len(missing_collections) == 0:
+                self.log.info("All collections ave already been added!")
+                return catalog
+
             return self._add_collections_wrapper(
                 catalog=catalog,
                 self_contained=self_contained,
                 collections_to_add=missing_collections,
+            )
+        elif action == "recreate":
+            if collections_to_create is None or len(collections_to_create) == 0:
+                raise ValueError(
+                    "There's no collection ID inside! Please pass the collections to recreate"
+                )
+            return self._add_collections_wrapper(
+                catalog=catalog,
+                self_contained=self_contained,
+                collections_to_add=collections_to_create,
             )
 
         return catalog
