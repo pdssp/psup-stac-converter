@@ -145,7 +145,9 @@ class OmegaDataReader:
             psup_io_handler.output_folder / f"{self.metadata_folder_prefix}nc"
         )
         self.thumbnail_folder = (
-            psup_io_handler.output_folder / f"{self.metadata_folder_prefix}thumbnail"
+            psup_io_handler.output_folder
+            / "thumbnails"
+            / f"{self.metadata_folder_prefix}thumbnail"
         )
         self.thumbnail_dims = (256, 256)
         self.log.debug(f".sav metadata folder: {self.sav_metadata_folder}")
@@ -159,10 +161,6 @@ class OmegaDataReader:
 
         if not self.thumbnail_folder.exists():
             self.thumbnail_folder.mkdir()
-
-        # This path is used to map and expose thumbnails
-        # Relative for now, probably needs a real URL replacement
-        self.thumbnail_out_path = "thumbnails"
 
     @property
     def omega_data(self) -> pd.DataFrame:
@@ -537,9 +535,8 @@ class OmegaDataReader:
 
                 # Thumbnail
                 thumbn_asset = pystac.Asset(
-                    href=(
-                        self.thumbnail_out_path
-                        / thumbnail_location.relative_to(self.io_handler.output_folder)
+                    href=thumbnail_location.relative_to(
+                        self.io_handler.output_folder
                     ).as_posix(),
                     media_type=pystac.MediaType.PNG,
                     roles=["thumbnail"],
@@ -563,9 +560,8 @@ class OmegaDataReader:
         else:
             # Thumbnail
             thumbn_asset = pystac.Asset(
-                href=(
-                    self.thumbnail_out_path
-                    / thumbnail_location.relative_to(self.io_handler.output_folder)
+                href=thumbnail_location.relative_to(
+                    self.io_handler.output_folder
                 ).as_posix(),
                 media_type=pystac.MediaType.PNG,
                 roles=["thumbnail"],
