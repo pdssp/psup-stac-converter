@@ -535,8 +535,9 @@ class OmegaDataReader:
 
                 # Thumbnail
                 thumbn_asset = pystac.Asset(
-                    href=thumbnail_location.relative_to(
-                        self.io_handler.output_folder
+                    href=(
+                        Path("/")
+                        / thumbnail_location.relative_to(self.io_handler.output_folder)
                     ).as_posix(),
                     media_type=pystac.MediaType.PNG,
                     roles=["thumbnail"],
@@ -560,8 +561,9 @@ class OmegaDataReader:
         else:
             # Thumbnail
             thumbn_asset = pystac.Asset(
-                href=thumbnail_location.relative_to(
-                    self.io_handler.output_folder
+                href=(
+                    Path("/")
+                    / thumbnail_location.relative_to(self.io_handler.output_folder)
                 ).as_posix(),
                 media_type=pystac.MediaType.PNG,
                 roles=["thumbnail"],
