@@ -128,6 +128,7 @@ def convert_arr_to_thumbnail(
     resize_dims: tuple[int, int],
     mode: Literal["L", "RGB", "RGBA"] = "L",
     cmap: str | None = None,
+    with_omega_fix: bool = False,
 ) -> Image.Image:
     """
     Converts a 2D or 3D NumPy array into a resized PNG-style image.
@@ -162,16 +163,30 @@ def convert_arr_to_thumbnail(
         if mode == "RGB":
             result = result[..., :3]
     else:
+        nan_mask = np.isnan(result)  # works for both 2D and 3D
+
+        result = np.where(np.isnan(result), 0.0, result)
         result = (result * 255).astype(np.uint8)
-        # Turn a 1-band image into a RGB or RGBA image
+
         if mode in ["RGB", "RGBA"] and result.ndim == 2:
-            result = np.stack([result] * (3 if mode == "RGB" else 4), axis=-1)
+            if mode == "RGB":
+                result = np.stack([result] * 3, axis=-1)
+            else:  # RGBA
+                rgb = np.stack([result] * 3, axis=-1)
+                alpha = np.where(nan_mask, 0, 255).astype(np.uint8)[..., np.newaxis]
+                result = np.concatenate([rgb, alpha], axis=-1)
         elif result.ndim == 3 and result.shape[-1] == 3:
             if mode == "RGBA":
-                alpha = np.full((*result.shape[:2], 1), 255, dtype=result.dtype)
+                alpha = np.where(nan_mask[:, :, 0], 0, 255).astype(np.uint8)[
+                    ..., np.newaxis
+                ]
                 result = np.concatenate([result, alpha], axis=-1)
 
     img = Image.fromarray(result, mode=mode)
+
+    if with_omega_fix:
+        img = img.rotate(180).transpose(Image.FLIP_LEFT_RIGHT)
+
     img = img.resize(resize_dims, Image.Resampling.LANCZOS)
 
     return img

@@ -775,10 +775,11 @@ class OmegaDataReader:
         orbit_cube_idx: str,
         data: np.ndarray,
         dims: tuple[int, int],
-        mode: Literal["L", "RGB", "RGBA"] = "RGB",
+        mode: Literal["L", "RGB", "RGBA"] = "RGBA",
         cmap: str | None = None,  # left at none for composite
         fmt: str = "png",
         thumbnail_location: Path | None = None,
+        with_omega_fix: bool = True,
     ):
         """Creates a thumbnail for a datacube out of one of its 2D data arrays.
 
@@ -792,7 +793,11 @@ class OmegaDataReader:
         """
         self.log.debug(f"Converting cube {orbit_cube_idx} to thumbnail.")
         thumbnail = convert_arr_to_thumbnail(
-            data=data, resize_dims=dims, mode=mode, cmap=cmap
+            data=data,
+            resize_dims=dims,
+            mode=mode,
+            cmap=cmap,
+            with_omega_fix=with_omega_fix,
         )
 
         if thumbnail_location is None:

@@ -134,3 +134,16 @@ def test_edge_case_single_pixel():
     assert isinstance(img, Image.Image)
     assert img.mode == "RGB"
     assert img.size == (10, 10)
+
+
+def test_rgba_nan_pixels_are_transparent():
+    data = np.random.rand(10, 10)
+    data[2:4, 2:4] = np.nan
+
+    # Use same size to avoid coordinate mapping complexity
+    img = convert_arr_to_thumbnail(data, (10, 10), mode="RGBA")
+    assert img.mode == "RGBA"
+
+    arr = np.array(img)
+    assert np.all(arr[2:4, 2:4, 3] == 0), "NaN pixels should be transparent"
+    assert np.all(arr[0:2, 0:2, 3] == 255), "Valid pixels should be opaque"
