@@ -160,7 +160,7 @@ class OmegaDataReader:
             self.nc_metadata_folder.mkdir()
 
         if not self.thumbnail_folder.exists():
-            self.thumbnail_folder.mkdir()
+            self.thumbnail_folder.mkdir(parents=True)
 
     @property
     def omega_data(self) -> pd.DataFrame:
