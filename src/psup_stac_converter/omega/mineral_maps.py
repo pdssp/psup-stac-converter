@@ -212,7 +212,7 @@ def _temporal_extent() -> pystac.TemporalExtent:
 def _create_pystac_item(
     omega_map_item: OmegaMineralMapDesc, psup_archive: PsupIoHandler
 ) -> pystac.Item:
-    map_geometry = Polygon(((-180, -90), (180, 90), (180, 90), (180, -90)))
+    map_geometry = Polygon(((-180, -90), (-180, 90), (180, 90), (180, -90)))
     footprint = json.loads(to_geojson(map_geometry))
     bbox = bounds(map_geometry).tolist()
     timestamp = omega_map_item.created_at
