@@ -138,8 +138,13 @@ def convert_arr_to_thumbnail(
     # Normalizes data between 0 and 1
     result = np.asarray(data, dtype=float)
 
-    result_min = np.nanmin(result[~np.isneginf(result)])
-    result_max = np.nanmax(result[~np.isposinf(result)])
+    result = np.where(np.isinf(result), np.nan, result)
+
+    if np.all(np.isnan(result)):
+        raise ValueError("NaN: array is entirely NaN")
+
+    result_min = np.nanmin(result)
+    result_max = np.nanmax(result)
     if np.isnan(result_max) or np.isnan(result_min):
         raise ValueError(
             f"Seems like the array's size is NaN (min={result_min}, max={result_max})"

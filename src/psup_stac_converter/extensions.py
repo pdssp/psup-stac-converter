@@ -1,8 +1,8 @@
 import pystac
-from pystac.extensions.eo import Band, EOExtension
 from pystac.extensions.projection import ProjectionExtension
 from pystac.extensions.scientific import Publication, ScientificExtension
 
+from psup_stac_converter.stac_extra.eo_v2 import Band, EOExtension
 from psup_stac_converter.stac_extra.ssys_extension import (
     SCHEMA_URI,
     SolSysExtension,

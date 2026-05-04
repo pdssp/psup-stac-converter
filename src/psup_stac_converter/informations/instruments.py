@@ -1,4 +1,4 @@
-from pystac.extensions.eo import Band
+from psup_stac_converter.stac_extra.eo_v2 import Band, EOCommonName
 
 platforms = ["tgo", "mro", "mex", "ody"]
 tgo_instruments = ["cassis"]
@@ -29,10 +29,11 @@ def _fwhm(min_wl, max_wl, round_digit: int = 3) -> float:
 # https://hirise.lpl.arizona.edu/index.php
 # https://www.uahirise.org/specs/
 
+
 omega_bands = [
     Band.create(
         name="Visible-SWIR",
-        common_name="v",
+        common_name=EOCommonName.SWIR16,
         description="[Operational] 0.36-1.05 µm; Fully functional, routine operations",
         center_wavelength=_center_wavelength(0.36, 1.05),
         full_width_half_max=_fwhm(0.36, 1.05),
@@ -40,7 +41,7 @@ omega_bands = [
     ),
     Band.create(
         name="NIR-SWIR",
-        common_name="c",
+        common_name=EOCommonName.NIR,
         description="[Discontinued] 0.95-2.65 µm, Non-op since August 2010 (final orbit #8485)",
         center_wavelength=_center_wavelength(0.95, 2.65),
         full_width_half_max=_fwhm(0.95, 2.65),
@@ -48,7 +49,7 @@ omega_bands = [
     ),
     Band.create(
         name="IR-MWIR",
-        common_name="l",
+        common_name=EOCommonName.LWIR,
         description="[Operational] 2.55-5.09 µm, Limited operations, on-demand only",
         center_wavelength=_center_wavelength(2.55, 5.09),
         full_width_half_max=_fwhm(2.55, 5.09),
@@ -58,7 +59,7 @@ omega_bands = [
 crism_bands = [
     Band.create(
         name="VNIR",
-        common_name="vnir",
+        common_name=EOCommonName.NIR,
         description="362-1053 nanometers",
         center_wavelength=_center_wavelength(0.362, 1.053),
         full_width_half_max=_fwhm(0.362, 1.053),
@@ -66,7 +67,7 @@ crism_bands = [
     ),
     Band.create(
         name="IR",
-        common_name="ir",
+        common_name=EOCommonName.LWIR,
         description="1002-3920 nanometers",
         center_wavelength=_center_wavelength(1.002, 3.92),
         full_width_half_max=_fwhm(1.002, 3.92),
@@ -76,7 +77,7 @@ crism_bands = [
 hirise_bands = [
     Band.create(
         name="Blue-Green",
-        common_name="blue-green",
+        common_name=EOCommonName.GREEN05,
         description="400 to 600 nm",
         center_wavelength=_center_wavelength(0.4, 0.6),
         full_width_half_max=_fwhm(0.4, 0.6),
@@ -84,7 +85,7 @@ hirise_bands = [
     ),
     Band.create(
         name="Red",
-        common_name="red",
+        common_name=EOCommonName.RED,
         description="550 to 850 nm",
         center_wavelength=_center_wavelength(0.55, 0.85),
         full_width_half_max=_fwhm(0.55, 0.85),
@@ -92,7 +93,7 @@ hirise_bands = [
     ),
     Band.create(
         name="NIR",
-        common_name="nir",
+        common_name=EOCommonName.NIR09,
         description="800 to 1000 nm",
         center_wavelength=_center_wavelength(0.8, 1),
         full_width_half_max=_fwhm(0.8, 1),

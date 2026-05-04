@@ -45,6 +45,7 @@ dev = [
     "pre-commit>=4.3.0",
     "pytest>=9.0.2",
     "pytest-cov>=7.0.0",
+    "pytest-recording>=0.13.4",
     "pytest-xdist>=3.8.0",
     "ruff>=0.13.0",
 ]
@@ -63,14 +64,7 @@ notebook = [
 module-name = ["psup_stac_converter", "psup_scraper"]
 
 
-[tool.pytest]
-minversion = "9.0"
-addopts = [
-    "-ra",
-    "-q",
-    "--maxfail=1",
-    "--cov-config=.coveragerc",
-    "--cov=psup_stac_converter",
-    "--cov-report=term-missing",
-]
+[tool.pytest.ini_options]
+filterwarnings = ["error"]
+addopts = "--block-network --record-mode=none"
 testpaths = ["test"]

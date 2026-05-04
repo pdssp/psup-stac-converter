@@ -4,11 +4,11 @@ from typing import NamedTuple
 
 import geopandas as gpd
 import pystac
-from pystac.extensions.eo import Band
 from shapely import bounds, to_geojson
 
 from psup_stac_converter.extensions import apply_eo, apply_ssys
 from psup_stac_converter.processors.base import BaseProcessorModule
+from psup_stac_converter.stac_extra.eo_v2 import Band
 
 
 class HydratedMineralProcessor(BaseProcessorModule):
