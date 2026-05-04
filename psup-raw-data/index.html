@@ -1,0 +1,1273 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../stac-model/">
+      
+      
+        <link rel="next" href="../code/psup-catalog/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>PSUP raw data - PSUP STAC Converter</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="https://unpkg.com/katex@0/dist/katex.min.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#psup" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="PSUP STAC Converter" class="md-header__button md-logo" aria-label="PSUP STAC Converter" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PSUP STAC Converter
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              PSUP raw data
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/pdssp/psup-stac-converter" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    psup-stac-converter
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="PSUP STAC Converter" class="md-nav__button md-logo" aria-label="PSUP STAC Converter" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PSUP STAC Converter
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/pdssp/psup-stac-converter" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    psup-stac-converter
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../references/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    References
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stac-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spatio-Temporal Asset Catalog (STAC)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PSUP raw data
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PSUP raw data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Datasets
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#geojson-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Geojson features
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#omega-mineral-maps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OMEGA mineral maps
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#omega-data-cubes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OMEGA data cubes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OMEGA data cubes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sav-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        .sav file
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nc-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        .nc file
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#omega-c-channel-projection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OMEGA C channel projection
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OMEGA C channel projection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sav-file_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        .sav file
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nc-file_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        .nc file
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Code Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../code/psup-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Catalog Processor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../code/psup-scraper/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spiders (scraping)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Datasets
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#geojson-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Geojson features
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#omega-mineral-maps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OMEGA mineral maps
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#omega-data-cubes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OMEGA data cubes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OMEGA data cubes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sav-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        .sav file
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nc-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        .nc file
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#omega-c-channel-projection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OMEGA C channel projection
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OMEGA C channel projection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sav-file_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        .sav file
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nc-file_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        .nc file
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="psup">PSUP</h1>
+<p><a href="http://psup.ias.u-psud.fr/sitools/client-user/index.html?project=PLISonMars">PSUP (<strong>P</strong>lanetary <strong>SU</strong>rface <strong>P</strong>ortal)</a> is a SaaS (Software as a Service) application hosting and sharing several TB of data, primarily centered on the surface of Mars and addressed to the French community of planetary scientists.</p>
+<p>The data in question is composed different kind of information like albedo, mineral and thermal inertia, mosaics, image footprints and rasters, all collected from past recent Martian missions, primarily from MEX (Mars EXpress) and MRO (Mars Reconnaissance Orbiter) missions. The service then exposes this data through three services:</p>
+<ol>
+<li><strong>MarsSI:</strong> <a href="https://marssi.univ-lyon1.fr/MarsSI/">Martian surface data processing Information System</a>. A service that allows the user to manage and process data, and at the same time visualize and merge high level products and catalogs thanks to a web-based interface.</li>
+<li><strong>Datasets:</strong> distributes some of the specific high level data with an emphasis on products issues by the science teams of Observatory of Paris Sud (OSUPS) and Observatory of Lyon (OSUL).</li>
+<li><strong>MarsVisu:</strong> a 3D interactive map providing some visualization and merging of high level products and local nomenclature-based catalogs. This service uses the <a href="https://github.com/SITools2/SITools2-core">SITools2</a> REST API to manage de data, and the <a href="https://sitools2.github.io/MIZAR/">MIZAR</a> module to display it.</li>
+</ol>
+<p><img alt="psup_graph" src="/img/psup_structure.jpg" /></p>
+<h2 id="datasets">Datasets</h2>
+<p>The datasets are mostly stored on the <a href="http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/">SITools database</a>. They consist of catalogues, images, hyperspectral cubes and DTMs (Digital Terrain Model), all from Mars' database, organized into collections.</p>
+<ul>
+<li>Photometry maps</li>
+<li>MOLA: contains topography of Mars</li>
+<li>OMEGA data cubes</li>
+<li>Geojson features</li>
+<li>OMEGA data</li>
+</ul>
+<p>An overview of the datasets available can be found there (F. Poulet, 2018)</p>
+<table>
+<thead>
+<tr>
+<th>Dataset</th>
+<th>Source</th>
+<th>Format</th>
+<th>Level</th>
+<th>Access</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Global mosaics</td>
+<td>Viking imager, THEMIS, MOLA, CTX, TES, OMEGA</td>
+<td>Raster/Images</td>
+<td>L4</td>
+<td>MarsVisu/Bakcground Layers</td>
+</tr>
+<tr>
+<td>Mineral global maps</td>
+<td>OMEGA &amp; TES</td>
+<td>Raster/Images</td>
+<td>L4</td>
+<td>MarsVisu/Mineral Layers</td>
+</tr>
+<tr>
+<td>Images</td>
+<td>CTX &amp; HiRISE</td>
+<td>Raster/Images</td>
+<td>L3</td>
+<td>MarsVisu &amp; MarsSI</td>
+</tr>
+<tr>
+<td>DTM</td>
+<td>CTX &amp; HiRISE</td>
+<td>Raster/Images</td>
+<td>L4</td>
+<td>MarsSI &amp; MarsVisu</td>
+</tr>
+<tr>
+<td>Hyperspectral cubes</td>
+<td>OMEGA &amp; CRISM</td>
+<td>Rasters/Data cubes</td>
+<td>L3</td>
+<td>MarsVisu &amp; MarsSI</td>
+</tr>
+<tr>
+<td>Hydrated mineral sites</td>
+<td>OMEGA &amp; CRISM</td>
+<td>Vectors</td>
+<td>L4</td>
+<td>MarsVisu/Catalogs</td>
+</tr>
+<tr>
+<td>Crocus line</td>
+<td>OMEGA</td>
+<td>Vectors</td>
+<td>L4</td>
+<td>MarsVisu/Catalogs</td>
+</tr>
+<tr>
+<td>Regional and global catalogs</td>
+<td>Peer-reviewed works based on OMEGA, CRISM, CTX, MOC</td>
+<td>Vectors</td>
+<td>L4</td>
+<td>MarsVisu/Catalogs</td>
+</tr>
+</tbody>
+</table>
+<p>Since the data is hosted through the API, it can be linked from here as an asset.</p>
+<div class="admonition warning">
+<p class="admonition-title">SITools deprecation</p>
+<p>SITools is actually deprecated. The REST API links might not be a good idea as a reference</p>
+</div>
+<h2 id="geojson-features">Geojson features</h2>
+<p>Geojson features, otherwise known as PSUP Catalogs, all regroup vector catalogs and their associated metadata, under the <a href="https://geojson.org/">GeoJson</a> format. They regroup the following characteristics:</p>
+<ul>
+<li>Hydrated mineral terrains</li>
+<li>Central peaks hydrated phases between Isidis and Hellas</li>
+<li>Central peaks mineralogy south Valles Marineris</li>
+<li>Valles Marineris low Calcium-Pyroxene deposits</li>
+<li>Seasonal South polar cap limits</li>
+<li>Scalloped depressions</li>
+<li>Lobate impact craters</li>
+</ul>
+<p>Each one of them has a defined footprint range, which is a bbox enclosing all the features. If the features aren't constrained to any region unlike Valles Marineris, the total range goes from <span class="arithmatex">\([-180, -90, 180, 90]\)</span>. They also have some optional keywords and a brief description.</p>
+<p>Since the features are written in GeoJson, turning them as a STAC catalog is easy. The best way to read a GeoJson set of features is using the <a href="https://geopandas.org/en/stable/index.html">GeoPandas package</a>, which is an adaptation of the Pandas library, for geographical features. By using <code>gpd.read_file()</code>, examining the contents of these features is straightforward.</p>
+<p>If, for whatever reason, Geopandas can't open the file (ex. the dataset from <em>Seasonal South polar cap limits</em>), a manual conversion using a mix of Shapely and Pandas can still be done to resolve the issue.</p>
+<p>Assuming each set of feature is a collection, they can be connected under the same catalog. The collection thus bears the name of the feature, given by the metadata, the description, the keywords and the spatial extent given by the footprint. Since these are features interpreted from raster images, contents from the MEX and MRO missions, a temporal dimension was thus not given. By default, each feature bears the same date as the day the related article was published. If a range is demanded, the dates are fixed by default on the Pandas library's maximum and minimum date.</p>
+<h2 id="omega-mineral-maps">OMEGA mineral maps</h2>
+<div class="admonition info">
+<p class="admonition-title">Available data</p>
+<p>An attempt has already been made under <a href="https://github.com/pdssp/pdssp-stac-repo/tree/test">the PDSSP's STAC repository's test branch</a>. The data from the OMEGA instrument is divided in 3 parts.</p>
+</div>
+<p>PSUP OMEGA mineral maps are</p>
+<ul>
+<li>OMEGA-based NIR albedo</li>
+<li>Ferric BD530</li>
+<li>Ferric Nanophase</li>
+<li>Olivine SP1</li>
+<li>Olivine SP2</li>
+<li>Olivine SP3</li>
+<li>Pyroxene</li>
+<li>Emissivity at 5.03µm</li>
+</ul>
+<p>OMEGA is the VISNIR imaging spectrometer onboard ESA/Mars-Express spacecraft operating around Mars from January 2004. All maps are provided in FITS file format via the "download" column.</p>
+<p>This Dataset is also available as a <a href="ivo://idoc/psup/omega_maps/q/epn_core">VO TAP service</a>.</p>
+<p>Since this part of the original data only has 8 items, The information was hardcoded in the package, and then automatically generated as a collection.</p>
+<details class="note">
+<summary>OMEGA maps data (from <code>psup_stac_converter/omega/mineral_maps.py</code>)</summary>
+<div class="highlight"><pre><span></span><code><span class="n">omega_mineral_maps</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;albedo_r1080_equ_map.fits&quot;</span><span class="p">:</span> <span class="n">OmegaMineralMapDesc</span><span class="p">(</span>
+        <span class="n">raster_name</span><span class="o">=</span><span class="s2">&quot;albedo_r1080_equ_map.fits&quot;</span><span class="p">,</span>
+        <span class="n">raster_description</span><span class="o">=</span><span class="s2">&quot;OMEGA NIR albedo&quot;</span><span class="p">,</span>
+        <span class="n">raster_lng_description</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;This data product is a global NIR 1-micrometer albedo map of Mars     based on reflectance data acquired by the Mars Express OMEGA hyperspectral camera from January  2004 to August 2010&quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="n">raster_keywords</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;albedo&quot;</span><span class="p">,</span> <span class="s2">&quot;global&quot;</span><span class="p">],</span>
+        <span class="n">thumbnail</span><span class="o">=</span><span class="s2">&quot;http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/   albedo_r1080_equ_map_reduce.png/sitools/upload/download-thumb.png&quot;</span><span class="p">,</span>
+        <span class="n">publication</span><span class="o">=</span><span class="n">Publication</span><span class="p">(</span>
+            <span class="n">citation</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Ody, A., F. Poulet, Y. Langevin, J.-P. Bibring, G. Bellucci, F. Altieri, B. Gondet, M.  Vincendon, J. Carter, and N. Manaud (2012), Global maps of anhydrous minerals at the surface     of Mars from OMEGA/MEx, J. Geophys. Res., 117, E00J14</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">doi</span><span class="o">=</span><span class="s2">&quot;doi:10.1029/2012JE004117&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">created_at</span><span class="o">=</span><span class="n">dt</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2012</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;ferric_bd530_equ_map.fits&quot;</span><span class="p">:</span> <span class="n">OmegaMineralMapDesc</span><span class="p">(</span>
+        <span class="n">raster_name</span><span class="o">=</span><span class="s2">&quot;ferric_bd530_equ_map.fits&quot;</span><span class="p">,</span>
+        <span class="n">raster_description</span><span class="o">=</span><span class="s2">&quot;OMEGA Ferric BD530&quot;</span><span class="p">,</span>
+        <span class="n">raster_lng_description</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;This data product is a global ferric oxide spectral parameter map of  Mars based on reflectance data acquired by the Mars Express OMEGA hyperspectral camera from  January 2004 to August 2010. This ferric oxide spectral parameter (DB530) is based on the    strength of the 0.53 micrometer ferric absorption edge.&quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="n">raster_keywords</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ferric oxides&quot;</span><span class="p">,</span> <span class="s2">&quot;global&quot;</span><span class="p">],</span>
+        <span class="n">thumbnail</span><span class="o">=</span><span class="s2">&quot;http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/   ferric_bd530_equ_map_reduce.png/sitools/upload/download-thumb.png&quot;</span><span class="p">,</span>
+        <span class="n">publication</span><span class="o">=</span><span class="n">Publication</span><span class="p">(</span>
+            <span class="n">citation</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Ody, A., F. Poulet, Y. Langevin, J.-P. Bibring, G. Bellucci, F. Altieri, B. Gondet, M.  Vincendon, J. Carter, and N. Manaud (2012), Global maps of anhydrous minerals at the surface     of Mars from OMEGA/MEx, J. Geophys. Res., 117, E00J14</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">doi</span><span class="o">=</span><span class="s2">&quot;doi:10.1029/2012JE004117&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">created_at</span><span class="o">=</span><span class="n">dt</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2012</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;ferric_nnphs_equ_map.fits&quot;</span><span class="p">:</span> <span class="n">OmegaMineralMapDesc</span><span class="p">(</span>
+        <span class="n">raster_name</span><span class="o">=</span><span class="s2">&quot;ferric_nnphs_equ_map.fits&quot;</span><span class="p">,</span>
+        <span class="n">raster_description</span><span class="o">=</span><span class="s2">&quot;OMEGA Ferric Nanophase&quot;</span><span class="p">,</span>
+        <span class="n">raster_lng_description</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;This data product is a global nanophase ferric oxide (dust) spectral  parameter map of Mars based on reflectance data acquired by the Mars Express OMEGA   hyperspectral camera from January 2004 to August 2010. This nanophase ferric oxide spectral   parameter (NNPHS) is based on the absorption feature centered at 0.86 micrometer.&quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="n">raster_keywords</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;nanophase ferric oxides&quot;</span><span class="p">,</span> <span class="s2">&quot;global&quot;</span><span class="p">],</span>
+        <span class="n">thumbnail</span><span class="o">=</span><span class="s2">&quot;http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/   ferric_nnphs_equ_map_reduce.png/sitools/upload/download-thumb.png&quot;</span><span class="p">,</span>
+        <span class="n">publication</span><span class="o">=</span><span class="n">Publication</span><span class="p">(</span>
+            <span class="n">citation</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Ody, A., F. Poulet, Y. Langevin, J.-P. Bibring, G. Bellucci, F. Altieri, B. Gondet, M.  Vincendon, J. Carter, and N. Manaud (2012), Global maps of anhydrous minerals at the surface     of Mars from OMEGA/MEx, J. Geophys. Res., 117, E00J14</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">doi</span><span class="o">=</span><span class="s2">&quot;doi:10.1029/2012JE004117&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">created_at</span><span class="o">=</span><span class="n">dt</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2012</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;olivine_osp1_equ_map.fits&quot;</span><span class="p">:</span> <span class="n">OmegaMineralMapDesc</span><span class="p">(</span>
+        <span class="n">raster_name</span><span class="o">=</span><span class="s2">&quot;olivine_osp1_equ_map.fits&quot;</span><span class="p">,</span>
+        <span class="n">raster_description</span><span class="o">=</span><span class="s2">&quot;OMEGA Olivine SP1&quot;</span><span class="p">,</span>
+        <span class="n">raster_lng_description</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;This data product is a global olivine spectral parameter map of Mars  based on reflectance data acquired by the Mars Express OMEGA hyperspectral camera from January   2004 to August 2010. This olivine spectral parameter (OSP1) detects Mg-rich and/or small grain    size and/or low abundance olivine.&quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="n">raster_keywords</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;olivine&quot;</span><span class="p">,</span> <span class="s2">&quot;global&quot;</span><span class="p">],</span>
+        <span class="n">thumbnail</span><span class="o">=</span><span class="s2">&quot;http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/   olivine_osp1_equ_map_reduce.png/sitools/upload/download-thumb.png&quot;</span><span class="p">,</span>
+        <span class="n">publication</span><span class="o">=</span><span class="n">Publication</span><span class="p">(</span>
+            <span class="n">citation</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Ody, A., F. Poulet, Y. Langevin, J.-P. Bibring, G. Bellucci, F. Altieri, B. Gondet, M.  Vincendon, J. Carter, and N. Manaud (2012), Global maps of anhydrous minerals at the surface     of Mars from OMEGA/MEx, J. Geophys. Res., 117, E00J14</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">doi</span><span class="o">=</span><span class="s2">&quot;doi:10.1029/2012JE004117&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">created_at</span><span class="o">=</span><span class="n">dt</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2012</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;olivine_osp2_equ_map.fits&quot;</span><span class="p">:</span> <span class="n">OmegaMineralMapDesc</span><span class="p">(</span>
+        <span class="n">raster_name</span><span class="o">=</span><span class="s2">&quot;olivine_osp2_equ_map.fits&quot;</span><span class="p">,</span>
+        <span class="n">raster_description</span><span class="o">=</span><span class="s2">&quot;OMEGA Olivine SP2&quot;</span><span class="p">,</span>
+        <span class="n">raster_lng_description</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;This data product is a global olivine spectral parameter map of Mars  based on reflectance data acquired by the Mars Express OMEGA hyperspectral camera from January   2004 to August 2010. This olivine spectral parameter (OSP2) is sensitive to olivine with high     iron content and/or large grain size and/or high abundance.&quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="n">raster_keywords</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;olivine&quot;</span><span class="p">,</span> <span class="s2">&quot;global&quot;</span><span class="p">],</span>
+        <span class="n">thumbnail</span><span class="o">=</span><span class="s2">&quot;http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/   olivine_osp2_equ_map_reduce.png/sitools/upload/download-thumb.png&quot;</span><span class="p">,</span>
+        <span class="n">publication</span><span class="o">=</span><span class="n">Publication</span><span class="p">(</span>
+            <span class="n">citation</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Ody, A., F. Poulet, Y. Langevin, J.-P. Bibring, G. Bellucci, F. Altieri, B. Gondet, M.  Vincendon, J. Carter, and N. Manaud (2012), Global maps of anhydrous minerals at the surface     of Mars from OMEGA/MEx, J. Geophys. Res., 117, E00J14</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">doi</span><span class="o">=</span><span class="s2">&quot;doi:10.1029/2012JE004117&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">created_at</span><span class="o">=</span><span class="n">dt</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2012</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;olivine_osp3_equ_map.fits&quot;</span><span class="p">:</span> <span class="n">OmegaMineralMapDesc</span><span class="p">(</span>
+        <span class="n">raster_name</span><span class="o">=</span><span class="s2">&quot;olivine_osp3_equ_map.fits&quot;</span><span class="p">,</span>
+        <span class="n">raster_description</span><span class="o">=</span><span class="s2">&quot;OMEGA Olivine SP3&quot;</span><span class="p">,</span>
+        <span class="n">raster_lng_description</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;This data product is a global olivine spectral parameter map of Mars  based on reflectance data acquired by the Mars Express OMEGA hyperspectral camera from January   2004 to August 2010. This olivine spectral parameter (OSP3) determines the full band depth at     1.36 micrometer relative to a continuum. It preferentially detects olivine with a large Fe  content and/or with large grain size and/or with high abundance.&quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="n">raster_keywords</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;olivine&quot;</span><span class="p">,</span> <span class="s2">&quot;global&quot;</span><span class="p">],</span>
+        <span class="n">thumbnail</span><span class="o">=</span><span class="s2">&quot;http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/   olivine_osp3_equ_map_reduce.png/sitools/upload/download-thumb.png&quot;</span><span class="p">,</span>
+        <span class="n">publication</span><span class="o">=</span><span class="n">Publication</span><span class="p">(</span>
+            <span class="n">citation</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Ody, A., F. Poulet, Y. Langevin, J.-P. Bibring, G. Bellucci, F. Altieri, B. Gondet, M.  Vincendon, J. Carter, and N. Manaud (2012), Global maps of anhydrous minerals at the surface     of Mars from OMEGA/MEx, J. Geophys. Res., 117, E00J14</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">doi</span><span class="o">=</span><span class="s2">&quot;doi:10.1029/2012JE004117&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">created_at</span><span class="o">=</span><span class="n">dt</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2012</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;pyroxene_bd2000_equ_map.fits&quot;</span><span class="p">:</span> <span class="n">OmegaMineralMapDesc</span><span class="p">(</span>
+        <span class="n">raster_name</span><span class="o">=</span><span class="s2">&quot;pyroxene_bd2000_equ_map.fits&quot;</span><span class="p">,</span>
+        <span class="n">raster_description</span><span class="o">=</span><span class="s2">&quot;OMEGA Pyroxene&quot;</span><span class="p">,</span>
+        <span class="n">raster_lng_description</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;This data product is a global pyroxene spectral parameter map of  Mars based on reflectance data acquired by the Mars Express OMEGA hyperspectral camera from  January 2004 to August 2010. This pyroxene spectral parameter (BD2000) is based on its 2     micrometer absorption band due to both high-calcium and low-calcium pyroxene.&quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="n">raster_keywords</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pyroxene&quot;</span><span class="p">,</span> <span class="s2">&quot;global&quot;</span><span class="p">],</span>
+        <span class="n">thumbnail</span><span class="o">=</span><span class="s2">&quot;http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/   pyroxene_bd2000_equ_map_reduce.png/sitools/upload/download-thumb.png&quot;</span><span class="p">,</span>
+        <span class="n">publication</span><span class="o">=</span><span class="n">Publication</span><span class="p">(</span>
+            <span class="n">citation</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Ody, A., F. Poulet, Y. Langevin, J.-P. Bibring, G. Bellucci, F. Altieri, B. Gondet, M.  Vincendon, J. Carter, and N. Manaud (2012), Global maps of anhydrous minerals at the surface     of Mars from OMEGA/MEx, J. Geophys. Res., 117, E00J14</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">doi</span><span class="o">=</span><span class="s2">&quot;doi:10.1029/2012JE004117&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">created_at</span><span class="o">=</span><span class="n">dt</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2012</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;albedo_filled.fits&quot;</span><span class="p">:</span> <span class="n">OmegaMineralMapDesc</span><span class="p">(</span>
+        <span class="n">raster_name</span><span class="o">=</span><span class="s2">&quot;albedo_filled.fits&quot;</span><span class="p">,</span>
+        <span class="n">raster_description</span><span class="o">=</span><span class="s2">&quot;OMEGA Albedo Filled&quot;</span><span class="p">,</span>
+        <span class="n">raster_lng_description</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;60 ppd global map of Solar Albedo from OMEGA data field with TES 20  ppd solar albedo global maps (Putzig and Mellon, 2007b) (21600x10800 pixels). This map is 100</span><span class="si">%   f</span><span class="s2">illed. Variable name is &quot;albedo&quot;. &quot;latitude&quot; and &quot;longitude&quot; indicate the coordinates of the     centers of the pixels. Reference : Vincendon et al., Icarus, 2015&quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="n">raster_keywords</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;albedo&quot;</span><span class="p">,</span> <span class="s2">&quot;filled&quot;</span><span class="p">,</span> <span class="s2">&quot;global&quot;</span><span class="p">],</span>
+        <span class="n">thumbnail</span><span class="o">=</span><span class="s2">&quot;http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/   albedo_filled_reduce.png/sitools/upload/download-thumb.png&quot;</span><span class="p">,</span>
+        <span class="n">publication</span><span class="o">=</span><span class="n">Publication</span><span class="p">(</span>
+            <span class="n">citation</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        M. Vincendon, J. Audouard, F. Altieri, A. Ody, Mars Express measurements of surface albedo  changes over 2004–2010, Icarus, Volume 251, 2015, Pages 145-163, ISSN 0019-1035</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">doi</span><span class="o">=</span><span class="s2">&quot;https://doi.org/10.1016/j.icarus.2014.10.029&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">created_at</span><span class="o">=</span><span class="n">dt</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2014</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;albedo_unfilled.fits&quot;</span><span class="p">:</span> <span class="n">OmegaMineralMapDesc</span><span class="p">(</span>
+        <span class="n">raster_name</span><span class="o">=</span><span class="s2">&quot;albedo_unfilled.fits&quot;</span><span class="p">,</span>
+        <span class="n">raster_description</span><span class="o">=</span><span class="s2">&quot;OMEGA Albedo Unfilled&quot;</span><span class="p">,</span>
+        <span class="n">raster_lng_description</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;60 ppd global map of Solar Albedo from OMEGA data only (21600 x   10800 pixels). This map is filled at 94.79% (rest are NaN). Variable name is &quot;albedo&quot;.    &quot;latitude&quot; and &quot;longitude&quot; indicate the coordinates of the centers of the pixels. Reference :  Vincendon et al., Icarus, 2015.&quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="n">raster_keywords</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;albedo&quot;</span><span class="p">,</span> <span class="s2">&quot;unfilled&quot;</span><span class="p">,</span> <span class="s2">&quot;global&quot;</span><span class="p">],</span>
+        <span class="n">thumbnail</span><span class="o">=</span><span class="s2">&quot;http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/   albedo_unfilled_reduce.png/sitools/upload/download-thumb.png&quot;</span><span class="p">,</span>
+        <span class="n">publication</span><span class="o">=</span><span class="n">Publication</span><span class="p">(</span>
+            <span class="n">citation</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        M. Vincendon, J. Audouard, F. Altieri, A. Ody, Mars Express measurements of surface albedo  changes over 2004–2010, Icarus, Volume 251, 2015, Pages 145-163, ISSN 0019-1035</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">doi</span><span class="o">=</span><span class="s2">&quot;https://doi.org/10.1016/j.icarus.2014.10.029&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">created_at</span><span class="o">=</span><span class="n">dt</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2014</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;emissivite_5.03mic_OMEGA0.fits&quot;</span><span class="p">:</span> <span class="n">OmegaMineralMapDesc</span><span class="p">(</span>
+        <span class="n">raster_name</span><span class="o">=</span><span class="s2">&quot;emissivite_5.03mic_OMEGA0.fits&quot;</span><span class="p">,</span>
+        <span class="n">raster_description</span><span class="o">=</span><span class="s2">&quot;OMEGA0 Emissivity at 5.03 mic&quot;</span><span class="p">,</span>
+        <span class="n">raster_lng_description</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;40 ppd global maps of surface emissivity at 5.03 mic. Holes are set to NaN.&quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="n">raster_keywords</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;emissivity&quot;</span><span class="p">,</span> <span class="s2">&quot;5mic&quot;</span><span class="p">,</span> <span class="s2">&quot;global&quot;</span><span class="p">],</span>
+        <span class="n">thumbnail</span><span class="o">=</span><span class="s2">&quot;http://psup.ias.u-psud.fr/sitools/datastorage/user/storage/marsdata/omega/png/   emissivite_5.03mic_OMEGA0_reduce.png/sitools/upload/download-thumb.png&quot;</span><span class="p">,</span>
+        <span class="n">publication</span><span class="o">=</span><span class="n">Publication</span><span class="p">(</span>
+            <span class="n">citation</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        J. Audouard, F. Poulet, M. Vincendon, J.-P. Bibring, F. Forget, Y. Langevin, B. Gondet, Mars    surface thermal inertia and heterogeneities from OMEGA/MEX, Icarus, Volume 233, 2014, Pages    194-213, ISSN 0019-1035,</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">doi</span><span class="o">=</span><span class="s2">&quot;https://doi.org/10.1016/j.icarus.2014.01.045&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">created_at</span><span class="o">=</span><span class="n">dt</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2013</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="c1"># Global map is 4ppd (15x15km at eq), cylindrical projection</span>
+        <span class="c1"># Represents mean TI from OMEGA, [30, 1050] Jm^-2s^-1/2K^-1</span>
+        <span class="c1"># Observations are restricted between lat -45,45</span>
+    <span class="p">),</span>
+<span class="p">}</span>
+</code></pre></div>
+</details>
+<p>The date has been established according to the publication date. Eventually the items can be complemented by the data found in the FITS file. Keep in mind theese FITS files are expensive to open. Therefore it would be wiser to do some data introspection first with the <a href="https://www.astropy.org/">astropy</a> module.</p>
+<h2 id="omega-data-cubes">OMEGA data cubes</h2>
+<p>This dataset contains all the OMEGA observations acquired with the C, L and VIS channels until April 2016, 11, after filtering. Filtering processes have been implemented to remove some instrumental artefacts and observational conditions. Each OMEGA record is available as a <code>netCDF4.nc</code> file and an <code>idl.sav</code> file.</p>
+<p>Both files contain the cubes of reflectance of the surface at a given longitude, latitude and wavelength <span class="arithmatex">\(\lambda\)</span>. The surface reflectance is defined as <span class="arithmatex">\(I/F/\cos(i)\)</span> where:</p>
+<ul>
+<li><strong>Channels:</strong><ul>
+<li><span class="arithmatex">\(C=[0.93, 2.73 \mu m]\)</span></li>
+<li><span class="arithmatex">\(L=[2.55, 5.10 \mu m]\)</span></li>
+<li><span class="arithmatex">\(\text{Visible}=[0.38, 1.05 \mu m]\)</span></li>
+</ul>
+</li>
+<li>Atmospheric attenuation is corrected (1-5 µm);</li>
+<li>Airborne dust scattering is corrected (0.4-2.5 µm and for 5 µm emissivity estimations);</li>
+<li>Thermal contribution is removed (&gt; 3 µm); L channel data and VIS channel are co-registered with C channel when available.</li>
+</ul>
+<p>Please note that longitudes range from -180 to 180 degrees east.</p>
+<p>An OMEGA data cube's ID is labeled with an orbit and a cube number connected by an underscore <code>_</code>. They usually come with two files: the <code>.sav</code>file and the <code>.nc</code>file.</p>
+<p>Both files, serving as assets, are similar on the common points that need to be extracted from. An IDL <code>.sav</code> file is opened using <a href="https://www.nv5geospatialsoftware.com/">the IDL program</a>, while a NetCDF <code>.nc</code> file can be opened using third party libraries as indicated by <a href="https://docs.unidata.ucar.edu/nug/current/index.html">Unidata's documentation</a>. Both are multi-dimensional arrays, typically providing information on geospatial and atmospheric data respectfully.</p>
+<p>Although <code>.sav</code> files are typcially meant to be read with IDL, it's possible to open them with Python, in particular with the <code>readsav</code> function from <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.io.readsav.html">scipy</a>'s IO module. Meanwhile, NetCDF files can be opened using any modern programming language. The converter uses <a href="https://docs.xarray.dev/en/stable/index.html">xarray</a> to open them. In both cases, these two files respect a key-value configuration simplifying the process.</p>
+<p>The structure of both files for OMEGA data cubes goes as follow:</p>
+<h3 id="sav-file">.sav file</h3>
+<p><strong>Dimensions</strong></p>
+<ul>
+<li><strong>wvl:</strong> Electromagnetic wavelength (in µm). The channels are ordered as follow: C,L,VIS.</li>
+<li><strong>lat:</strong> Planetocentric latitude (in degree). Values of the table correspond to each pixel of the data cube.</li>
+<li><strong>lon:</strong> Eastward longitude (in degree). Values of the table correspond to each pixel of the data cube, they range from -180 to +180 degrees.</li>
+</ul>
+<p><strong>3D cube</strong></p>
+<ul>
+<li><strong>ldat_j:</strong> Reflectance of the surface at a given longitude, latitude and wavelength. The surface reflectance is defined as I/F/cos(i) for the three channels. Note that:<ul>
+<li>atmospheric attenuation is corrected (1-5 µm);</li>
+<li>airborne dust scattering is corrected (0.4-2.5 µm and for 5 µm emissivity estimations);</li>
+<li>thermal contribution is removed (&gt; 3 µm);</li>
+<li>channels are co-registered.</li>
+</ul>
+</li>
+</ul>
+<p><strong>2D variables</strong></p>
+<p><em>Some parameters are detailed in the OMEGA EAICD<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup>.</em></p>
+<ul>
+<li><strong>altitude:</strong> Altitude (in m) at a given longitude and latitude (MOLA – ellipsoid as reference).</li>
+<li><strong>incidence_g:</strong> Incidence angle (in degree) with respect to the outward normal to the reference ellipsoid at a given longitude and latitude.</li>
+<li><strong>emergence_g:</strong> Emergence angle (in degree) with respect to the outward normal to the reference ellipsoid.</li>
+<li><strong>incidence_l:</strong> Incidence angle (in degree) with respect to the local normal.</li>
+<li><strong>watericelin:</strong> The watericelin index value at a given longitude and latitude. This criterion, described in Langevin et al. (2007) is based on the 1.5 μm band depth. It can be used to detect icy frost presence at the surface and thick clouds in the atmosphere. Every OMEGA pixel with a watericelin value &lt; 0.985 should be excluded.</li>
+<li><strong>icecloudindex:</strong> The icecloud index value at a given longitude and latitude. This criterion (reflectance at 3.4 μm divided by reflectance at 3.52 μm) is described in Langevin et al. (2007) to identify the presence of water ice clouds. Its values range from 0.5 to 1.0. The smallest values unambiguously indicate the presence of icy clouds. We usually exclude any OMEGA pixel with a value &lt; 0.8.</li>
+<li><strong>heure:</strong> Martian hour at local true solar time LTST of the observation.</li>
+<li><strong>leslon0:</strong> East longitude (in degree) of the pixel footprint corner point 0.</li>
+<li><strong>leslon1:</strong> East longitude (in degree) of the pixel footprint corner point 1.</li>
+<li><strong>leslon2:</strong> East longitude (in degree) of the pixel footprint corner point 2.</li>
+<li><strong>leslon3:</strong> East longitude (in degree) of the pixel footprint corner point 3.</li>
+<li><strong>leslat0:</strong> North latitude (in degree) of the pixel footprint corner point 0.</li>
+<li><strong>leslat1:</strong> North latitude (in degree) of the pixel footprint corner point 1.</li>
+<li><strong>leslat2:</strong> North latitude (in degree) of the pixel footprint corner point 2.</li>
+<li><strong>leslat3:</strong> North latitude (in degree) of the pixel footprint corner point 3.</li>
+<li><strong>spacecraft_distance:</strong> Slant distance (in m) from the spacecraft to the pixel footprint center point.</li>
+<li><strong>therm:</strong> Temperature (in K) at 5 µm at a given longitude and latitude.</li>
+</ul>
+<p><strong>Scalar variables</strong></p>
+<ul>
+<li><strong>solarlong:</strong> Areocentric longitude Ls.</li>
+<li><strong>data_quality:</strong> Data quality ID as defined in EAICD.</li>
+<li><strong>pointing_mode:</strong> Image acquisition attitude control mode.</li>
+<li><strong>year:</strong> Martian Year of the observation.</li>
+<li><strong>pres:</strong> Mask that indicates working channels:<ul>
+<li>pres[0]=1 if C channel is OK,</li>
+<li>pres[1]=1 if L channel is OK,</li>
+<li>pres[2]=1 if VIS channel is OK.</li>
+</ul>
+</li>
+<li><strong>tag_ok:</strong> Index to indicate that the target is Mars. If tag_ok= 0 =&gt; target is not Mars. Otherwise target is Mars.</li>
+<li><strong>tag_l:</strong> Mask for the L channel; tag_l= 0 means no L channel data.</li>
+<li><strong>tag_c:</strong> Mask for the C channel: tag_c= 0 means no C channel data.</li>
+</ul>
+<p>And other parameters as well.</p>
+<h3 id="nc-file">.nc file</h3>
+<p><strong>Dimensions:</strong></p>
+<ul>
+<li><strong>wavelength:</strong> Wavelength in µm. The channel’s wavelengths are ordered as follow: C,L,VIS.</li>
+<li><strong>pixel_x:</strong> abscissa of the pixel</li>
+<li><strong>pixel_y:</strong> ordinate of the pixel</li>
+</ul>
+<p><strong>3D cube (wavelength, pixel_x, pixel_y)</strong></p>
+<ul>
+<li><strong>Reflectance:</strong> Surface reflectance a given longitude, latitude and wavelength defined as I/F/cos(i) for the three channel. Note that:<ul>
+<li>atmospheric attenuation is corrected (1-5 µm);</li>
+<li>airborne dust scattering is corrected (0.4-2.5 µm and for 5 µm emissivity estimations);</li>
+<li>thermal contribution is removed (&gt; 3 µm);</li>
+<li>channels are co-registered.</li>
+</ul>
+</li>
+</ul>
+<p><strong>2D variables (pixel_x, pixel_y)</strong></p>
+<p><em>Some parameters are detailed in the OMEGA EAICD<sup id="fnref2:1"><a class="footnote-ref" href="#fn:1">1</a></sup>.</em></p>
+<ul>
+<li><strong>latitude:</strong> Planetocentric latitude (in deg).</li>
+<li><strong>longitude:</strong> Eastward longitude (in deg), ranges from -180 to 180 degrees.</li>
+<li><strong>altitude:</strong> Altitude (in m) at a given longitude and latitude (MOLA – ellipsoid as reference).</li>
+<li><strong>incidence_g:</strong> Incidence angle (in degree) with respect to the outward normal to the reference ellipsoid at a given longitude and latitude.</li>
+<li><strong>emergence_g:</strong> Emergence angle (in degree) with respect to the outward normal to the reference ellipsoid.</li>
+<li><strong>incidence_l:</strong> Incidence angle (in degree) with respect to the local normal.</li>
+<li><strong>watericelin:</strong> The watericelin index value at a given longitude and latitude. This criterion, described in Langevin et al. (2007) is based on the 1.5 μm band depth. It can be used to detect icy frost presence at the surface and thick clouds in the atmosphere. Every OMEGA pixel with a watericelin value &lt; 0.985 should be excluded.</li>
+<li><strong>icecloudindex:</strong> The icecloud index value at a given longitude and latitude. This criterion (reflectance at 3.4 μm divided by reflectance at 3.52 μm) is described in Langevin et al. (2007) to identify the presence of water ice clouds. Its values range from 0.5 to 1.0. The smallest values unambiguously indicate the presence of icy clouds. We usually exclude any OMEGA pixel with a value &lt; 0.8.</li>
+<li><strong>hour_at_LTST:</strong> Martian hour at local true solar time LTST of the observation.</li>
+<li><strong>leslon0:</strong> East longitude (in degree) of the pixel footprint corner point 0.</li>
+<li><strong>leslon1:</strong> East longitude (in degree) of the pixel footprint corner point 1.</li>
+<li><strong>leslon2:</strong> East longitude (in degree) of the pixel footprint corner point 2.</li>
+<li><strong>leslon3:</strong> East longitude (in degree) of the pixel footprint corner point 3.</li>
+<li><strong>leslat0:</strong> North latitude (in degree) of the pixel footprint corner point 0.</li>
+<li><strong>leslat1:</strong> North latitude (in degree) of the pixel footprint corner point 1.</li>
+<li><strong>leslat2:</strong> North latitude (in degree) of the pixel footprint corner point 2.</li>
+<li><strong>leslat3:</strong> North latitude (in degree) of the pixel footprint corner point 3.</li>
+<li><strong>spacecraft_distance:</strong> Slant distance (in m) from the spacecraft to the pixel footprint center point.</li>
+<li><strong>therm:</strong> Temperature (in K) at 5 µm at a given longitude and latitude.</li>
+</ul>
+<p><strong>Scalar variables</strong></p>
+<ul>
+<li><strong>solar_longitude:</strong> Areocentric longitude Ls.</li>
+<li><strong>data_quality:</strong> Data quality ID as defined in EAICD.</li>
+<li><strong>pointing_mode:</strong> Image acquisition attitude control mode.</li>
+<li><strong>year:</strong> Martian Year of the observation.</li>
+<li><strong>pres:</strong> Mask that indicates working channels.<ul>
+<li>pres[0]=1 if C channel is OK,</li>
+<li>pres[1]=1 if L channel is OK,</li>
+<li>pres[2]=1 if VIS channel is OK.</li>
+</ul>
+</li>
+<li><strong>tag_ok:</strong> Index to indicate that the target is Mars. If tag_ok=0 =&gt; target is not Mars. Otherwise target is Mars.</li>
+<li><strong>tag_l:</strong> Mask for the L channel; tag_l=0 means no L channel data.</li>
+<li><strong>tag_c:</strong> Mask for the C channel: tag_c=0 means no C channel data.</li>
+</ul>
+<p><strong>Global attributes:</strong></p>
+<ul>
+<li><strong>_NCProperties:</strong> "version=1|netcdflibversion=4.4.1.1|hdf5libversion=1.10.1"</li>
+<li><strong>Conventions:</strong> "CF-1.6"</li>
+<li><strong>title:</strong> "OMEGA observations acquired with the C, L and VIS channels - Orbit # [number] - Cube # [number]"</li>
+<li><strong>:history:</strong> "Created [creationdate]" ;</li>
+<li><strong>institution:</strong> "Institut d\'Astrophysique Spatiale, CNRS et Universite Paris-Sud 11"</li>
+<li><strong>source:</strong> "surface observation"</li>
+<li><strong>reference:</strong> The references listed herein-below.</li>
+<li><strong>cube_number:</strong> "[number]"</li>
+<li><strong>orbit_number:</strong> "[number]"</li>
+</ul>
+<h2 id="omega-c-channel-projection">OMEGA C channel projection</h2>
+<p>These data cubes have been specifically selected and filtered for studies of the surface mineralogy between 1 and 2.5 µm.</p>
+<p>They contain all the OMEGA observations acquired with the C channel after filtering. Filtering processes have been implemented to remove some instrumental artefacts and observational conditions. Each OMEGA record is available as a <code>netCDF4.nc</code> file and an <code>idl.sav</code>.</p>
+<p>Both files contain the cubes of reflectance of the surface at a given longitude, latitude and wavelength <span class="arithmatex">\(\lambda\)</span>. The reflectance is defined by the “reflectance factor” <span class="arithmatex">\(I(\lambda)/(F \cos(i))\)</span> where i is the solar incidence angle with <span class="arithmatex">\(\lambda\)</span> from 0.97 to 2.55 µm (second dimension of the cube with 120 wavelengths). The spectra are corrected for atmospheric and aerosol contributions according to the method described in Vincendon et al. (Icarus, 251, 2015)<sup id="fnref:2"><a class="footnote-ref" href="#fn:2">2</a></sup>. It therefore corresponds to albedo for a lambertian surface. The first dimension of the cube refers to the length of scan. It can be 32, 64, or 128 pixels. It gives the first spatial dimension. The third dimension refers to the rank of the scan. It is the second spatial dimension.</p>
+<p>Much like its predecessor, this collection follows the same pattern. The notable difference is the presence of text files giving ample information on the basic metadata. Since this collection is only limited to OMEGA's C band and since it has lightweight data to rely on, creating a STAC collection is faster and easier than the data cubes one.</p>
+<h3 id="sav-file_1">.sav file</h3>
+<ul>
+<li><strong>carte[<em>,120,</em>]:</strong> Reflectance of the surface at a given longitude, latitude and wavelength λ.The refectance is defined by the “reflectance factor” I(λ)/(F cos(i)) where i is the solar incidence angle with λ from 0.97 to 2.55 µm (second dimension of the cube with 120 wavelengths). The spectra are corrected for atmospheric and aerosol contributions according to the method described in Vincendon et al. (Icarus, 251, 2015). It therefore corresponds to albedo for a lambertian surface. The first dimension of the cube refers to the length of scan. It can be 16, 32, 64, or 128 pixels. It gives the first spatial dimension.
+carte_donnees identifies 5 backplanes by the variable are added to the spectra:<ul>
+<li><strong>carte_donnees[<em>,0,</em>]:</strong> Altitude based on the MOLA topography (in m)</li>
+<li><strong>carte_donnees[<em>,1,</em>]:</strong> Incidence (in degree) on the ellipsoid at a given longitude and latitude.</li>
+<li><strong>carte_donnees[<em>,2,</em>]:</strong> Incidence wrt (in degree) of the local gravity at a given longitude and     latitude.</li>
+<li><strong>carte_donnees[<em>,3,</em>]:</strong> Effective dust opacity at a given longitude and latitude as <span class="arithmatex">\(\tau_{eff} =\tau_{MER} /\cos i\)</span>, where <span class="arithmatex">\(i\)</span> is the solar incidence angle and <span class="arithmatex">\(\tau_{MER}\)</span> is the dust opacity    measured by the Mars Exploration Rovers (MERs) during the same solar longitude and Martian year as the     OMEGA observation<sup id="fnref2:3"><a class="footnote-ref" href="#fn:3">3</a></sup>.</li>
+<li><strong>Carte_donnees[<em>,4,</em>]:</strong> The watericelin index value at a given longitude and latitude. This     criterion, described in Langevin et al. (2007) is based on the 1.5 μm band depth. It can be used to     detect icy frost presence at the surface and thick clouds in the atmosphere. Every OMEGA pixel with a   watericelin value &gt; 1.5% should be excluded.</li>
+<li><strong>Carte_donnees[<em>,5,</em>]:</strong> The icecloud index at a given longitude and latitude. This criterion (reflectance at 3.4 μm divided by reflectance at 3.52 μm) is described in Langevin et al. (2007) to identify the presence of water ice clouds. Its values range from 0.5 to 1.0. The smallest values unambiguously indicate the presence of icy clouds. We usually exclude any OMEGA pixel with a value &lt; 0.8.</li>
+</ul>
+</li>
+<li><strong>lati:</strong> Planetocentric latitude (in degree). The values of the table correspond to each pixel of the reflectance cube.</li>
+<li><strong>longi:</strong> Eastward longitude (in degree). The values of the table correspond to each pixel of the reflectance cube.</li>
+<li><strong>wave:</strong> 1-D table containing the wavelengths (in µm).</li>
+<li><strong>solarlongi:</strong> Areocentric longitude Ls.</li>
+<li><strong>max_lat_proj:</strong> Maximum latitude of the reflectance cube.</li>
+<li><strong>min_lat_proj:</strong> Minimum latitude of the reflectance cube.</li>
+<li><strong>max_lon_proj:</strong> Easternmost longitude of the reflectance cube.</li>
+<li><strong>min_lon_proj:</strong> Westernmost longitude of the reflectance cube.</li>
+</ul>
+<h3 id="nc-file_1">.nc file</h3>
+<p><strong>Dimensions:</strong></p>
+<ul>
+<li><strong>wavelength:</strong> Wavelength (in µm).</li>
+<li><strong>latitude:</strong> Planetocentric latitude (in deg).</li>
+<li><strong>longitude:</strong> Eastward longitude (in deg).</li>
+</ul>
+<p><strong>3D cube (wavelength, latitude, longitude):</strong></p>
+<ul>
+<li><strong>Reflectance:</strong> “reflectance factor” I(λ)/(F cos(i)) where i is the solar incidence angle with λ from 0.97 to 2.55 µm (second dimension of the cube with 120 wavelengths). See above for detailed description.</li>
+</ul>
+<p><strong>2D variables (latitude, longitude)</strong></p>
+<ul>
+<li><strong>altitude:</strong> Altitude (in m) at a given longitude and latitude (MOLA – ellipsoid as reference).</li>
+<li><strong>incidence_g:</strong> Incidence angle (in degree) with respect to the outward normal to the reference ellipsoid at a given longitude and latitude.</li>
+<li><strong>incidence_n:</strong> ncidence wrt (in degrees) of the local gravity at a given longitude and latitude.</li>
+<li><strong>tau:</strong> Effective dust opacity at a given longitude and latitude as <span class="arithmatex">\(\tau_{eff}=\tau_{MER} /\cos i\)</span>, where <span class="arithmatex">\(i\)</span> is the solar incidence angle and <span class="arithmatex">\(\tau_{MER}\)</span> is the dust opacity measured by the Mars Exploration Rovers (MERs) during the same solar longitude and Martian year as the OMEGA observation<sup id="fnref:3"><a class="footnote-ref" href="#fn:3">3</a></sup>.</li>
+<li><strong>watericelin:</strong> The watericelin index value at a given longitude and latitude. This criterion, described in Langevin et al. (2007) is based on the 1.5 μm band depth. It can be used to detect icy frost presence at the surface and thick clouds in the atmosphere. Every OMEGA pixel with a watericelin value &gt; 1.5% should be excluded.</li>
+<li><strong>icecloudindex:</strong> The icecloud index value at a given longitude and latitude. This criterion (reflectance at 3.4 μm divided by reflectance at 3.52 μm) is described in Langevin et al. (2007) to identify the presence of water ice clouds. Its values range from 0.5 to 1.0. The smallest values unambiguously indicate the presence of icy clouds. We usually exclude any OMEGA pixel with a value &lt; 0.8.</li>
+</ul>
+<p><strong>Scalar variables</strong></p>
+<ul>
+<li><strong>solar_longitude:</strong> Mars-Sun angle, measured from the Northern Hemisphere spring equinox where Ls=0 at the time of measurement.</li>
+<li><strong>data_quality:</strong> Data quality id as defined in EAICD.</li>
+<li><strong>start_time:</strong> Time when acquisition starts.</li>
+<li><strong>stop_time:</strong> Time when acquisition stops.</li>
+</ul>
+<p><strong>Global attributes:</strong></p>
+<ul>
+<li><strong>_NCProperties:</strong> "version=1|netcdflibversion=4.4.1.1|hdf5libversion=1.10.1"</li>
+<li><strong>Conventions:</strong> "CF-1.6"</li>
+<li><strong>title:</strong> "OMEGA observations acquired with the C channels - Orbit # [number] - Cube # [number]"</li>
+<li><strong>:history:</strong> "Created [creationdate]" ;</li>
+<li><strong>institution:</strong> "Institut d\'Astrophysique Spatiale, CNRS et Universite Paris-Sud 11"</li>
+<li><strong>source:</strong> "surface observation"</li>
+<li><strong>reference:</strong> the references listed herein below</li>
+<li><strong>cube_number:</strong> "[number]"</li>
+<li><strong>orbit_number:</strong> "[number]"</li>
+</ul>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:1">
+<p><a href="https://www.ias.u-psud.fr/omega/documents/EAICD_OMEGA.pdf"><strong>OMEGA EAICD</strong> (Experiment Archive Interface Control)</a>&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:2">
+<p><strong>M. Vincendon, J. Audouard, F. Altieri, A. Ody (2015)</strong>, Mars Express measurements of surface albedo changes over 2004–2010, In Icarus, Volume 251, 2015, Pages 145-163, ISSN 0019-1035,&#160;<a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+<li id="fn:3">
+<p>Audouard, J., F. Poulet, M. Vincendon, R. E. Milliken, D. Jouglet, J. Bibring, B. Gondet, and Y. Langevin (2014), Water in the Martian regolith from OMEGA/Mars Express, J. Geophys. Res. Planets,119, 1969–1989, <a href="https://doi.org/10.1002%2F2014JE004649">doi:10.1002/2014JE004649</a>&#160;<a class="footnote-backref" href="#fnref:3" title="Jump back to footnote 3 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:3" title="Jump back to footnote 3 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../js/katex.js"></script>
+      
+        <script src="https://unpkg.com/katex@0/dist/katex.min.js"></script>
+      
+        <script src="https://unpkg.com/katex@0/dist/contrib/auto-render.min.js"></script>
+      
+    
+  </body>
+</html>
